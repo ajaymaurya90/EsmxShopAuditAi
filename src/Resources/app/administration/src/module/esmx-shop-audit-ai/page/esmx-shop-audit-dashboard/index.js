@@ -38,30 +38,35 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                     label: this.$tc('esmx-shop-audit-ai.dashboard.missingDescription'),
                     count: this.totals.missingDescription || 0,
                     target: 'audit-section-missing-description',
+                    severity: 'medium',
                 },
                 {
                     key: 'missingCoverImage',
                     label: this.$tc('esmx-shop-audit-ai.dashboard.missingCoverImage'),
                     count: this.totals.missingCoverImage || 0,
                     target: 'audit-section-missing-cover-image',
+                    severity: 'low',
                 },
                 {
                     key: 'inactiveProducts',
                     label: this.$tc('esmx-shop-audit-ai.dashboard.inactiveProducts'),
                     count: this.totals.inactiveProducts || 0,
                     target: 'audit-section-inactive-products',
+                    severity: 'high',
                 },
                 {
                     key: 'outOfStockProducts',
                     label: this.$tc('esmx-shop-audit-ai.dashboard.outOfStockProducts'),
                     count: this.totals.outOfStockProducts || 0,
                     target: 'audit-section-out-of-stock-products',
+                    severity: 'critical',
                 },
                 {
                     key: 'missingMetaTitle',
                     label: this.$tc('esmx-shop-audit-ai.dashboard.missingMetaTitle'),
                     count: this.totals.missingMetaTitle || 0,
                     target: 'audit-section-missing-meta-title',
+                    severity: 'low',
                 }
             ];
         },
@@ -120,6 +125,14 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                 behavior: 'smooth',
                 block: 'start',
             });
-        }
+        },
+
+        getSeverityClass(severity) {
+            return `esmx-shop-audit-dashboard__metric-card--${severity}`;
+        },
+
+        getSeverityLabel(severity) {
+            return this.$tc(`esmx-shop-audit-ai.severity.${severity}`);
+        },
     }
 });

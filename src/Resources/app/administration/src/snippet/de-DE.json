@@ -16,12 +16,19 @@
       "totalIssues": "Gesamtzahl der Probleme",
       "emptyState": "Noch keine Audit-Daten geladen.",
       "loadError": "Das Audit-Dashboard konnte nicht geladen werden.",
-      "noEntries": "Keine passenden Produkte gefunden."
+      "noEntries": "Keine passenden Produkte gefunden.",
+      "loadingButton": "Lädt..."
     },
     "grid": {
       "productName": "Produkt",
       "productNumber": "Produktnummer",
       "stock": "Bestand"
+    },
+    "severity": {
+      "low": "Niedrig",
+      "medium": "Mittel",
+      "high": "Hoch",
+      "critical": "Kritisch"
     }
   }
 }

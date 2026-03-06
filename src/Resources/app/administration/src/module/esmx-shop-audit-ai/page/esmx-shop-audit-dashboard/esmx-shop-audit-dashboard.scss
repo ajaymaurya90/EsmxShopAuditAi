@@ -9,59 +9,189 @@
     margin-bottom: 20px;
   }
 
+  &__headline h3 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 700;
+  }
+
+  &__headline p {
+    margin: 0;
+    color: #6b7280;
+  }
+
   &__summary-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 16px;
     align-items: stretch;
   }
 
-  &__summary-card {
+  &__metric-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
     height: 100%;
   }
 
-  &__summary-card .sw-card__content {
-    height: 100%;
+  &__metric-card-link:hover {
+    text-decoration: none;
   }
 
-  &__summary-card-inner {
-    min-height: 170px;
+  &__metric-card {
+    height: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  &__metric-card:hover {
+    transform: translateY(-2px);
+  }
+
+  &__metric-card-horizontal {
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 4px 2px;
+  }
+
+  &__metric-card-number-box {
+    width: 72px;
+    min-width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__metric-card-number {
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 800;
+  }
+
+  &__metric-card-content {
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 12px;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
   }
 
-  &__summary-card-title {
-    font-size: 14px;
-    line-height: 20px;
-    font-weight: 600;
-    min-height: 40px;
-    color: #52667a;
-  }
-
-  &__summary-card-count {
-    font-size: 32px;
-    line-height: 1;
+  &__metric-card-label {
+    font-size: 15px;
+    line-height: 22px;
     font-weight: 700;
+    color: #111827;
   }
 
-  &__summary-card-action {
-    display: inline-flex;
+  &__metric-card-footer {
+    display: flex;
     align-items: center;
-    font-size: 13px;
-    font-weight: 600;
-    color: #189eff;
-    text-decoration: none;
-    cursor: pointer;
   }
 
-  &__summary-card-action:hover {
-    text-decoration: underline;
+  &__metric-card--warning {
+    border-left: 4px solid #f59e0b;
+  }
+
+  &__metric-card--warning .esmx-shop-audit-dashboard__metric-card-number-box {
+    background: rgba(245, 158, 11, 0.12);
+  }
+
+  &__metric-card--warning .esmx-shop-audit-dashboard__metric-card-number {
+    color: #b45309;
+  }
+
+  &__metric-card--info {
+    border-left: 4px solid #3b82f6;
+  }
+
+  &__metric-card--info .esmx-shop-audit-dashboard__metric-card-number-box {
+    background: rgba(59, 130, 246, 0.12);
+  }
+
+  &__metric-card--info .esmx-shop-audit-dashboard__metric-card-number {
+    color: #1d4ed8;
+  }
+
+  &__metric-card--danger {
+    border-left: 4px solid #ef4444;
+  }
+
+  &__metric-card--danger .esmx-shop-audit-dashboard__metric-card-number-box {
+    background: rgba(239, 68, 68, 0.12);
+  }
+
+  &__metric-card--danger .esmx-shop-audit-dashboard__metric-card-number {
+    color: #b91c1c;
+  }
+
+  &__metric-card--critical {
+    border-left: 4px solid #7c3aed;
+  }
+
+  &__metric-card--critical .esmx-shop-audit-dashboard__metric-card-number-box {
+    background: rgba(124, 58, 237, 0.12);
+  }
+
+  &__metric-card--critical .esmx-shop-audit-dashboard__metric-card-number {
+    color: #6d28d9;
+  }
+
+  &__metric-card--neutral {
+    border-left: 4px solid #64748b;
+  }
+
+  &__metric-card--neutral .esmx-shop-audit-dashboard__metric-card-number-box {
+    background: rgba(100, 116, 139, 0.12);
+  }
+
+  &__metric-card--neutral .esmx-shop-audit-dashboard__metric-card-number {
+    color: #475569;
   }
 
   &__details-section {
     scroll-margin-top: 24px;
     margin-bottom: 24px;
+  }
+
+  &__severity-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 8px;
+    text-transform: uppercase;
+  }
+
+  .severity-low {
+    background: rgba(59,130,246,0.12);
+    color: #1d4ed8;
+  }
+
+  .severity-medium {
+    background: rgba(245,158,11,0.12);
+    color: #b45309;
+  }
+
+  .severity-high {
+    background: rgba(239,68,68,0.12);
+    color: #b91c1c;
+  }
+
+  .severity-critical {
+    background: rgba(124,58,237,0.12);
+    color: #6d28d9;
+  }
+
+  &__section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 }
