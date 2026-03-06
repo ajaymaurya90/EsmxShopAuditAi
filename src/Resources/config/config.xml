@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>General settings</title>
+        <title lang="de-DE">Allgemeine Einstellungen</title>
+
+        <input-field type="bool">
+            <name>enableAudit</name>
+            <label>Enable audit checks</label>
+            <label lang="de-DE">Audit-Prüfungen aktivieren</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>auditProductLimit</name>
+            <label>Product audit limit per run</label>
+            <label lang="de-DE">Produktlimit pro Audit-Lauf</label>
+            <defaultValue>100</defaultValue>
+        </input-field>
+    </card>
+
+</config>

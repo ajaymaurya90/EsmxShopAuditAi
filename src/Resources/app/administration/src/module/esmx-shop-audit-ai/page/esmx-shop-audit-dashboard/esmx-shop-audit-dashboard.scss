@@ -1,0 +1,67 @@
+.esmx-shop-audit-dashboard {
+  scroll-behavior: smooth;
+
+  &__summary {
+    margin-bottom: 24px;
+  }
+
+  &__summary-meta {
+    margin-bottom: 20px;
+  }
+
+  &__summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  &__summary-card {
+    height: 100%;
+  }
+
+  &__summary-card .sw-card__content {
+    height: 100%;
+  }
+
+  &__summary-card-inner {
+    min-height: 170px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  &__summary-card-title {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+    min-height: 40px;
+    color: #52667a;
+  }
+
+  &__summary-card-count {
+    font-size: 32px;
+    line-height: 1;
+    font-weight: 700;
+  }
+
+  &__summary-card-action {
+    display: inline-flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #189eff;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  &__summary-card-action:hover {
+    text-decoration: underline;
+  }
+
+  &__details-section {
+    scroll-margin-top: 24px;
+    margin-bottom: 24px;
+  }
+}

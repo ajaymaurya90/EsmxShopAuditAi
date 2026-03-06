@@ -1,0 +1,183 @@
+{% block esmx_shop_audit_dashboard %}
+    <sw-page class="esmx-shop-audit-dashboard">
+        <template #smart-bar-header>
+            <h2>{{ $tc('esmx-shop-audit-ai.general.mainMenuItemGeneral') }}</h2>
+        </template>
+
+        <template #smart-bar-actions>
+            <sw-button-process
+                    :is-loading="isLoading"
+                    :process-success="false"
+                    variant="primary"
+                    @click.prevent="loadDashboard">
+                {{ $tc('esmx-shop-audit-ai.dashboard.refreshButton') }}
+            </sw-button-process>
+        </template>
+
+        <template #content>
+            <sw-card-view>
+                <sw-card
+                        :title="cardTitle"
+                        position-identifier="esmx-shop-audit-dashboard-overview"
+                        :isLoading="isLoading"
+                >
+                    <template v-if="loadError">
+                        <sw-alert variant="error" appearance="notification">
+                            {{ loadError }}
+                        </sw-alert>
+                    </template>
+
+                    <template v-else-if="dashboard">
+                        <div class="esmx-shop-audit-dashboard__summary">
+                            <div class="esmx-shop-audit-dashboard__summary-meta">
+                                <p>
+                                    {{ $tc('esmx-shop-audit-ai.dashboard.scannedProducts') }}:
+                                    <strong>{{ meta.scannedProducts }}</strong>
+                                </p>
+                                <p>
+                                    {{ $tc('esmx-shop-audit-ai.dashboard.totalIssues') }}:
+                                    <strong>{{ totals.totalIssues }}</strong>
+                                </p>
+                            </div>
+
+                            <div class="esmx-shop-audit-dashboard__summary-grid">
+                                <sw-card
+                                        v-for="card in summaryCards"
+                                        :key="card.key"
+                                        class="esmx-shop-audit-dashboard__summary-card"
+                                        position-identifier="esmx-shop-audit-dashboard-summary-card"
+                                >
+                                    <div class="esmx-shop-audit-dashboard__summary-card-inner">
+                                        <div>
+                                            <div class="esmx-shop-audit-dashboard__summary-card-title">
+                                                {{ card.label }}
+                                            </div>
+                                        </div>
+
+                                        <div class="esmx-shop-audit-dashboard__summary-card-count">
+                                            {{ card.count }}
+                                        </div>
+
+                                        <div>
+                                            <a
+                                                    href="#"
+                                                    class="esmx-shop-audit-dashboard__summary-card-action"
+                                                    @click.prevent="scrollToSection(card.target)"
+                                            >
+                                                {{ $tc('esmx-shop-audit-ai.dashboard.viewDetails') }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </sw-card>
+                            </div>
+                        </div>
+
+                        <div
+                                id="audit-section-missing-description"
+                                class="esmx-shop-audit-dashboard__details-section"
+                        >
+                            <sw-card
+                                    :title="$tc('esmx-shop-audit-ai.dashboard.missingDescription')"
+                                    position-identifier="esmx-shop-audit-dashboard-missing-description"
+                            >
+                                <template v-if="issues.missingDescription?.length">
+                                    <sw-data-grid
+                                            :dataSource="issues.missingDescription"
+                                            :columns="gridColumns"
+                                    />
+                                </template>
+                                <template v-else>
+                                    <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
+                                </template>
+                            </sw-card>
+                        </div>
+
+                        <div
+                                id="audit-section-missing-cover-image"
+                                class="esmx-shop-audit-dashboard__details-section"
+                        >
+                            <sw-card
+                                    :title="$tc('esmx-shop-audit-ai.dashboard.missingCoverImage')"
+                                    position-identifier="esmx-shop-audit-dashboard-missing-cover"
+                            >
+                                <template v-if="issues.missingCoverImage?.length">
+                                    <sw-data-grid
+                                            :dataSource="issues.missingCoverImage"
+                                            :columns="gridColumns"
+                                    />
+                                </template>
+                                <template v-else>
+                                    <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
+                                </template>
+                            </sw-card>
+                        </div>
+
+                        <div
+                                id="audit-section-inactive-products"
+                                class="esmx-shop-audit-dashboard__details-section"
+                        >
+                            <sw-card
+                                    :title="$tc('esmx-shop-audit-ai.dashboard.inactiveProducts')"
+                                    position-identifier="esmx-shop-audit-dashboard-inactive"
+                            >
+                                <template v-if="issues.inactiveProducts?.length">
+                                    <sw-data-grid
+                                            :dataSource="issues.inactiveProducts"
+                                            :columns="gridColumns"
+                                    />
+                                </template>
+                                <template v-else>
+                                    <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
+                                </template>
+                            </sw-card>
+                        </div>
+
+                        <div
+                                id="audit-section-out-of-stock-products"
+                                class="esmx-shop-audit-dashboard__details-section"
+                        >
+                            <sw-card
+                                    :title="$tc('esmx-shop-audit-ai.dashboard.outOfStockProducts')"
+                                    position-identifier="esmx-shop-audit-dashboard-out-of-stock"
+                            >
+                                <template v-if="issues.outOfStockProducts?.length">
+                                    <sw-data-grid
+                                            :dataSource="issues.outOfStockProducts"
+                                            :columns="gridColumns"
+                                    />
+                                </template>
+                                <template v-else>
+                                    <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
+                                </template>
+                            </sw-card>
+                        </div>
+
+                        <div
+                                id="audit-section-missing-meta-title"
+                                class="esmx-shop-audit-dashboard__details-section"
+                        >
+                            <sw-card
+                                    :title="$tc('esmx-shop-audit-ai.dashboard.missingMetaTitle')"
+                                    position-identifier="esmx-shop-audit-dashboard-missing-meta-title"
+                            >
+                                <template v-if="issues.missingMetaTitle?.length">
+                                    <sw-data-grid
+                                            :dataSource="issues.missingMetaTitle"
+                                            :columns="gridColumns"
+                                    />
+                                </template>
+                                <template v-else>
+                                    <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
+                                </template>
+                            </sw-card>
+                        </div>
+                    </template>
+
+                    <template v-else>
+                        <p>{{ $tc('esmx-shop-audit-ai.dashboard.emptyState') }}</p>
+                    </template>
+                </sw-card>
+            </sw-card-view>
+        </template>
+    </sw-page>
+{% endblock %}

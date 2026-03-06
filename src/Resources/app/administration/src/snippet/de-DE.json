@@ -1,0 +1,27 @@
+{
+  "esmx-shop-audit-ai": {
+    "general": {
+      "mainMenuItemGeneral": "Shop Audit AI",
+      "descriptionTextModule": "Audit- und Reporting-Werkzeuge für Shopware-Shops"
+    },
+    "dashboard": {
+      "cardTitle": "Audit-Dashboard",
+      "refreshButton": "Audit aktualisieren",
+      "scannedProducts": "Geprüfte Produkte",
+      "missingDescription": "Produkte ohne Beschreibung",
+      "missingCoverImage": "Produkte ohne Titelbild",
+      "inactiveProducts": "Inaktive Produkte",
+      "outOfStockProducts": "Nicht verfügbare Produkte",
+      "missingMetaTitle": "Produkte ohne SEO-Metatitel",
+      "totalIssues": "Gesamtzahl der Probleme",
+      "emptyState": "Noch keine Audit-Daten geladen.",
+      "loadError": "Das Audit-Dashboard konnte nicht geladen werden.",
+      "noEntries": "Keine passenden Produkte gefunden."
+    },
+    "grid": {
+      "productName": "Produkt",
+      "productNumber": "Produktnummer",
+      "stock": "Bestand"
+    }
+  }
+}
