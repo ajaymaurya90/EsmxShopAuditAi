@@ -2,7 +2,8 @@
   "esmx-shop-audit-ai": {
     "general": {
       "mainMenuItemGeneral": "Shop Audit AI",
-      "descriptionTextModule": "Audit- und Reporting-Werkzeuge für Shopware-Shops"
+      "descriptionTextModule": "Audit- und Reporting-Werkzeuge für Shopware-Shops",
+      "refresh": "Refresh"
     },
     "dashboard": {
       "cardTitle": "Audit-Dashboard",
@@ -21,7 +22,14 @@
       "missingCategory": "Products without category",
       "missingManufacturer": "Products without manufacturer",
       "missingPrice": "Products without price",
-      "missingTranslation": "Products with missing translations"
+      "missingTranslation": "Products with missing translations",
+      "runScanButton": "Run scan",
+      "runningScanButton": "Running scan...",
+      "runScanError": "The scan could not be completed.",
+      "latestScanHeadline": "Latest scan",
+      "scanStatus": "Scan status",
+      "groupedFindings": "Grouped findings",
+      "highPriorityFindings": "High-priority findings"
     },
     "grid": {
       "productName": "Produkt",
@@ -34,6 +42,38 @@
       "medium": "Medium",
       "high": "High",
       "critical": "Critical"
+    },
+    "navigation": {
+      "dashboard": "Dashboard",
+      "findings": "Findings",
+      "tasks": "Tasks"
+    },
+    "findings": {
+      "pageTitle": "Findings",
+      "latestScanHeadline": "Latest scan context",
+      "gridHeadline": "Grouped findings from latest scan",
+      "emptyState": "No findings available yet.",
+      "loadError": "The findings page could not be loaded.",
+      "columns": {
+        "title": "Title",
+        "severity": "Severity",
+        "entity": "Entity",
+        "affectedCount": "Affected count"
+      }
+    },
+    "tasks": {
+      "pageTitle": "Tasks",
+      "latestScanHeadline": "Latest scan context",
+      "gridHeadline": "Generated tasks from latest scan",
+      "totalTasks": "Total tasks",
+      "emptyState": "No tasks available yet.",
+      "loadError": "The tasks page could not be loaded.",
+      "columns": {
+        "title": "Title",
+        "priority": "Priority",
+        "affectedCount": "Affected count",
+        "status": "Status"
+      }
     }
   }
 }

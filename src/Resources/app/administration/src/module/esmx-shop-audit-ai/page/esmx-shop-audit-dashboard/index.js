@@ -9,8 +9,11 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
     data() {
         return {
             isLoading: false,
+            isRunningScan: false,
             dashboard: null,
+            latestScan: null,
             loadError: null,
+            scanError: null,
         };
     },
 
@@ -29,6 +32,10 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
 
         issues() {
             return this.dashboard?.issues ?? {};
+        },
+
+        latestScanSummary() {
+            return this.latestScan?.summaryJson ?? {};
         },
 
         summaryCards() {
@@ -95,7 +102,7 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                     count: this.totals.missingTranslation || 0,
                     target: 'audit-section-missing-translation',
                     severity: 'medium',
-                },
+                }
             ];
         },
 
@@ -139,26 +146,76 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
     },
 
     created() {
-        this.loadDashboard();
+        this.initializeDashboard();
     },
 
     methods: {
+        initializeDashboard() {
+            this.loadError = null;
+            this.scanError = null;
+
+            Promise.all([
+                this.loadDashboard(),
+                this.loadLatestScan(),
+            ]).catch(() => {
+                // handled in individual methods
+            });
+        },
+
         loadDashboard() {
             this.isLoading = true;
-            this.loadError = null;
 
-            this.esmxShopAuditApiService.getDashboard()
+            return this.esmxShopAuditApiService.getDashboard()
                 .then((response) => {
                     this.dashboard = response;
                 })
                 .catch((error) => {
-                    // eslint-disable-next-line no-console
                     console.error('EsmxShopAuditAi dashboard error:', error);
                     this.loadError = this.$tc('esmx-shop-audit-ai.dashboard.loadError');
+                    throw error;
                 })
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        loadLatestScan() {
+            return this.esmxShopAuditApiService.getLatestScan()
+                .then((response) => {
+                    this.latestScan = response.scan;
+                })
+                .catch((error) => {
+                    console.error('EsmxShopAuditAi latest scan error:', error);
+                    throw error;
+                });
+        },
+
+        runScan() {
+            this.isRunningScan = true;
+            this.scanError = null;
+
+            this.esmxShopAuditApiService.runScan()
+                .then(() => {
+                    return Promise.all([
+                        this.loadDashboard(),
+                        this.loadLatestScan(),
+                    ]);
+                })
+                .catch((error) => {
+                    console.error('EsmxShopAuditAi run scan error:', error);
+                    this.scanError = this.$tc('esmx-shop-audit-ai.dashboard.runScanError');
+                })
+                .finally(() => {
+                    this.isRunningScan = false;
+                });
+        },
+
+        goToFindings() {
+            this.$router.push({ name: 'esmx.shop.audit.ai.findings' });
+        },
+
+        goToTasks() {
+            this.$router.push({ name: 'esmx.shop.audit.ai.tasks' });
         },
 
         scrollToSection(sectionId) {
@@ -180,6 +237,6 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
 
         getSeverityLabel(severity) {
             return this.$tc(`esmx-shop-audit-ai.severity.${severity}`);
-        },
+        }
     }
 });

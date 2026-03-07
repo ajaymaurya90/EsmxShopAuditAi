@@ -1,0 +1,73 @@
+{% block esmx_shop_audit_tasks %}
+    <sw-page class="esmx-shop-audit-tasks">
+        <template #smart-bar-header>
+            <h2>{{ pageTitle }}</h2>
+        </template>
+
+        <template #smart-bar-actions>
+            <mt-button size="default" @click="goToDashboard">
+                {{ $tc('esmx-shop-audit-ai.navigation.dashboard') }}
+            </mt-button>
+
+            <mt-button size="default" @click="goToFindings">
+                {{ $tc('esmx-shop-audit-ai.navigation.findings') }}
+            </mt-button>
+
+            <mt-button variant="primary" size="default">
+                {{ $tc('esmx-shop-audit-ai.navigation.tasks') }}
+            </mt-button>
+
+            <mt-button size="default" :disabled="isLoading" @click="loadPageData">
+                {{ $tc('esmx-shop-audit-ai.general.refresh') }}
+            </mt-button>
+        </template>
+
+        <template #content>
+            <sw-card-view>
+                <template v-if="loadError">
+                    <mt-banner variant="danger">
+                        {{ loadError }}
+                    </mt-banner>
+                </template>
+
+                <mt-card v-if="latestScan" class="esmx-shop-audit-dashboard__latest-scan-card">
+                    <template #headline>
+                        {{ $tc('esmx-shop-audit-ai.tasks.latestScanHeadline') }}
+                    </template>
+
+                    <div class="esmx-shop-audit-dashboard__latest-scan-meta">
+                        <p>
+                            {{ $tc('esmx-shop-audit-ai.dashboard.scanStatus') }}:
+                            <strong>{{ latestScan.status }}</strong>
+                        </p>
+                        <p>
+                            {{ $tc('esmx-shop-audit-ai.tasks.totalTasks') }}:
+                            <strong>{{ tasks.length }}</strong>
+                        </p>
+                        <p>
+                            {{ $tc('esmx-shop-audit-ai.dashboard.highPriorityFindings') }}:
+                            <strong>{{ latestScan.highPriorityFindings }}</strong>
+                        </p>
+                    </div>
+                </mt-card>
+
+                <mt-card>
+                    <template #headline>
+                        {{ $tc('esmx-shop-audit-ai.tasks.gridHeadline') }}
+                    </template>
+
+                    <template v-if="tasks.length">
+                        <sw-data-grid
+                                :dataSource="tasks"
+                                :columns="columns"
+                        />
+                    </template>
+
+                    <template v-else>
+                        <p>{{ $tc('esmx-shop-audit-ai.tasks.emptyState') }}</p>
+                    </template>
+                </mt-card>
+            </sw-card-view>
+        </template>
+    </sw-page>
+{% endblock %}

@@ -5,14 +5,34 @@
         </template>
 
         <template #smart-bar-actions>
+            <mt-button variant="primary" size="default">
+                {{ $tc('esmx-shop-audit-ai.navigation.dashboard') }}
+            </mt-button>
+
+            <mt-button size="default" @click="goToFindings">
+                {{ $tc('esmx-shop-audit-ai.navigation.findings') }}
+            </mt-button>
+
+            <mt-button size="default" @click="goToTasks">
+                {{ $tc('esmx-shop-audit-ai.navigation.tasks') }}
+            </mt-button>
+
+            <mt-button
+                    size="default"
+                    :disabled="isLoading || isRunningScan"
+                    @click="initializeDashboard"
+            >
+                <span>{{ $tc('esmx-shop-audit-ai.dashboard.refreshButton') }}</span>
+            </mt-button>
+
             <mt-button
                     variant="primary"
                     size="default"
-                    :disabled="isLoading"
-                    @click="loadDashboard"
+                    :disabled="isRunningScan"
+                    @click="runScan"
             >
-                <span v-if="isLoading">{{ $tc('esmx-shop-audit-ai.dashboard.loadingButton') }}</span>
-                <span v-else>{{ $tc('esmx-shop-audit-ai.dashboard.refreshButton') }}</span>
+                <span v-if="isRunningScan">{{ $tc('esmx-shop-audit-ai.dashboard.runningScanButton') }}</span>
+                <span v-else>{{ $tc('esmx-shop-audit-ai.dashboard.runScanButton') }}</span>
             </mt-button>
         </template>
 
@@ -25,6 +45,38 @@
                 </template>
 
                 <template v-else-if="dashboard">
+
+                    <template v-if="scanError">
+                        <mt-banner variant="danger">
+                            {{ scanError }}
+                        </mt-banner>
+                    </template>
+
+                    <mt-card v-if="latestScan" class="esmx-shop-audit-dashboard__latest-scan-card">
+                        <template #headline>
+                            {{ $tc('esmx-shop-audit-ai.dashboard.latestScanHeadline') }}
+                        </template>
+
+                        <div class="esmx-shop-audit-dashboard__latest-scan-meta">
+                            <p>
+                                {{ $tc('esmx-shop-audit-ai.dashboard.scanStatus') }}:
+                                <strong>{{ latestScan.status }}</strong>
+                            </p>
+                            <p>
+                                {{ $tc('esmx-shop-audit-ai.dashboard.scannedProducts') }}:
+                                <strong>{{ latestScan.scannedProducts }}</strong>
+                            </p>
+                            <p>
+                                {{ $tc('esmx-shop-audit-ai.dashboard.groupedFindings') }}:
+                                <strong>{{ latestScan.totalFindings }}</strong>
+                            </p>
+                            <p>
+                                {{ $tc('esmx-shop-audit-ai.dashboard.highPriorityFindings') }}:
+                                <strong>{{ latestScan.highPriorityFindings }}</strong>
+                            </p>
+                        </div>
+                    </mt-card>
+
                     <div class="esmx-shop-audit-dashboard__summary">
                         <div class="esmx-shop-audit-dashboard__summary-meta">
                             <div class="esmx-shop-audit-dashboard__headline">

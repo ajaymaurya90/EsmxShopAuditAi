@@ -194,4 +194,18 @@
     align-items: center;
     justify-content: space-between;
   }
+
+  &__latest-scan-card {
+    margin-bottom: 20px;
+  }
+
+  &__latest-scan-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  &__latest-scan-meta p {
+    margin: 0;
+  }
 }

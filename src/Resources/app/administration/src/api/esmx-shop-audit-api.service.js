@@ -12,8 +12,46 @@ export default class EsmxShopAuditApiService extends ApiService {
             .get(apiRoute, {
                 headers: this.getBasicHeaders(),
             })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            });
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    runScan() {
+        const apiRoute = `${this.getApiBasePath()}/run-scan`;
+
+        return this.httpClient
+            .post(apiRoute, {}, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    getLatestScan() {
+        const apiRoute = `${this.getApiBasePath()}/latest-scan`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    getLatestFindings() {
+        const apiRoute = `${this.getApiBasePath()}/latest-findings`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    getLatestTasks() {
+        const apiRoute = `${this.getApiBasePath()}/latest-tasks`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
     }
 }

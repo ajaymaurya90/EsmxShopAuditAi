@@ -2,7 +2,8 @@
   "esmx-shop-audit-ai": {
     "general": {
       "mainMenuItemGeneral": "Shop Audit AI",
-      "descriptionTextModule": "Audit- und Reporting-Werkzeuge für Shopware-Shops"
+      "descriptionTextModule": "Audit- und Reporting-Werkzeuge für Shopware-Shops",
+      "refresh": "Aktualisieren"
     },
     "dashboard": {
       "cardTitle": "Audit-Dashboard",
@@ -21,7 +22,14 @@
       "missingCategory": "Produkte ohne Kategorie",
       "missingManufacturer": "Produkte ohne Hersteller",
       "missingPrice": "Produkte ohne Preis",
-      "missingTranslation": "Produkte mit fehlenden Übersetzungen"
+      "missingTranslation": "Produkte mit fehlenden Übersetzungen",
+      "runScanButton": "Scan starten",
+      "runningScanButton": "Scan läuft...",
+      "runScanError": "Der Scan konnte nicht abgeschlossen werden.",
+      "latestScanHeadline": "Letzter Scan",
+      "scanStatus": "Scan-Status",
+      "groupedFindings": "Gruppierte Findings",
+      "highPriorityFindings": "Findings mit hoher Priorität"
     },
     "grid": {
       "productName": "Produkt",
@@ -34,6 +42,38 @@
       "medium": "Mittel",
       "high": "Hoch",
       "critical": "Kritisch"
+    },
+    "navigation": {
+      "dashboard": "Dashboard",
+      "findings": "Findings",
+      "tasks": "Tasks"
+    },
+    "findings": {
+      "pageTitle": "Findings",
+      "latestScanHeadline": "Kontext des letzten Scans",
+      "gridHeadline": "Gruppierte Findings aus dem letzten Scan",
+      "emptyState": "Noch keine Findings verfügbar.",
+      "loadError": "Die Findings-Seite konnte nicht geladen werden.",
+      "columns": {
+        "title": "Titel",
+        "severity": "Priorität",
+        "entity": "Entität",
+        "affectedCount": "Anzahl betroffen"
+      }
+    },
+    "tasks": {
+      "pageTitle": "Tasks",
+      "latestScanHeadline": "Kontext des letzten Scans",
+      "gridHeadline": "Generierte Tasks aus dem letzten Scan",
+      "totalTasks": "Gesamtzahl Tasks",
+      "emptyState": "Noch keine Tasks verfügbar.",
+      "loadError": "Die Tasks-Seite konnte nicht geladen werden.",
+      "columns": {
+        "title": "Titel",
+        "priority": "Priorität",
+        "affectedCount": "Anzahl betroffen",
+        "status": "Status"
+      }
     }
   }
 }

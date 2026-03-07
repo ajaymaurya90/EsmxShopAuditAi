@@ -1,4 +1,6 @@
 import './page/esmx-shop-audit-dashboard';
+import './page/esmx-shop-audit-findings';
+import './page/esmx-shop-audit-tasks';
 
 Shopware.Module.register('esmx-shop-audit-ai', {
     type: 'plugin',
@@ -11,7 +13,15 @@ Shopware.Module.register('esmx-shop-audit-ai', {
     routes: {
         index: {
             component: 'esmx-shop-audit-dashboard',
-            path: 'index'
+            path: 'dashboard'
+        },
+        findings: {
+            component: 'esmx-shop-audit-findings',
+            path: 'findings'
+        },
+        tasks: {
+            component: 'esmx-shop-audit-tasks',
+            path: 'tasks'
         }
     },
 
