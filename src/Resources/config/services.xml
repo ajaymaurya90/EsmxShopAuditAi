@@ -7,13 +7,28 @@
     <services>
         <defaults autowire="true" autoconfigure="true" public="false" />
 
+        <service id="EsmxShopAuditAi\Core\Content\Scan\ScanDefinition">
+            <tag name="shopware.entity.definition" entity="esmx_shop_audit_scan" />
+        </service>
+
+        <service id="EsmxShopAuditAi\Core\Content\Scan\Aggregate\Finding\FindingDefinition">
+            <tag name="shopware.entity.definition" entity="esmx_shop_audit_finding" />
+        </service>
+
+        <service id="EsmxShopAuditAi\Core\Content\Scan\Aggregate\Task\TaskDefinition">
+            <tag name="shopware.entity.definition" entity="esmx_shop_audit_task" />
+        </service>
+
         <service id="EsmxShopAuditAi\Service\Audit\ProductAuditService">
             <argument type="service" id="product.repository" />
+            <argument type="service" id="language.repository" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
         </service>
 
         <service id="EsmxShopAuditAi\Controller\Admin\AuditDashboardController" public="true">
             <tag name="controller.service_arguments" />
         </service>
+
+
     </services>
 </container>

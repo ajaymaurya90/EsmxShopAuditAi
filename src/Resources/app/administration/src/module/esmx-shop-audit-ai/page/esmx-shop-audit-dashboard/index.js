@@ -67,7 +67,35 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                     count: this.totals.missingMetaTitle || 0,
                     target: 'audit-section-missing-meta-title',
                     severity: 'low',
-                }
+                },
+                {
+                    key: 'missingCategory',
+                    label: this.$tc('esmx-shop-audit-ai.dashboard.missingCategory'),
+                    count: this.totals.missingCategory || 0,
+                    target: 'audit-section-missing-category',
+                    severity: 'medium',
+                },
+                {
+                    key: 'missingManufacturer',
+                    label: this.$tc('esmx-shop-audit-ai.dashboard.missingManufacturer'),
+                    count: this.totals.missingManufacturer || 0,
+                    target: 'audit-section-missing-manufacturer',
+                    severity: 'medium',
+                },
+                {
+                    key: 'missingPrice',
+                    label: this.$tc('esmx-shop-audit-ai.dashboard.missingPrice'),
+                    count: this.totals.missingPrice || 0,
+                    target: 'audit-section-missing-price',
+                    severity: 'high',
+                },
+                {
+                    key: 'missingTranslation',
+                    label: this.$tc('esmx-shop-audit-ai.dashboard.missingTranslation'),
+                    count: this.totals.missingTranslation || 0,
+                    target: 'audit-section-missing-translation',
+                    severity: 'medium',
+                },
             ];
         },
 
@@ -86,6 +114,25 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                 {
                     property: 'stock',
                     label: this.$tc('esmx-shop-audit-ai.grid.stock')
+                }
+            ];
+        },
+
+        translationGridColumns() {
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('esmx-shop-audit-ai.grid.productName'),
+                    routerLink: 'sw.product.detail',
+                    primary: true
+                },
+                {
+                    property: 'productNumber',
+                    label: this.$tc('esmx-shop-audit-ai.grid.productNumber')
+                },
+                {
+                    property: 'missingLanguages',
+                    label: this.$tc('esmx-shop-audit-ai.grid.missingLanguages')
                 }
             ];
         }

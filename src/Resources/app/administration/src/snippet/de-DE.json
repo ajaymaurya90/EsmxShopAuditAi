@@ -17,12 +17,17 @@
       "emptyState": "Noch keine Audit-Daten geladen.",
       "loadError": "Das Audit-Dashboard konnte nicht geladen werden.",
       "noEntries": "Keine passenden Produkte gefunden.",
-      "loadingButton": "Lädt..."
+      "loadingButton": "Lädt...",
+      "missingCategory": "Produkte ohne Kategorie",
+      "missingManufacturer": "Produkte ohne Hersteller",
+      "missingPrice": "Produkte ohne Preis",
+      "missingTranslation": "Produkte mit fehlenden Übersetzungen"
     },
     "grid": {
       "productName": "Produkt",
       "productNumber": "Produktnummer",
-      "stock": "Bestand"
+      "stock": "Bestand",
+      "missingLanguages": "Fehlende Sprachen"
     },
     "severity": {
       "low": "Niedrig",

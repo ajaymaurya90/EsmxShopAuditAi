@@ -188,6 +188,114 @@
                             </template>
                         </mt-card>
                     </div>
+                    <div
+                            id="audit-section-missing-category"
+                            class="esmx-shop-audit-dashboard__details-section"
+                    >
+                        <mt-card>
+                            <template #headline>
+                                <div class="esmx-shop-audit-dashboard__section-header">
+                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.missingCategory') }}</span>
+
+                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-medium">
+                    {{ $tc('esmx-shop-audit-ai.severity.medium') }}
+                </span>
+                                </div>
+                            </template>
+
+                            <template v-if="issues.missingCategory?.length">
+                                <sw-data-grid
+                                        :dataSource="issues.missingCategory"
+                                        :columns="gridColumns"
+                                />
+                            </template>
+                            <template v-else>
+                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
+                            </template>
+                        </mt-card>
+                    </div>
+
+                    <div
+                            id="audit-section-missing-manufacturer"
+                            class="esmx-shop-audit-dashboard__details-section"
+                    >
+                        <mt-card>
+                            <template #headline>
+                                <div class="esmx-shop-audit-dashboard__section-header">
+                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.missingManufacturer') }}</span>
+
+                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-medium">
+                    {{ $tc('esmx-shop-audit-ai.severity.medium') }}
+                </span>
+                                </div>
+                            </template>
+
+                            <template v-if="issues.missingManufacturer?.length">
+                                <sw-data-grid
+                                        :dataSource="issues.missingManufacturer"
+                                        :columns="gridColumns"
+                                />
+                            </template>
+                            <template v-else>
+                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
+                            </template>
+                        </mt-card>
+                    </div>
+
+                    <div
+                            id="audit-section-missing-price"
+                            class="esmx-shop-audit-dashboard__details-section"
+                    >
+                        <mt-card>
+                            <template #headline>
+                                <div class="esmx-shop-audit-dashboard__section-header">
+                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.missingPrice') }}</span>
+
+                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-high">
+                    {{ $tc('esmx-shop-audit-ai.severity.high') }}
+                </span>
+                                </div>
+                            </template>
+
+                            <template v-if="issues.missingPrice?.length">
+                                <sw-data-grid
+                                        :dataSource="issues.missingPrice"
+                                        :columns="gridColumns"
+                                />
+                            </template>
+                            <template v-else>
+                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
+                            </template>
+                        </mt-card>
+                    </div>
+
+                    <div
+                            id="audit-section-missing-translation"
+                            class="esmx-shop-audit-dashboard__details-section"
+                    >
+                        <mt-card>
+                            <template #headline>
+                                <div class="esmx-shop-audit-dashboard__section-header">
+                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.missingTranslation') }}</span>
+
+                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-medium">
+                    {{ $tc('esmx-shop-audit-ai.severity.medium') }}
+                </span>
+                                </div>
+                            </template>
+
+                            <template v-if="issues.missingTranslation?.length">
+                                <sw-data-grid
+                                        :dataSource="issues.missingTranslation"
+                                        :columns="translationGridColumns"
+                                />
+                            </template>
+                            <template v-else>
+                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
+                            </template>
+                        </mt-card>
+                    </div>
+
                 </template>
 
                 <template v-else>

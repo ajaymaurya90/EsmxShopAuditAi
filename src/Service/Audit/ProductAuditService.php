@@ -6,8 +6,10 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ProductAuditService
@@ -16,6 +18,7 @@ class ProductAuditService
 
     public function __construct(
         private readonly EntityRepository $productRepository,
+        private readonly EntityRepository $languageRepository,
         private readonly SystemConfigService $systemConfigService
     ) {
     }
@@ -29,6 +32,7 @@ class ProductAuditService
         }
 
         $products = $this->loadProducts($context, $limit);
+        $languages = $this->loadLanguages($context);
 
         $issues = [
             'missingDescription' => [],
@@ -36,6 +40,10 @@ class ProductAuditService
             'inactiveProducts' => [],
             'outOfStockProducts' => [],
             'missingMetaTitle' => [],
+            'missingCategory' => [],
+            'missingManufacturer' => [],
+            'missingPrice' => [],
+            'missingTranslation' => [],
         ];
 
         /** @var ProductEntity $product */
@@ -64,6 +72,26 @@ class ProductAuditService
             if ($metaTitle === '') {
                 $issues['missingMetaTitle'][] = $this->buildProductPayload($product);
             }
+
+            if ($product->getCategories() === null || $product->getCategories()->count() === 0) {
+                $issues['missingCategory'][] = $this->buildProductPayload($product);
+            }
+
+            if ($product->getManufacturerId() === null) {
+                $issues['missingManufacturer'][] = $this->buildProductPayload($product);
+            }
+
+            if ($this->hasMissingPrice($product)) {
+                $issues['missingPrice'][] = $this->buildProductPayload($product);
+            }
+
+            $missingLanguages = $this->getMissingTranslationLanguages($product, $languages);
+
+            if ($missingLanguages !== []) {
+                $issues['missingTranslation'][] = $this->buildProductPayload($product, [
+                    'missingLanguages' => implode(', ', $missingLanguages),
+                ]);
+            }
         }
 
         return [
@@ -77,12 +105,20 @@ class ProductAuditService
                 'inactiveProducts' => \count($issues['inactiveProducts']),
                 'outOfStockProducts' => \count($issues['outOfStockProducts']),
                 'missingMetaTitle' => \count($issues['missingMetaTitle']),
+                'missingCategory' => \count($issues['missingCategory']),
+                'missingManufacturer' => \count($issues['missingManufacturer']),
+                'missingPrice' => \count($issues['missingPrice']),
+                'missingTranslation' => \count($issues['missingTranslation']),
                 'totalIssues' => array_sum([
                     \count($issues['missingDescription']),
                     \count($issues['missingCoverImage']),
                     \count($issues['inactiveProducts']),
                     \count($issues['outOfStockProducts']),
                     \count($issues['missingMetaTitle']),
+                    \count($issues['missingCategory']),
+                    \count($issues['missingManufacturer']),
+                    \count($issues['missingPrice']),
+                    \count($issues['missingTranslation']),
                 ]),
             ],
             'issues' => $issues,
@@ -94,6 +130,9 @@ class ProductAuditService
         $criteria = new Criteria();
         $criteria->setLimit($limit);
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
+        $criteria->addAssociation('categories');
+        $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('translations');
 
         /** @var ProductCollection $products */
         $products = $this->productRepository->search($criteria, $context)->getEntities();
@@ -101,17 +140,81 @@ class ProductAuditService
         return $products;
     }
 
-    private function buildProductPayload(ProductEntity $product): array
+    private function loadLanguages(Context $context): LanguageCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addAssociation('translationCode');
+
+        /** @var LanguageCollection $languages */
+        $languages = $this->languageRepository->search($criteria, $context)->getEntities();
+
+        return $languages;
+    }
+
+    private function hasMissingPrice(ProductEntity $product): bool
+    {
+        $prices = $product->getPrice();
+
+        if (!$prices instanceof PriceCollection || $prices->count() === 0) {
+            return true;
+        }
+
+        foreach ($prices as $price) {
+            $gross = $price->getGross();
+            $net = $price->getNet();
+
+            if ($gross !== null && $gross > 0 && $net !== null && $net > 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function getMissingTranslationLanguages(ProductEntity $product, LanguageCollection $languages): array
+    {
+        $missingLanguages = [];
+        $translations = $product->getTranslations();
+
+        foreach ($languages as $language) {
+            $languageId = $language->getId();
+            $locale = $language->getTranslationCode();
+            $languageLabel = $locale?->getCode() ?? $languageId;
+
+            if ($translations === null || !$translations->has($languageId)) {
+                $missingLanguages[] = $languageLabel;
+                continue;
+            }
+
+            $translation = $translations->get($languageId);
+
+            if ($translation === null) {
+                $missingLanguages[] = $languageLabel;
+                continue;
+            }
+
+            $name = trim((string) $translation->getName());
+            $description = trim((string) $translation->getDescription());
+
+            if ($name === '' || $description === '') {
+                $missingLanguages[] = $languageLabel;
+            }
+        }
+
+        return $missingLanguages;
+    }
+
+    private function buildProductPayload(ProductEntity $product, array $extra = []): array
     {
         $translated = $product->getTranslated();
         $name = (string) ($translated['name'] ?? $product->getProductNumber() ?? $product->getId());
 
-        return [
+        return array_merge([
             'id' => $product->getId(),
             'name' => $name,
             'productNumber' => $product->getProductNumber(),
             'active' => $product->getActive(),
             'stock' => $product->getStock(),
-        ];
+        ], $extra);
     }
 }
