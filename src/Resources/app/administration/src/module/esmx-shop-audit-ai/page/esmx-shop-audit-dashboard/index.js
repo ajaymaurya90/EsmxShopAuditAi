@@ -218,6 +218,14 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             this.$router.push({ name: 'esmx.shop.audit.ai.tasks' });
         },
 
+        goToReports() {
+            this.$router.push({ name: 'esmx.shop.audit.ai.reports' });
+        },
+
+        goToSettings() {
+            this.$router.push({ name: 'esmx.shop.audit.ai.settings' });
+        },
+
         scrollToSection(sectionId) {
             const section = document.getElementById(sectionId);
 

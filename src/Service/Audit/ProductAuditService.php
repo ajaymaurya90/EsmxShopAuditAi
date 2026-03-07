@@ -32,6 +32,44 @@ class ProductAuditService
         }
 
         $products = $this->loadProducts($context, $limit);
+
+        $enableAudit = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.enableAudit') ?? true);
+        $checkMissingManufacturer = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkMissingManufacturer') ?? true);
+        $checkMissingTranslations = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkMissingTranslations') ?? true);
+        $checkSeoFields = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkSeoFields') ?? true);
+
+        if ($enableAudit !== true) {
+            return [
+                'meta' => [
+                    'scannedProducts' => 0,
+                    'productLimit' => $limit,
+                ],
+                'totals' => [
+                    'missingDescription' => 0,
+                    'missingCoverImage' => 0,
+                    'inactiveProducts' => 0,
+                    'outOfStockProducts' => 0,
+                    'missingMetaTitle' => 0,
+                    'missingCategory' => 0,
+                    'missingManufacturer' => 0,
+                    'missingPrice' => 0,
+                    'missingTranslation' => 0,
+                    'totalIssues' => 0,
+                ],
+                'issues' => [
+                    'missingDescription' => [],
+                    'missingCoverImage' => [],
+                    'inactiveProducts' => [],
+                    'outOfStockProducts' => [],
+                    'missingMetaTitle' => [],
+                    'missingCategory' => [],
+                    'missingManufacturer' => [],
+                    'missingPrice' => [],
+                    'missingTranslation' => [],
+                ],
+            ];
+        }
+
         $languages = $this->loadLanguages($context);
 
         $issues = [
@@ -69,7 +107,7 @@ class ProductAuditService
                 $issues['outOfStockProducts'][] = $this->buildProductPayload($product);
             }
 
-            if ($metaTitle === '') {
+            if ($checkSeoFields && $metaTitle === '') {
                 $issues['missingMetaTitle'][] = $this->buildProductPayload($product);
             }
 
@@ -77,7 +115,7 @@ class ProductAuditService
                 $issues['missingCategory'][] = $this->buildProductPayload($product);
             }
 
-            if ($product->getManufacturerId() === null) {
+            if ($checkMissingManufacturer && $product->getManufacturerId() === null) {
                 $issues['missingManufacturer'][] = $this->buildProductPayload($product);
             }
 
@@ -85,12 +123,14 @@ class ProductAuditService
                 $issues['missingPrice'][] = $this->buildProductPayload($product);
             }
 
-            $missingLanguages = $this->getMissingTranslationLanguages($product, $languages);
+            if ($checkMissingTranslations) {
+                $missingLanguages = $this->getMissingTranslationLanguages($product, $languages);
 
-            if ($missingLanguages !== []) {
-                $issues['missingTranslation'][] = $this->buildProductPayload($product, [
-                    'missingLanguages' => implode(', ', $missingLanguages),
-                ]);
+                if ($missingLanguages !== []) {
+                    $issues['missingTranslation'][] = $this->buildProductPayload($product, [
+                        'missingLanguages' => implode(', ', $missingLanguages),
+                    ]);
+                }
             }
         }
 

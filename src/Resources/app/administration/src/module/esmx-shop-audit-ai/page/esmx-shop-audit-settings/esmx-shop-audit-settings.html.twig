@@ -1,0 +1,65 @@
+{% block esmx_shop_audit_settings %}
+    <sw-page class="esmx-shop-audit-settings">
+        <template #smart-bar-header>
+            <h2>{{ pageTitle }}</h2>
+        </template>
+
+        <template #smart-bar-actions>
+            <mt-button size="default" @click="goToDashboard">
+                {{ $tc('esmx-shop-audit-ai.navigation.dashboard') }}
+            </mt-button>
+
+            <mt-button size="default" @click="goToFindings">
+                {{ $tc('esmx-shop-audit-ai.navigation.findings') }}
+            </mt-button>
+
+            <mt-button size="default" @click="goToTasks">
+                {{ $tc('esmx-shop-audit-ai.navigation.tasks') }}
+            </mt-button>
+
+            <mt-button size="default" @click="goToReports">
+                {{ $tc('esmx-shop-audit-ai.navigation.reports') }}
+            </mt-button>
+
+            <mt-button variant="primary" size="default">
+                {{ $tc('esmx-shop-audit-ai.navigation.settings') }}
+            </mt-button>
+
+            <mt-button
+                    variant="primary"
+                    size="default"
+                    disabled
+            >
+                {{ $tc('esmx-shop-audit-ai.general.refresh') }}
+            </mt-button>
+
+            <mt-button
+                    variant="primary"
+                    size="default"
+                    disabled
+            >
+                <span v-if="isRunningScan">{{ $tc('esmx-shop-audit-ai.dashboard.runningScanButton') }}</span>
+                <span v-else>{{ $tc('esmx-shop-audit-ai.dashboard.runScanButton') }}</span>
+            </mt-button>
+        </template>
+
+        <template #content>
+            <sw-card-view>
+                <template v-if="scanError">
+                    <mt-banner variant="danger">
+                        {{ scanError }}
+                    </mt-banner>
+                </template>
+                <mt-card>
+                    <template #headline>
+                        {{ $tc('esmx-shop-audit-ai.settings.headline') }}
+                    </template>
+
+                    <sw-system-config
+                            domain="EsmxShopAuditAi.config"
+                    />
+                </mt-card>
+            </sw-card-view>
+        </template>
+    </sw-page>
+{% endblock %}

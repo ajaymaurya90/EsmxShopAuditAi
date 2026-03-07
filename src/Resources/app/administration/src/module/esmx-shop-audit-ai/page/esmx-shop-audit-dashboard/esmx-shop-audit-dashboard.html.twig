@@ -17,12 +17,21 @@
                 {{ $tc('esmx-shop-audit-ai.navigation.tasks') }}
             </mt-button>
 
+            <mt-button size="default" @click="goToReports">
+                {{ $tc('esmx-shop-audit-ai.navigation.reports') }}
+            </mt-button>
+
+            <mt-button size="default" @click="goToSettings">
+                {{ $tc('esmx-shop-audit-ai.navigation.settings') }}
+            </mt-button>
+
             <mt-button
+                    variant="primary"
                     size="default"
                     :disabled="isLoading || isRunningScan"
                     @click="initializeDashboard"
             >
-                <span>{{ $tc('esmx-shop-audit-ai.dashboard.refreshButton') }}</span>
+                <span>{{ $tc('esmx-shop-audit-ai.general.refresh') }}</span>
             </mt-button>
 
             <mt-button

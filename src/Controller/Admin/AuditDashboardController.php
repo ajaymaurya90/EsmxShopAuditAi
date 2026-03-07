@@ -164,6 +164,94 @@ class AuditDashboardController extends AbstractController
         ]);
     }
 
+    #[Route(
+        path: '/api/_action/esmx-shop-audit-ai/reports',
+        name: 'api.action.esmx-shop-audit-ai.reports',
+        methods: ['GET']
+    )]
+    public function loadReports(Context $context): JsonResponse
+    {
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
+
+        $scans = $this->scanRepository->search($criteria, $context)->getEntities();
+
+        $data = [];
+
+        /** @var ScanEntity $scan */
+        foreach ($scans as $scan) {
+            $data[] = $this->serializeScan($scan);
+        }
+
+        return new JsonResponse([
+            'reports' => $data,
+        ]);
+    }
+
+    #[Route(
+        path: '/api/_action/esmx-shop-audit-ai/report-detail/{id}',
+        name: 'api.action.esmx-shop-audit-ai.report-detail',
+        methods: ['GET']
+    )]
+    public function loadReportDetail(string $id, Context $context): JsonResponse
+    {
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('findings');
+        $criteria->addAssociation('tasks');
+
+        /** @var ?ScanEntity $scan */
+        $scan = $this->scanRepository->search($criteria, $context)->first();
+
+        if ($scan === null) {
+            return new JsonResponse([
+                'report' => null,
+                'findings' => [],
+                'tasks' => [],
+            ]);
+        }
+
+        $findings = [];
+        $tasks = [];
+
+        if ($scan->getFindings() !== null) {
+            /** @var FindingEntity $finding */
+            foreach ($scan->getFindings() as $finding) {
+                $findings[] = [
+                    'id' => $finding->getId(),
+                    'scanId' => $finding->getScanId(),
+                    'code' => $finding->getCode(),
+                    'title' => $finding->getTitle(),
+                    'severity' => $finding->getSeverity(),
+                    'entity' => $finding->getEntity(),
+                    'affectedCount' => $finding->getAffectedCount(),
+                    'payloadJson' => $finding->getPayloadJson(),
+                ];
+            }
+        }
+
+        if ($scan->getTasks() !== null) {
+            /** @var TaskEntity $task */
+            foreach ($scan->getTasks() as $task) {
+                $tasks[] = [
+                    'id' => $task->getId(),
+                    'scanId' => $task->getScanId(),
+                    'code' => $task->getCode(),
+                    'title' => $task->getTitle(),
+                    'priority' => $task->getPriority(),
+                    'affectedCount' => $task->getAffectedCount(),
+                    'status' => $task->getStatus(),
+                    'payloadJson' => $task->getPayloadJson(),
+                ];
+            }
+        }
+
+        return new JsonResponse([
+            'report' => $this->serializeScan($scan),
+            'findings' => $findings,
+            'tasks' => $tasks,
+        ]);
+    }
+
     private function getLatestScanEntity(Context $context): ?ScanEntity
     {
         $criteria = new Criteria();

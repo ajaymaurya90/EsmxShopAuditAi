@@ -54,4 +54,24 @@ export default class EsmxShopAuditApiService extends ApiService {
             })
             .then((response) => ApiService.handleResponse(response));
     }
+
+    getReports() {
+        const apiRoute = `${this.getApiBasePath()}/reports`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    getReportDetail(reportId) {
+        const apiRoute = `${this.getApiBasePath()}/report-detail/${reportId}`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
 }

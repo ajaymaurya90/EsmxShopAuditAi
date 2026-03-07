@@ -22,4 +22,30 @@
         </input-field>
     </card>
 
+    <card>
+        <title>Scan options</title>
+        <title lang="de-DE">Scan-Optionen</title>
+
+        <input-field type="bool">
+            <name>checkMissingManufacturer</name>
+            <label>Check missing manufacturer</label>
+            <label lang="de-DE">Fehlenden Hersteller prüfen</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>checkMissingTranslations</name>
+            <label>Check missing translations</label>
+            <label lang="de-DE">Fehlende Übersetzungen prüfen</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>checkSeoFields</name>
+            <label>Check SEO fields</label>
+            <label lang="de-DE">SEO-Felder prüfen</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+    </card>
+
 </config>

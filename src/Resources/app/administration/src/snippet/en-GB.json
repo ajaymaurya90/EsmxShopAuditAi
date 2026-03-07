@@ -46,7 +46,9 @@
     "navigation": {
       "dashboard": "Dashboard",
       "findings": "Findings",
-      "tasks": "Tasks"
+      "tasks": "Tasks",
+      "reports": "Reports",
+      "settings": "Settings"
     },
     "findings": {
       "pageTitle": "Findings",
@@ -74,6 +76,26 @@
         "affectedCount": "Affected count",
         "status": "Status"
       }
+    },
+    "reports": {
+      "pageTitle": "Reports",
+      "historyHeadline": "Scan history",
+      "detailHeadline": "Report detail",
+      "findingsHeadline": "Findings in this report",
+      "tasksHeadline": "Tasks in this report",
+      "emptyState": "No reports available yet.",
+      "loadError": "The reports page could not be loaded.",
+      "columns": {
+        "createdAt": "Created at",
+        "status": "Status",
+        "scannedProducts": "Scanned products",
+        "totalFindings": "Grouped findings",
+        "highPriorityFindings": "High-priority findings"
+      }
+    },
+    "settings": {
+      "pageTitle": "Settings",
+      "headline": "Shop Audit AI configuration"
     }
   }
 }

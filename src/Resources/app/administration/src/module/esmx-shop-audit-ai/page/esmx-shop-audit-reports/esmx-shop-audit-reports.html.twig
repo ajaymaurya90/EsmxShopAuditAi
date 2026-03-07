@@ -1,5 +1,5 @@
-{% block esmx_shop_audit_tasks %}
-    <sw-page class="esmx-shop-audit-tasks">
+{% block esmx_shop_audit_reports %}
+    <sw-page class="esmx-shop-audit-reports">
         <template #smart-bar-header>
             <h2>{{ pageTitle }}</h2>
         </template>
@@ -13,11 +13,11 @@
                 {{ $tc('esmx-shop-audit-ai.navigation.findings') }}
             </mt-button>
 
-            <mt-button variant="primary" size="default">
+            <mt-button size="default" @click="goToTasks">
                 {{ $tc('esmx-shop-audit-ai.navigation.tasks') }}
             </mt-button>
 
-            <mt-button size="default" @click="goToReports">
+            <mt-button variant="primary" size="default">
                 {{ $tc('esmx-shop-audit-ai.navigation.reports') }}
             </mt-button>
 
@@ -29,7 +29,7 @@
                     variant="primary"
                     size="default"
                     :disabled="isLoading || isRunningScan"
-                    @click="loadPageData"
+                    @click="loadReports"
             >
                 {{ $tc('esmx-shop-audit-ai.general.refresh') }}
             </mt-button>
@@ -52,48 +52,75 @@
                         {{ loadError }}
                     </mt-banner>
                 </template>
+
                 <template v-if="scanError">
                     <mt-banner variant="danger">
                         {{ scanError }}
                     </mt-banner>
                 </template>
 
-                <mt-card v-if="latestScan" class="esmx-shop-audit-dashboard__latest-scan-card">
+                <mt-card>
                     <template #headline>
-                        {{ $tc('esmx-shop-audit-ai.tasks.latestScanHeadline') }}
+                        {{ $tc('esmx-shop-audit-ai.reports.historyHeadline') }}
+                    </template>
+
+                    <template v-if="reports.length">
+                        <sw-data-grid
+                                :dataSource="reports"
+                                :columns="reportColumns"
+                                @row-click="loadReportDetail($event.id)"
+                        />
+                    </template>
+                    <template v-else>
+                        <p>{{ $tc('esmx-shop-audit-ai.reports.emptyState') }}</p>
+                    </template>
+                </mt-card>
+
+                <mt-card v-if="selectedReport" class="esmx-shop-audit-dashboard__latest-scan-card">
+                    <template #headline>
+                        {{ $tc('esmx-shop-audit-ai.reports.detailHeadline') }}
                     </template>
 
                     <div class="esmx-shop-audit-dashboard__latest-scan-meta">
                         <p>
                             {{ $tc('esmx-shop-audit-ai.dashboard.scanStatus') }}:
-                            <strong>{{ latestScan.status }}</strong>
+                            <strong>{{ selectedReport.status }}</strong>
                         </p>
                         <p>
-                            {{ $tc('esmx-shop-audit-ai.tasks.totalTasks') }}:
-                            <strong>{{ tasks.length }}</strong>
+                            {{ $tc('esmx-shop-audit-ai.reports.columns.scannedProducts') }}:
+                            <strong>{{ selectedReport.scannedProducts }}</strong>
                         </p>
                         <p>
-                            {{ $tc('esmx-shop-audit-ai.dashboard.highPriorityFindings') }}:
-                            <strong>{{ latestScan.highPriorityFindings }}</strong>
+                            {{ $tc('esmx-shop-audit-ai.reports.columns.totalFindings') }}:
+                            <strong>{{ selectedReport.totalFindings }}</strong>
+                        </p>
+                        <p>
+                            {{ $tc('esmx-shop-audit-ai.reports.columns.highPriorityFindings') }}:
+                            <strong>{{ selectedReport.highPriorityFindings }}</strong>
                         </p>
                     </div>
                 </mt-card>
 
-                <mt-card>
+                <mt-card v-if="selectedFindings.length">
                     <template #headline>
-                        {{ $tc('esmx-shop-audit-ai.tasks.gridHeadline') }}
+                        {{ $tc('esmx-shop-audit-ai.reports.findingsHeadline') }}
                     </template>
 
-                    <template v-if="tasks.length">
-                        <sw-data-grid
-                                :dataSource="tasks"
-                                :columns="columns"
-                        />
+                    <sw-data-grid
+                            :dataSource="selectedFindings"
+                            :columns="findingColumns"
+                    />
+                </mt-card>
+
+                <mt-card v-if="selectedTasks.length">
+                    <template #headline>
+                        {{ $tc('esmx-shop-audit-ai.reports.tasksHeadline') }}
                     </template>
 
-                    <template v-else>
-                        <p>{{ $tc('esmx-shop-audit-ai.tasks.emptyState') }}</p>
-                    </template>
+                    <sw-data-grid
+                            :dataSource="selectedTasks"
+                            :columns="taskColumns"
+                    />
                 </mt-card>
             </sw-card-view>
         </template>
