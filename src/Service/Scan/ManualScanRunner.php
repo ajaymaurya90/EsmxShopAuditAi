@@ -6,11 +6,13 @@ use EsmxShopAuditAi\Service\Audit\ProductAuditService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
+use EsmxShopAuditAi\Service\Audit\Seo\SeoAuditService;
 
 class ManualScanRunner
 {
     public function __construct(
         private readonly ProductAuditService $productAuditService,
+        private readonly SeoAuditService $seoAuditService,
         private readonly FindingBuilder $findingBuilder,
         private readonly TaskBuilder $taskBuilder,
         private readonly EntityRepository $scanRepository,
@@ -38,6 +40,22 @@ class ManualScanRunner
 
         try {
             $auditSummary = $this->productAuditService->buildDashboardSummary($context);
+            $seoIssues = $this->seoAuditService->run($context);
+            foreach ($seoIssues as $code => $definition) {
+                $auditSummary['issues'][$code] = $definition['items'];
+                $auditSummary['totals'][$code] = count($definition['items']);
+            }
+
+            //Recalculate total issues after merging SEO checks
+            $auditSummary['totals']['totalIssues'] = 0;
+
+            foreach ($auditSummary['totals'] as $key => $value) {
+                if ($key === 'totalIssues') {
+                    continue;
+                }
+
+                $auditSummary['totals']['totalIssues'] += (int) $value;
+            }
 
             $findings = $this->findingBuilder->build($scanId, $auditSummary);
             $tasks = $this->taskBuilder->build($scanId, $findings);

@@ -3,10 +3,12 @@
     "general": {
       "mainMenuItemGeneral": "Shop Audit AI",
       "descriptionTextModule": "Audit- und Reporting-Werkzeuge für Shopware-Shops",
-      "refresh": "Aktualisieren"
+      "refresh": "Aktualisieren",
+      "clearFilters": "Filter zurücksetzen"
     },
     "dashboard": {
       "cardTitle": "Audit-Dashboard",
+      "refresh": "Aktualisieren",
       "refreshButton": "Audit aktualisieren",
       "scannedProducts": "Geprüfte Produkte",
       "missingDescription": "Produkte ohne Beschreibung",
@@ -29,7 +31,42 @@
       "latestScanHeadline": "Letzter Scan",
       "scanStatus": "Scan-Status",
       "groupedFindings": "Gruppierte Findings",
-      "highPriorityFindings": "Findings mit hoher Priorität"
+      "highPriorityFindings": "Findings mit hoher Priorität",
+      "productMissingMetaDescription": "Produkte ohne SEO-Meta-Beschreibung",
+      "productWeakTitle": "Produkte mit schwachem Titel",
+      "productShortDescription": "Produkte mit kurzer Beschreibung",
+      "categoryMissingMetaTitle": "Kategorien ohne SEO-Meta-Titel",
+      "categoryMissingMetaDescription": "Kategorien ohne SEO-Meta-Beschreibung",
+      "categoryMissingDescription": "Kategorien ohne Beschreibung",
+      "scanStart": "Scan starten",
+      "scanRunning": "Scan läuft..",
+      "runScanSuccess": "Scan erfolgreich abgeschlossen und Dashboard aktualisiert.",
+      "lastScanLabel": "Letzter Scan",
+      "nextBestActionTitle": "Nächste beste Aktion",
+      "reviewNow": "Jetzt prüfen",
+      "healthyHeadline": "Sehr gut — aktuell gibt es keine kritischen Probleme mit sofortigem Handlungsbedarf.",
+      "headlineOutOfStock": "{count} Produkte sind nicht auf Lager und benötigen sofortige Aufmerksamkeit.",
+      "headlineMissingPrice": "{count} Produkte haben keinen Preis und sollten zuerst korrigiert werden.",
+      "headlineMissingDescription": "{count} Produkte haben keine Beschreibung und sollten verbessert werden.",
+      "headlineMissingMetaTitle": "{count} Produkte haben keinen SEO-Meta-Titel.",
+      "nextActionRestock": "Zuerst nicht verfügbare Produkte prüfen",
+      "nextActionPrice": "Produkte ohne Preis korrigieren",
+      "nextActionDescriptions": "Produktbeschreibungen verbessern",
+      "nextActionSeo": "Fehlende SEO-Meta-Titel korrigieren"
+    },
+    "dashboardInsights": {
+      "kpiHeadline": "Kennzahlen",
+      "openTasks": "Offene Tasks",
+      "groupedFindings": "Gruppierte Findings",
+      "highPriorityFindings": "Findings mit hoher Priorität",
+      "scannedProducts": "Geprüfte Produkte",
+      "topTasksHeadline": "Top-Tasks",
+      "topFindingsHeadline": "Top-Findings",
+      "latestSummaryHeadline": "Letzte Zusammenfassung",
+      "emptyTasks": "Keine Tasks verfügbar.",
+      "emptyFindings": "Keine Findings mit hoher Priorität verfügbar.",
+      "emptySummary": "Noch keine Zusammenfassung verfügbar.",
+      "latestSummaryText": "Der letzte Scan hat {scannedProducts} Produkte geprüft, {totalFindings} gruppierte Findings erzeugt und {taskCount} Tasks generiert."
     },
     "grid": {
       "productName": "Produkt",
@@ -61,7 +98,8 @@
         "severity": "Priorität",
         "entity": "Entität",
         "affectedCount": "Anzahl betroffen"
-      }
+      },
+      "activeFilterHeadline": "Aktiver Findings-Filter"
     },
     "tasks": {
       "pageTitle": "Tasks",
@@ -75,7 +113,8 @@
         "priority": "Priorität",
         "affectedCount": "Anzahl betroffen",
         "status": "Status"
-      }
+      },
+      "activeFilterHeadline": "Aktiver Tasks-Filter"
     },
     "reports": {
       "pageTitle": "Reports",

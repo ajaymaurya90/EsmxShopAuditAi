@@ -1,10 +1,15 @@
 const { ApiService } = Shopware.Classes;
 
+/**
+ * API service for EsmxShopAuditAi administration module
+ * @extends ApiService
+ */
 export default class EsmxShopAuditApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = '_action/esmx-shop-audit-ai') {
         super(httpClient, loginService, apiEndpoint);
     }
 
+    // Fetch dashboard summary data (stats, scan status, overview widgets)
     getDashboard() {
         const apiRoute = `${this.getApiBasePath()}/dashboard`;
 
@@ -15,6 +20,7 @@ export default class EsmxShopAuditApiService extends ApiService {
             .then((response) => ApiService.handleResponse(response));
     }
 
+    // Trigger a new shop audit scan from the backend
     runScan() {
         const apiRoute = `${this.getApiBasePath()}/run-scan`;
 
@@ -25,6 +31,7 @@ export default class EsmxShopAuditApiService extends ApiService {
             .then((response) => ApiService.handleResponse(response));
     }
 
+    // Retrieve the latest completed scan metadata
     getLatestScan() {
         const apiRoute = `${this.getApiBasePath()}/latest-scan`;
 
@@ -35,6 +42,7 @@ export default class EsmxShopAuditApiService extends ApiService {
             .then((response) => ApiService.handleResponse(response));
     }
 
+    // Fetch findings (issues/problems) detected in the latest scan
     getLatestFindings() {
         const apiRoute = `${this.getApiBasePath()}/latest-findings`;
 
@@ -45,6 +53,7 @@ export default class EsmxShopAuditApiService extends ApiService {
             .then((response) => ApiService.handleResponse(response));
     }
 
+    // Fetch tasks/recommendations generated from the latest scan
     getLatestTasks() {
         const apiRoute = `${this.getApiBasePath()}/latest-tasks`;
 
@@ -55,6 +64,7 @@ export default class EsmxShopAuditApiService extends ApiService {
             .then((response) => ApiService.handleResponse(response));
     }
 
+    // Retrieve list of historical audit reports
     getReports() {
         const apiRoute = `${this.getApiBasePath()}/reports`;
 
@@ -65,6 +75,7 @@ export default class EsmxShopAuditApiService extends ApiService {
             .then((response) => ApiService.handleResponse(response));
     }
 
+    // Fetch detailed information of a specific audit report by reportId
     getReportDetail(reportId) {
         const apiRoute = `${this.getApiBasePath()}/report-detail/${reportId}`;
 

@@ -58,6 +58,29 @@
                     </mt-banner>
                 </template>
 
+                <mt-card v-if="activePriorityFilter || activeCodeFilter" class="esmx-shop-audit-dashboard__latest-scan-card">
+                    <template #headline>
+                        {{ $tc('esmx-shop-audit-ai.tasks.activeFilterHeadline') }}
+                    </template>
+
+                    <div class="esmx-shop-audit-dashboard__latest-scan-meta">
+                        <p v-if="activePriorityFilter">
+                            {{ $tc('esmx-shop-audit-ai.tasks.columns.priority') }}:
+                            <strong>{{ activePriorityFilter }}</strong>
+                        </p>
+                        <p v-if="activeCodeFilter">
+                            Code:
+                            <strong>{{ activeCodeFilter }}</strong>
+                        </p>
+                    </div>
+
+                    <div style="margin-top: 12px;">
+                        <mt-button size="default" @click="clearFilters">
+                            {{ $tc('esmx-shop-audit-ai.general.clearFilters') }}
+                        </mt-button>
+                    </div>
+                </mt-card>
+
                 <mt-card v-if="latestScan" class="esmx-shop-audit-dashboard__latest-scan-card">
                     <template #headline>
                         {{ $tc('esmx-shop-audit-ai.tasks.latestScanHeadline') }}
@@ -84,9 +107,9 @@
                         {{ $tc('esmx-shop-audit-ai.tasks.gridHeadline') }}
                     </template>
 
-                    <template v-if="tasks.length">
+                    <template v-if="filteredTasks.length">
                         <sw-data-grid
-                                :dataSource="tasks"
+                                :dataSource="filteredTasks"
                                 :columns="columns"
                         />
                     </template>

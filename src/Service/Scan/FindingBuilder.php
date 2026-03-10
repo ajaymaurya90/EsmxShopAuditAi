@@ -63,6 +63,42 @@ class FindingBuilder
                 'severity' => 'medium',
                 'entity' => 'product',
             ],
+            'product_missing_meta_description' => [
+                'code' => 'product_missing_meta_description',
+                'title' => 'Products without SEO meta description',
+                'severity' => 'medium',
+                'entity' => 'product',
+            ],
+            'product_weak_title' => [
+                'code' => 'product_weak_title',
+                'title' => 'Products with weak title',
+                'severity' => 'low',
+                'entity' => 'product',
+            ],
+            'product_short_description' => [
+                'code' => 'product_short_description',
+                'title' => 'Products with short description',
+                'severity' => 'medium',
+                'entity' => 'product',
+            ],
+            'category_missing_meta_title' => [
+                'code' => 'category_missing_meta_title',
+                'title' => 'Categories without SEO meta title',
+                'severity' => 'medium',
+                'entity' => 'category',
+            ],
+            'category_missing_meta_description' => [
+                'code' => 'category_missing_meta_description',
+                'title' => 'Categories without SEO meta description',
+                'severity' => 'medium',
+                'entity' => 'category',
+            ],
+            'category_missing_description' => [
+                'code' => 'category_missing_description',
+                'title' => 'Categories without description',
+                'severity' => 'low',
+                'entity' => 'category',
+            ],
         ];
 
         $findings = [];

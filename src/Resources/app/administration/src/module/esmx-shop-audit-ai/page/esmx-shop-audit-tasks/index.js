@@ -21,6 +21,23 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             return this.$tc('esmx-shop-audit-ai.tasks.pageTitle');
         },
 
+        activePriorityFilter() {
+            return this.$route.query.priority || null;
+        },
+
+        activeCodeFilter() {
+            return this.$route.query.code || null;
+        },
+
+        filteredTasks() {
+            return this.tasks.filter((item) => {
+                const priorityMatch = !this.activePriorityFilter || item.priority === this.activePriorityFilter;
+                const codeMatch = !this.activeCodeFilter || item.code === this.activeCodeFilter;
+
+                return priorityMatch && codeMatch;
+            });
+        },
+
         columns() {
             return [
                 {
@@ -82,6 +99,10 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
                 });
         },
 
+        clearFilters() {
+            this.$router.push({ name: 'esmx.shop.audit.ai.tasks' });
+        },
+
         goToDashboard() {
             this.$router.push({ name: 'esmx.shop.audit.ai.index' });
         },
@@ -96,6 +117,6 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
 
         goToSettings() {
             this.$router.push({ name: 'esmx.shop.audit.ai.settings' });
-        },
+        }
     }
 });

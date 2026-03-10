@@ -58,6 +58,29 @@
                     </mt-banner>
                 </template>
 
+                <mt-card v-if="activeSeverityFilter || activeCodeFilter" class="esmx-shop-audit-dashboard__latest-scan-card">
+                    <template #headline>
+                        {{ $tc('esmx-shop-audit-ai.findings.activeFilterHeadline') }}
+                    </template>
+
+                    <div class="esmx-shop-audit-dashboard__latest-scan-meta">
+                        <p v-if="activeSeverityFilter">
+                            {{ $tc('esmx-shop-audit-ai.findings.columns.severity') }}:
+                            <strong>{{ activeSeverityFilter }}</strong>
+                        </p>
+                        <p v-if="activeCodeFilter">
+                            Code:
+                            <strong>{{ activeCodeFilter }}</strong>
+                        </p>
+                    </div>
+
+                    <div style="margin-top: 12px;">
+                        <mt-button size="default" @click="clearFilters">
+                            {{ $tc('esmx-shop-audit-ai.general.clearFilters') }}
+                        </mt-button>
+                    </div>
+                </mt-card>
+
                 <mt-card v-if="latestScan" class="esmx-shop-audit-dashboard__latest-scan-card">
                     <template #headline>
                         {{ $tc('esmx-shop-audit-ai.findings.latestScanHeadline') }}
@@ -84,9 +107,9 @@
                         {{ $tc('esmx-shop-audit-ai.findings.gridHeadline') }}
                     </template>
 
-                    <template v-if="findings.length">
+                    <template v-if="filteredFindings.length">
                         <sw-data-grid
-                                :dataSource="findings"
+                                :dataSource="filteredFindings"
                                 :columns="columns"
                         />
                     </template>

@@ -6,6 +6,8 @@ use EsmxShopAuditAi\Core\Content\Scan\Aggregate\Finding\FindingEntity;
 use EsmxShopAuditAi\Core\Content\Scan\Aggregate\Task\TaskEntity;
 use EsmxShopAuditAi\Core\Content\Scan\ScanEntity;
 use EsmxShopAuditAi\Service\Audit\ProductAuditService;
+use EsmxShopAuditAi\Service\Audit\Seo\SeoAuditService;
+use EsmxShopAuditAi\Service\Insights\Sales\SalesInsightService;
 use EsmxShopAuditAi\Service\Scan\ManualScanRunner;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,9 +25,12 @@ class AuditDashboardController extends AbstractController
     public function __construct(
         private readonly ProductAuditService $productAuditService,
         private readonly ManualScanRunner $manualScanRunner,
+        private readonly SalesInsightService $salesInsightService,
+        private readonly SeoAuditService $seoAuditService,
         private readonly EntityRepository $scanRepository,
         private readonly EntityRepository $findingRepository,
-        private readonly EntityRepository $taskRepository
+        private readonly EntityRepository $taskRepository,
+
     ) {
     }
 
@@ -36,9 +41,124 @@ class AuditDashboardController extends AbstractController
     )]
     public function loadDashboard(Context $context): JsonResponse
     {
-        return new JsonResponse(
-            $this->productAuditService->buildDashboardSummary($context)
-        );
+        $liveAudit = $this->productAuditService->buildDashboardSummary($context);
+
+        $seoIssues = $this->seoAuditService->run($context);
+
+        foreach ($seoIssues as $code => $definition) {
+            $liveAudit['issues'][$code] = $definition['items'];
+            $liveAudit['totals'][$code] = count($definition['items']);
+        }
+
+        $liveAudit['totals']['totalIssues'] = 0;
+
+        foreach ($liveAudit['totals'] as $key => $value) {
+            if ($key === 'totalIssues') {
+                continue;
+            }
+
+            $liveAudit['totals']['totalIssues'] += (int) $value;
+        }
+
+        $latestScan = $this->getLatestScanEntity($context);
+
+        if ($latestScan === null) {
+            return new JsonResponse([
+                'liveAudit' => $liveAudit,
+                'latestScan' => null,
+                'insights' => [
+                    'openTaskCount' => 0,
+                    'topTasks' => [],
+                    'topFindings' => [],
+                    'latestSummary' => null,
+                ],
+                'salesInsights' => [
+                    'kpis' => [
+                        'revenue' => 0,
+                        'orders' => 0,
+                        'revenueChange' => 0,
+                        'ordersChange' => 0,
+                    ],
+                    'topProducts' => [],
+                    'lowStockBestSellers' => [],
+                ],
+            ]);
+        }
+
+        $taskCriteria = new Criteria();
+        $taskCriteria->addFilter(new EqualsFilter('scanId', $latestScan->getId()));
+        $taskCriteria->addSorting(new FieldSorting('affectedCount', FieldSorting::DESCENDING));
+        $taskCriteria->setLimit(3);
+
+        $topTasks = [];
+        foreach ($this->taskRepository->search($taskCriteria, $context)->getEntities() as $task) {
+            /** @var TaskEntity $task */
+            $topTasks[] = [
+                'id' => $task->getId(),
+                'code' => $task->getCode(),
+                'title' => $task->getTitle(),
+                'priority' => $task->getPriority(),
+                'affectedCount' => $task->getAffectedCount(),
+                'status' => $task->getStatus(),
+            ];
+        }
+
+        $findingCriteria = new Criteria();
+        $findingCriteria->addFilter(new EqualsFilter('scanId', $latestScan->getId()));
+        $findingCriteria->addSorting(new FieldSorting('affectedCount', FieldSorting::DESCENDING));
+
+        $allFindings = $this->findingRepository->search($findingCriteria, $context)->getEntities();
+
+        $topFindings = [];
+        foreach ($allFindings as $finding) {
+            /** @var FindingEntity $finding */
+            if (!\in_array($finding->getSeverity(), ['high', 'critical'], true)) {
+                continue;
+            }
+
+            $topFindings[] = [
+                'id' => $finding->getId(),
+                'code' => $finding->getCode(),
+                'title' => $finding->getTitle(),
+                'severity' => $finding->getSeverity(),
+                'affectedCount' => $finding->getAffectedCount(),
+            ];
+
+            if (\count($topFindings) >= 3) {
+                break;
+            }
+        }
+
+        $openTaskCountCriteria = new Criteria();
+        $openTaskCountCriteria->addFilter(new EqualsFilter('scanId', $latestScan->getId()));
+        $openTaskCountCriteria->addFilter(new EqualsFilter('status', 'open'));
+
+        $openTaskCount = $this->taskRepository->search($openTaskCountCriteria, $context)->getTotal();
+
+        $summaryJson = $latestScan->getSummaryJson() ?? [];
+        $latestSummary = [
+            'scanId' => $latestScan->getId(),
+            'status' => $latestScan->getStatus(),
+            'scannedProducts' => $latestScan->getScannedProducts(),
+            'totalFindings' => $latestScan->getTotalFindings(),
+            'highPriorityFindings' => $latestScan->getHighPriorityFindings(),
+            'taskCount' => $summaryJson['taskCount'] ?? 0,
+            'findingCount' => $summaryJson['findingCount'] ?? 0,
+        ];
+
+        $salesInsights = $this->salesInsightService->getInsights($context);
+
+        return new JsonResponse([
+            'liveAudit' => $liveAudit,
+            'latestScan' => $this->serializeScan($latestScan),
+            'insights' => [
+                'openTaskCount' => $openTaskCount,
+                'topTasks' => $topTasks,
+                'topFindings' => $topFindings,
+                'latestSummary' => $latestSummary
+            ],
+            'salesInsights' => $salesInsights
+        ]);
     }
 
     #[Route(

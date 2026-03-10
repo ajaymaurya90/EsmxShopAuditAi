@@ -3,10 +3,12 @@
     "general": {
       "mainMenuItemGeneral": "Shop Audit AI",
       "descriptionTextModule": "Audit- und Reporting-Werkzeuge für Shopware-Shops",
-      "refresh": "Refresh"
+      "refresh": "Refresh",
+      "clearFilters": "Clear filters"
     },
     "dashboard": {
       "cardTitle": "Audit-Dashboard",
+      "refresh": "Refresh",
       "refreshButton": "Audit aktualisieren",
       "scannedProducts": "Geprüfte Produkte",
       "missingDescription": "Produkte ohne Beschreibung",
@@ -29,7 +31,42 @@
       "latestScanHeadline": "Latest scan",
       "scanStatus": "Scan status",
       "groupedFindings": "Grouped findings",
-      "highPriorityFindings": "High-priority findings"
+      "highPriorityFindings": "High-priority findings",
+      "productMissingMetaDescription": "Products without SEO meta description",
+      "productWeakTitle": "Products with weak title",
+      "productShortDescription": "Products with short description",
+      "categoryMissingMetaTitle": "Categories without SEO meta title",
+      "categoryMissingMetaDescription": "Categories without SEO meta description",
+      "categoryMissingDescription": "Categories without description",
+      "scanStart": "Start scan",
+      "scanRunning": "Scanning..",
+      "runScanSuccess": "Scan completed and dashboard updated successfully.",
+      "lastScanLabel": "Last scan",
+      "nextBestActionTitle": "Next best action",
+      "reviewNow": "Review now",
+      "healthyHeadline": "Great job — no critical issues need immediate attention.",
+      "headlineOutOfStock": "{count} products are out of stock and need immediate attention.",
+      "headlineMissingPrice": "{count} products are missing prices and should be fixed first.",
+      "headlineMissingDescription": "{count} products are missing descriptions and should be improved.",
+      "headlineMissingMetaTitle": "{count} products are missing SEO meta titles.",
+      "nextActionRestock": "Review out-of-stock products first",
+      "nextActionPrice": "Fix products with missing prices",
+      "nextActionDescriptions": "Improve product descriptions",
+      "nextActionSeo": "Fix missing SEO meta titles"
+    },
+    "dashboardInsights": {
+      "kpiHeadline": "Key metrics",
+      "openTasks": "Open tasks",
+      "groupedFindings": "Grouped findings",
+      "highPriorityFindings": "High-priority findings",
+      "scannedProducts": "Scanned products",
+      "topTasksHeadline": "Top tasks",
+      "topFindingsHeadline": "Top findings",
+      "latestSummaryHeadline": "Latest summary",
+      "emptyTasks": "No tasks available.",
+      "emptyFindings": "No high-priority findings available.",
+      "emptySummary": "No summary available yet.",
+      "latestSummaryText": "The latest scan reviewed {scannedProducts} products, produced {totalFindings} grouped findings, and generated {taskCount} tasks."
     },
     "grid": {
       "productName": "Produkt",
@@ -61,7 +98,8 @@
         "severity": "Severity",
         "entity": "Entity",
         "affectedCount": "Affected count"
-      }
+      },
+      "activeFilterHeadline": "Active findings filter"
     },
     "tasks": {
       "pageTitle": "Tasks",
@@ -75,7 +113,8 @@
         "priority": "Priority",
         "affectedCount": "Affected count",
         "status": "Status"
-      }
+      },
+      "activeFilterHeadline": "Active tasks filter"
     },
     "reports": {
       "pageTitle": "Reports",

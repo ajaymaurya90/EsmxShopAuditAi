@@ -46,6 +46,48 @@
             <label lang="de-DE">SEO-Felder prüfen</label>
             <defaultValue>true</defaultValue>
         </input-field>
+
+        <input-field type="bool">
+            <name>checkProductMetaDescription</name>
+            <label>Check missing product meta description</label>
+            <label lang="de-DE">Fehlende Produkt-Meta-Description prüfen</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>checkWeakProductTitle</name>
+            <label>Check weak product title</label>
+            <label lang="de-DE">Schwachen Produkttitel prüfen</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>minProductTitleLength</name>
+            <label>Minimum product title length</label>
+            <label lang="de-DE">Minimale Länge des Produkttitels</label>
+            <defaultValue>20</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>checkShortProductDescription</name>
+            <label>Check short product description</label>
+            <label lang="de-DE">Kurze Produktbeschreibung prüfen</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>minProductDescriptionLength</name>
+            <label>Minimum product description length</label>
+            <label lang="de-DE">Minimale Länge der Produktbeschreibung</label>
+            <defaultValue>80</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>checkCategorySeo</name>
+            <label>Check category SEO fields</label>
+            <label lang="de-DE">Kategorie-SEO-Felder prüfen</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
     </card>
 
 </config>
