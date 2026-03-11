@@ -60,6 +60,37 @@ class AuditDashboardController extends AbstractController
             $liveAudit['totals']['totalIssues'] += (int) $value;
         }
 
+        $productIssueKeys = [
+            'missingDescription',
+            'missingCoverImage',
+            'inactiveProducts',
+            'outOfStockProducts',
+            'missingMetaTitle',
+            'missingCategory',
+            'missingManufacturer',
+            'missingPrice',
+            'missingTranslation',
+            'product_missing_meta_description',
+            'product_weak_title',
+            'product_short_description',
+        ];
+
+        $affectedProducts = [];
+
+        foreach ($liveAudit['issues'] as $issueCode => $issueItems) {
+            if (!in_array($issueCode, $productIssueKeys, true)) {
+                continue;
+            }
+
+            foreach ($issueItems as $item) {
+                if (!empty($item['id'])) {
+                    $affectedProducts[$item['id']] = true;
+                }
+            }
+        }
+
+        $affectedProductsCount = \count($affectedProducts);
+
         $latestScan = $this->getLatestScanEntity($context);
 
         if ($latestScan === null) {
@@ -71,6 +102,8 @@ class AuditDashboardController extends AbstractController
                     'topTasks' => [],
                     'topFindings' => [],
                     'latestSummary' => null,
+                    'affectedProducts' => 0,
+                    'criticalIssues' => 0,
                 ],
                 'salesInsights' => [
                     'kpis' => [
@@ -110,22 +143,24 @@ class AuditDashboardController extends AbstractController
         $allFindings = $this->findingRepository->search($findingCriteria, $context)->getEntities();
 
         $topFindings = [];
+        $criticalIssues = 0;
+
         foreach ($allFindings as $finding) {
             /** @var FindingEntity $finding */
             if (!\in_array($finding->getSeverity(), ['high', 'critical'], true)) {
                 continue;
             }
 
-            $topFindings[] = [
-                'id' => $finding->getId(),
-                'code' => $finding->getCode(),
-                'title' => $finding->getTitle(),
-                'severity' => $finding->getSeverity(),
-                'affectedCount' => $finding->getAffectedCount(),
-            ];
+            $criticalIssues++;
 
-            if (\count($topFindings) >= 3) {
-                break;
+            if (\count($topFindings) < 3) {
+                $topFindings[] = [
+                    'id' => $finding->getId(),
+                    'code' => $finding->getCode(),
+                    'title' => $finding->getTitle(),
+                    'severity' => $finding->getSeverity(),
+                    'affectedCount' => $finding->getAffectedCount(),
+                ];
             }
         }
 
@@ -155,7 +190,9 @@ class AuditDashboardController extends AbstractController
                 'openTaskCount' => $openTaskCount,
                 'topTasks' => $topTasks,
                 'topFindings' => $topFindings,
-                'latestSummary' => $latestSummary
+                'latestSummary' => $latestSummary,
+                'affectedProducts' => $affectedProductsCount,
+                'criticalIssues' => $criticalIssues,
             ],
             'salesInsights' => $salesInsights
         ]);

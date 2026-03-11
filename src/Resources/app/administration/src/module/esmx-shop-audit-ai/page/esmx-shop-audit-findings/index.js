@@ -72,6 +72,7 @@ Shopware.Component.register('esmx-shop-audit-findings', {
 
             this.esmxShopAuditApiService.getLatestFindings()
                 .then((response) => {
+                    console.log('findings response', response.findings);
                     this.latestScan = response.scan;
                     this.findings = response.findings ?? [];
                 })

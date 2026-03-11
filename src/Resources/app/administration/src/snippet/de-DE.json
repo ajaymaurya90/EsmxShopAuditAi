@@ -2,7 +2,7 @@
   "esmx-shop-audit-ai": {
     "general": {
       "mainMenuItemGeneral": "Shop Audit AI",
-      "descriptionTextModule": "Audit- und Reporting-Werkzeuge für Shopware-Shops",
+      "descriptionTextModule": "Audit- und Reporting-Tools für Shopware-Shops",
       "refresh": "Aktualisieren",
       "clearFilters": "Filter zurücksetzen"
     },
@@ -15,7 +15,7 @@
       "missingCoverImage": "Produkte ohne Titelbild",
       "inactiveProducts": "Inaktive Produkte",
       "outOfStockProducts": "Nicht verfügbare Produkte",
-      "missingMetaTitle": "Produkte ohne SEO-Metatitel",
+      "missingMetaTitle": "Produkte ohne SEO-Meta-Titel",
       "totalIssues": "Gesamtzahl der Probleme",
       "emptyState": "Noch keine Audit-Daten geladen.",
       "loadError": "Das Audit-Dashboard konnte nicht geladen werden.",
@@ -39,7 +39,7 @@
       "categoryMissingMetaDescription": "Kategorien ohne SEO-Meta-Beschreibung",
       "categoryMissingDescription": "Kategorien ohne Beschreibung",
       "scanStart": "Scan starten",
-      "scanRunning": "Scan läuft..",
+      "scanRunning": "Scan läuft...",
       "runScanSuccess": "Scan erfolgreich abgeschlossen und Dashboard aktualisiert.",
       "lastScanLabel": "Letzter Scan",
       "nextBestActionTitle": "Nächste beste Aktion",
@@ -52,7 +52,24 @@
       "nextActionRestock": "Zuerst nicht verfügbare Produkte prüfen",
       "nextActionPrice": "Produkte ohne Preis korrigieren",
       "nextActionDescriptions": "Produktbeschreibungen verbessern",
-      "nextActionSeo": "Fehlende SEO-Meta-Titel korrigieren"
+      "nextActionSeo": "Fehlende SEO-Meta-Titel korrigieren",
+      "salesInsightsHeadline": "Verkaufsübersicht (letzte 30 Tage)",
+      "salesRevenue": "Umsatz",
+      "salesOrders": "Bestellungen",
+      "salesRevenueChange": "Umsatzänderung",
+      "salesOrdersChange": "Bestelländerung",
+      "topSellingProducts": "Topverkaufte Produkte",
+      "noSalesData": "Keine Verkaufsdaten verfügbar.",
+      "lowStockProducts": "Produkte mit geringem Bestand",
+      "stockLabel": "Bestand",
+      "noLowStockProducts": "Keine Produkte mit geringem Bestand.",
+      "topSellingProductsInfo": "Produkte mit den höchsten Verkaufszahlen basierend auf aktuellen Bestelldaten.",
+      "lowStockProductsInfo": "Meistverkaufte Produkte mit geringem Lagerbestand, die bald nachbestellt werden sollten.",
+      "topSellingProductsSubtitle": "Bestverkaufte Produkte nach aktuellen Verkäufen",
+      "lowStockProductsSubtitle": "Schnelldrehende Produkte mit geringem Bestand",
+      "salesInsightsSubtitle": "Letzte 30 Tage · verglichen mit den vorherigen 30 Tagen",
+      "salesInsightsInfo": "Umsatz- und Bestellkennzahlen für die letzten 30 Tage, verglichen mit dem vorherigen 30-Tage-Zeitraum.",
+      "viewAllFindings": "Alle Findings anzeigen"
     },
     "dashboardInsights": {
       "kpiHeadline": "Kennzahlen",
@@ -66,7 +83,27 @@
       "emptyTasks": "Keine Tasks verfügbar.",
       "emptyFindings": "Keine Findings mit hoher Priorität verfügbar.",
       "emptySummary": "Noch keine Zusammenfassung verfügbar.",
-      "latestSummaryText": "Der letzte Scan hat {scannedProducts} Produkte geprüft, {totalFindings} gruppierte Findings erzeugt und {taskCount} Tasks generiert."
+      "latestSummaryText": "Der letzte Scan hat {scannedProducts} Produkte geprüft, {totalFindings} gruppierte Findings erzeugt und {taskCount} Tasks generiert.",
+      "auditOverviewHeadline": "Audit-Überblick",
+      "affectedProducts": "Betroffene Produkte",
+      "criticalIssues": "Kritische Probleme"
+    },
+    "dashboardImpact": {
+      "missingDescription": "Kann die Produkt-Conversion und die Inhaltsqualität verringern.",
+      "missingCoverImage": "Eine schwache visuelle Darstellung kann das Kundeninteresse reduzieren.",
+      "inactiveProducts": "Diese Produkte sind verborgen und können keinen Umsatz erzeugen.",
+      "outOfStockProducts": "Nicht verfügbare Produkte bedeuten ein direktes Umsatzrisiko.",
+      "missingMetaTitle": "Fehlende SEO-Meta-Titel können die Sichtbarkeit in Suchmaschinen verringern.",
+      "missingCategory": "Produkte können für Kunden schwerer auffindbar sein.",
+      "missingManufacturer": "Unvollständige Produktdaten können Vertrauen und Filterqualität verringern.",
+      "missingPrice": "Produkte ohne Preis können nicht korrekt gekauft werden.",
+      "missingTranslation": "Kunden sehen möglicherweise eine Fallback-Sprache oder unvollständige Inhalte.",
+      "productMissingMetaDescription": "Kann die Klickrate in Suchmaschinen und die SEO-Qualität verringern.",
+      "productWeakTitle": "Schwache Titel können Auffindbarkeit und Produktklarheit verschlechtern.",
+      "productShortDescription": "Kurze Beschreibungen können Vertrauen und Conversion verringern.",
+      "categoryMissingMetaTitle": "Fehlende SEO-Meta-Titel bei Kategorien können die Kategoriesichtbarkeit schwächen.",
+      "categoryMissingMetaDescription": "Fehlende Meta-Beschreibungen bei Kategorien können die SEO-Klickrate verringern.",
+      "categoryMissingDescription": "Wenig Kategorieinhalt kann SEO und Nutzerführung verschlechtern."
     },
     "grid": {
       "productName": "Produkt",
@@ -84,8 +121,8 @@
       "dashboard": "Dashboard",
       "findings": "Findings",
       "tasks": "Tasks",
-      "reports": "Reports",
-      "settings": "Settings"
+      "reports": "Berichte",
+      "settings": "Einstellungen"
     },
     "findings": {
       "pageTitle": "Findings",
@@ -105,7 +142,7 @@
       "pageTitle": "Tasks",
       "latestScanHeadline": "Kontext des letzten Scans",
       "gridHeadline": "Generierte Tasks aus dem letzten Scan",
-      "totalTasks": "Gesamtzahl Tasks",
+      "totalTasks": "Gesamtzahl der Tasks",
       "emptyState": "Noch keine Tasks verfügbar.",
       "loadError": "Die Tasks-Seite konnte nicht geladen werden.",
       "columns": {
@@ -117,13 +154,13 @@
       "activeFilterHeadline": "Aktiver Tasks-Filter"
     },
     "reports": {
-      "pageTitle": "Reports",
+      "pageTitle": "Berichte",
       "historyHeadline": "Scan-Verlauf",
-      "detailHeadline": "Report-Details",
-      "findingsHeadline": "Findings in diesem Report",
-      "tasksHeadline": "Tasks in diesem Report",
-      "emptyState": "Noch keine Reports verfügbar.",
-      "loadError": "Die Reports-Seite konnte nicht geladen werden.",
+      "detailHeadline": "Berichtsdetails",
+      "findingsHeadline": "Findings in diesem Bericht",
+      "tasksHeadline": "Tasks in diesem Bericht",
+      "emptyState": "Noch keine Berichte verfügbar.",
+      "loadError": "Die Berichtsseite konnte nicht geladen werden.",
       "columns": {
         "createdAt": "Erstellt am",
         "status": "Status",
@@ -133,7 +170,7 @@
       }
     },
     "settings": {
-      "pageTitle": "Settings",
+      "pageTitle": "Einstellungen",
       "headline": "Shop Audit AI Konfiguration"
     }
   }

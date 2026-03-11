@@ -97,12 +97,54 @@ class SalesInsightService
 
         $buckets = $result->getAggregations()->get('top_products')?->getBuckets() ?? [];
 
-        $products = [];
+        if (empty($buckets)) {
+            return [];
+        }
+
+        $productIds = [];
+        $salesByProductId = [];
 
         foreach ($buckets as $bucket) {
+            $productId = $bucket->getKey();
+
+            if (!$productId) {
+                continue;
+            }
+
+            $productIds[] = $productId;
+            $salesByProductId[$productId] = $bucket->getCount();
+        }
+
+        if (empty($productIds)) {
+            return [];
+        }
+
+        $productCriteria = new Criteria($productIds);
+        $productCriteria->addAssociation('translations');
+
+        $productSearchResult = $this->productRepository->search($productCriteria, $context);
+
+        $products = [];
+
+        foreach ($productIds as $productId) {
+            $product = $productSearchResult->get($productId);
+
+            if ($product === null) {
+                $products[] = [
+                    'productId' => $productId,
+                    'name' => $productId,
+                    'sales' => $salesByProductId[$productId] ?? 0,
+                ];
+
+                continue;
+            }
+
+            $name = $product->getTranslation('name') ?? $product->getName() ?? $productId;
+
             $products[] = [
-                'productId' => $bucket->getKey(),
-                'sales' => $bucket->getCount(),
+                'productId' => $productId,
+                'name' => $name,
+                'sales' => $salesByProductId[$productId] ?? 0,
             ];
         }
 
