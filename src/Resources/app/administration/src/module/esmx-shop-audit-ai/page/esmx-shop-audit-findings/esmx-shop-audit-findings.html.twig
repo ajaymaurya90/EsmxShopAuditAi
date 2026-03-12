@@ -52,23 +52,20 @@
                         {{ loadError }}
                     </mt-banner>
                 </template>
+
                 <template v-if="scanError">
                     <mt-banner variant="danger">
                         {{ scanError }}
                     </mt-banner>
                 </template>
 
-                <mt-card v-if="activeSeverityFilter || activeCodeFilter" class="esmx-shop-audit-dashboard__latest-scan-card">
+                <mt-card v-if="activeCodeFilter" class="esmx-shop-audit-dashboard__latest-scan-card">
                     <template #headline>
                         {{ $tc('esmx-shop-audit-ai.findings.activeFilterHeadline') }}
                     </template>
 
                     <div class="esmx-shop-audit-dashboard__latest-scan-meta">
-                        <p v-if="activeSeverityFilter">
-                            {{ $tc('esmx-shop-audit-ai.findings.columns.severity') }}:
-                            <strong>{{ activeSeverityFilter }}</strong>
-                        </p>
-                        <p v-if="activeCodeFilter">
+                        <p>
                             Code:
                             <strong>{{ activeCodeFilter }}</strong>
                         </p>
@@ -81,43 +78,84 @@
                     </div>
                 </mt-card>
 
-                <mt-card v-if="latestScan" class="esmx-shop-audit-dashboard__latest-scan-card">
-                    <template #headline>
-                        {{ $tc('esmx-shop-audit-ai.findings.latestScanHeadline') }}
-                    </template>
-
-                    <div class="esmx-shop-audit-dashboard__latest-scan-meta">
-                        <p>
-                            {{ $tc('esmx-shop-audit-ai.dashboard.scanStatus') }}:
-                            <strong>{{ latestScan.status }}</strong>
-                        </p>
-                        <p>
-                            {{ $tc('esmx-shop-audit-ai.dashboard.groupedFindings') }}:
-                            <strong>{{ latestScan.totalFindings }}</strong>
-                        </p>
-                        <p>
-                            {{ $tc('esmx-shop-audit-ai.dashboard.highPriorityFindings') }}:
-                            <strong>{{ latestScan.highPriorityFindings }}</strong>
-                        </p>
-                    </div>
-                </mt-card>
-
                 <mt-card>
                     <template #headline>
                         {{ $tc('esmx-shop-audit-ai.findings.gridHeadline') }}
                     </template>
 
-                    <template v-if="filteredFindings.length">
-                        <sw-data-grid
-                                :dataSource="filteredFindings"
-                                :columns="columns"
-                        />
+                    <template v-if="findings.length">
+                        <div
+                                v-for="finding in findings"
+                                :key="finding.id"
+                                class="esmx-shop-audit-dashboard__insight-list-item esmx-shop-audit-dashboard__insight-list-item--clickable"
+                                @click="goToFindingDetailSection(finding)"
+                        >
+                            <div>
+                                <div class="esmx-shop-audit-dashboard__insight-title">
+                                    {{ finding.title }}
+                                </div>
+                                <div class="esmx-shop-audit-dashboard__insight-meta">
+                                    {{ finding.entity }} ·
+                                    <span
+                                            class="esmx-shop-audit-dashboard__severity-badge"
+                                            :class="getSeverityClass(finding.severity)"
+                                    >
+                                        {{ getSeverityLabel(finding.severity) }}
+                                    </span>
+                                </div>
+                            </div>
+                            <strong>{{ finding.affectedCount }}</strong>
+                        </div>
                     </template>
 
                     <template v-else>
                         <p>{{ $tc('esmx-shop-audit-ai.findings.emptyState') }}</p>
                     </template>
                 </mt-card>
+
+                <div
+                        v-for="finding in findings"
+                        :key="`section-${finding.id}`"
+                        :id="`finding-section-${finding.code}`"
+                        class="esmx-shop-audit-dashboard__details-section"
+                >
+                    <mt-card class="esmx-shop-audit-findings__detail-card">
+                        <div class="esmx-shop-audit-findings__detail-header">
+                            <div class="esmx-shop-audit-findings__detail-header-main">
+                                <div class="esmx-shop-audit-findings__detail-title">
+                                    {{ finding.title }}
+                                </div>
+                                <div class="esmx-shop-audit-findings__detail-meta">
+                                    {{ finding.entity }} · {{ finding.affectedCount }} {{ $tc('esmx-shop-audit-ai.findings.affectedItems') }}
+                                </div>
+                            </div>
+
+                            <span
+                                    class="esmx-shop-audit-dashboard__severity-badge"
+                                    :class="getSeverityClass(finding.severity)"
+                            >
+            {{ getSeverityLabel(finding.severity) }}
+        </span>
+                        </div>
+
+                        <div class="esmx-shop-audit-findings__detail-body">
+                            <template v-if="finding.items?.length">
+                                <sw-data-grid
+                                        :dataSource="finding.items"
+                                        :columns="[
+                    { property: 'name', label: $tc('esmx-shop-audit-ai.grid.productName'), primary: true },
+                    { property: 'productNumber', label: $tc('esmx-shop-audit-ai.grid.productNumber') },
+                    { property: 'stock', label: $tc('esmx-shop-audit-ai.grid.stock') }
+                ]"
+                                />
+                            </template>
+
+                            <template v-else>
+                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
+                            </template>
+                        </div>
+                    </mt-card>
+                </div>
             </sw-card-view>
         </template>
     </sw-page>

@@ -258,7 +258,21 @@ class AuditDashboardController extends AbstractController
         $data = [];
 
         /** @var FindingEntity $finding */
+        $data = [];
+
+        /** @var FindingEntity $finding */
         foreach ($findings as $finding) {
+            $payload = $finding->getPayloadJson() ?? [];
+            $items = [];
+
+            if (\is_array($payload)) {
+                if (isset($payload['items']) && \is_array($payload['items'])) {
+                    $items = $payload['items'];
+                } elseif (array_is_list($payload)) {
+                    $items = $payload;
+                }
+            }
+
             $data[] = [
                 'id' => $finding->getId(),
                 'scanId' => $finding->getScanId(),
@@ -267,7 +281,8 @@ class AuditDashboardController extends AbstractController
                 'severity' => $finding->getSeverity(),
                 'entity' => $finding->getEntity(),
                 'affectedCount' => $finding->getAffectedCount(),
-                'payloadJson' => $finding->getPayloadJson(),
+                'items' => $items,
+                'payloadJson' => $payload,
             ];
         }
 

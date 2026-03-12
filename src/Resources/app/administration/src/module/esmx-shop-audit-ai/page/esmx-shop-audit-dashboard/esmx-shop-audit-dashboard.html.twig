@@ -90,70 +90,124 @@
                         </mt-banner>
                     </template>
 
+                    <div class="esmx-shop-audit-dashboard__premium-top-grid">
+                        <mt-card class="esmx-shop-audit-dashboard__health-card">
+                            <div class="esmx-shop-audit-dashboard__health-card-inner">
+                                <div class="esmx-shop-audit-dashboard__health-card-header">
+                                    <div class="esmx-shop-audit-dashboard__health-card-title">
+                                        {{ $tc('esmx-shop-audit-ai.dashboard.storeHealthTitle') }}
+                                    </div>
 
-                    <div class="esmx-shop-audit-dashboard__hero">
-                        <div class="esmx-shop-audit-dashboard__hero-text">
-                            <h3 class="esmx-shop-audit-dashboard__headline">
-                                {{ dashboardHeadline }}
-                            </h3>
+                                    <div class="esmx-shop-audit-dashboard__health-card-status">
+        <span
+                class="esmx-shop-audit-dashboard__severity-badge"
+                :class="'severity-' + healthStatus"
+        >
+            {{ healthStatusLabel }}
+        </span>
 
-                            <p
-                                    v-if="formattedLatestScanDate"
-                                    class="esmx-shop-audit-dashboard__last-scan"
-                            >
-                                {{ $tc('esmx-shop-audit-ai.dashboard.lastScanLabel') }}: {{ formattedLatestScanDate }}
-                            </p>
-                        </div>
+                                        <span
+                                                class="esmx-shop-audit-dashboard__widget-info-trigger"
+                                                @mouseenter="activeWidgetTooltip = 'storeHealth'"
+                                                @mouseleave="activeWidgetTooltip = null"
+                                        >
+            <mt-icon
+                    name="regular-info-circle"
+                    size="16px"
+                    class="esmx-shop-audit-dashboard__widget-info-icon"
+            />
 
-                        <div
-                                v-if="nextBestAction"
-                                class="esmx-shop-audit-dashboard__next-action"
-                        >
-                            <div class="esmx-shop-audit-dashboard__next-action-title">
-                                {{ $tc('esmx-shop-audit-ai.dashboard.nextBestActionTitle') }}
+            <span
+                    v-if="activeWidgetTooltip === 'storeHealth'"
+                    class="esmx-shop-audit-dashboard__widget-tooltip"
+            >
+                {{ $tc('esmx-shop-audit-ai.dashboard.storeHealthInfo') }}
+            </span>
+        </span>
+                                    </div>
+                                </div>
+
+                                <div class="esmx-shop-audit-dashboard__health-score-row">
+                                    <div
+                                            class="esmx-shop-audit-dashboard__health-score-ring"
+                                            :style="healthRingStyle"
+                                    >
+                                        <div class="esmx-shop-audit-dashboard__health-score-ring-inner">
+                                            <div class="esmx-shop-audit-dashboard__health-score-value">
+                                                {{ animatedHealthScore }}
+                                            </div>
+                                            <div class="esmx-shop-audit-dashboard__health-score-max">
+                                                / 100
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="esmx-shop-audit-dashboard__health-score-text">
+                                        <div class="esmx-shop-audit-dashboard__health-score-label">
+                                            {{ healthStatusLabel }}
+                                        </div>
+                                        <div class="esmx-shop-audit-dashboard__health-score-summary">
+                                            {{ healthSummaryText }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </mt-card>
+
+                        <mt-card class="esmx-shop-audit-dashboard__quick-action-card">
+                            <div class="esmx-shop-audit-dashboard__quick-action-header">
+                                <div class="esmx-shop-audit-dashboard__quick-action-title">
+                                    {{ $tc('esmx-shop-audit-ai.dashboard.nextBestActionTitle') }}
+                                </div>
                             </div>
 
-                            <div class="esmx-shop-audit-dashboard__next-action-label">
-                                {{ nextBestAction.label }}
+                            <div
+                                    v-if="nextBestAction"
+                                    class="esmx-shop-audit-dashboard__quick-action-body"
+                            >
+                                <div class="esmx-shop-audit-dashboard__quick-action-label">
+                                    {{ nextBestAction.label }}
+                                </div>
+
+                                <div class="esmx-shop-audit-dashboard__quick-action-summary">
+                                    {{ dashboardHeadline }}
+                                </div>
+
+                                <div
+                                        v-if="formattedLatestScanDate"
+                                        class="esmx-shop-audit-dashboard__quick-action-last-scan"
+                                >
+                                    {{ $tc('esmx-shop-audit-ai.dashboard.lastScanLabel') }}: {{ formattedLatestScanDate }}
+                                </div>
+
+                                <div class="esmx-shop-audit-dashboard__quick-action-footer">
+                                    <mt-button
+                                            size="small"
+                                            variant="primary"
+                                            @click="handleNextBestAction"
+                                    >
+                                        {{ $tc('esmx-shop-audit-ai.dashboard.reviewNow') }}
+                                    </mt-button>
+                                </div>
                             </div>
 
-                            <mt-button
-                                    size="small"
-                                    variant="primary"
-                                    @click="handleNextBestAction"
+                            <div
+                                    v-else
+                                    class="esmx-shop-audit-dashboard__quick-action-body"
                             >
-                                {{ $tc('esmx-shop-audit-ai.dashboard.reviewNow') }}
-                            </mt-button>
-                        </div>
+                                <div class="esmx-shop-audit-dashboard__quick-action-label">
+                                    {{ $tc('esmx-shop-audit-ai.dashboard.healthyHeadline') }}
+                                </div>
+
+                                <div
+                                        v-if="formattedLatestScanDate"
+                                        class="esmx-shop-audit-dashboard__quick-action-last-scan"
+                                >
+                                    {{ $tc('esmx-shop-audit-ai.dashboard.lastScanLabel') }}: {{ formattedLatestScanDate }}
+                                </div>
+                            </div>
+                        </mt-card>
                     </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Latest scan summary card: Shows latest persisted scan overview    #}
-                    {# ------------------------------------------------------------------
-                    <mt-card v-if="latestScan" class="esmx-shop-audit-dashboard__latest-scan-card">
-                        <template #headline>
-                            {{ $tc('esmx-shop-audit-ai.dashboard.latestScanHeadline') }}
-                        </template>
-
-                        <div class="esmx-shop-audit-dashboard__latest-scan-meta">
-                            <p>
-                                {{ $tc('esmx-shop-audit-ai.dashboard.scanStatus') }}:
-                                <strong>{{ latestScan.status }}</strong>
-                            </p>
-                            <p>
-                                {{ $tc('esmx-shop-audit-ai.dashboard.scannedProducts') }}:
-                                <strong>{{ latestScan.scannedProducts }}</strong>
-                            </p>
-                            <p>
-                                {{ $tc('esmx-shop-audit-ai.dashboard.groupedFindings') }}:
-                                <strong>{{ latestScan.totalFindings }}</strong>
-                            </p>
-                            <p>
-                                {{ $tc('esmx-shop-audit-ai.dashboard.highPriorityFindings') }}:
-                                <strong>{{ latestScan.highPriorityFindings }}</strong>
-                            </p>
-                        </div>
-                    </mt-card> #}
 
                     {# ------------------------------------------------------------------ #}
                     {# Insights widget grid: KPI metrics, top tasks, findings, summary   #}
@@ -487,421 +541,6 @@
                                 </mt-card>
                             </a>
                         </div>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Missing product descriptions                         #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-missing-description"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                <div class="esmx-shop-audit-dashboard__section-header">
-                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.missingDescription') }}</span>
-                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-medium">
-                                        {{ $tc('esmx-shop-audit-ai.severity.medium') }}
-                                    </span>
-                                </div>
-                            </template>
-
-                            <template v-if="issues.missingDescription?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.missingDescription"
-                                        :columns="gridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Missing product cover images                        #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-missing-cover-image"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                {{ $tc('esmx-shop-audit-ai.dashboard.missingCoverImage') }}
-                            </template>
-
-                            <template v-if="issues.missingCoverImage?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.missingCoverImage"
-                                        :columns="gridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Inactive products                                   #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-inactive-products"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                {{ $tc('esmx-shop-audit-ai.dashboard.inactiveProducts') }}
-                            </template>
-
-                            <template v-if="issues.inactiveProducts?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.inactiveProducts"
-                                        :columns="gridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Out of stock products                               #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-out-of-stock-products"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                {{ $tc('esmx-shop-audit-ai.dashboard.outOfStockProducts') }}
-                            </template>
-
-                            <template v-if="issues.outOfStockProducts?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.outOfStockProducts"
-                                        :columns="gridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Missing meta titles                                 #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-missing-meta-title"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                {{ $tc('esmx-shop-audit-ai.dashboard.missingMetaTitle') }}
-                            </template>
-
-                            <template v-if="issues.missingMetaTitle?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.missingMetaTitle"
-                                        :columns="gridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Missing category assignments                        #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-missing-category"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                <div class="esmx-shop-audit-dashboard__section-header">
-                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.missingCategory') }}</span>
-                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-medium">
-                                        {{ $tc('esmx-shop-audit-ai.severity.medium') }}
-                                    </span>
-                                </div>
-                            </template>
-
-                            <template v-if="issues.missingCategory?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.missingCategory"
-                                        :columns="gridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Missing manufacturers                               #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-missing-manufacturer"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                <div class="esmx-shop-audit-dashboard__section-header">
-                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.missingManufacturer') }}</span>
-                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-medium">
-                                        {{ $tc('esmx-shop-audit-ai.severity.medium') }}
-                                    </span>
-                                </div>
-                            </template>
-
-                            <template v-if="issues.missingManufacturer?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.missingManufacturer"
-                                        :columns="gridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Missing prices                                      #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-missing-price"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                <div class="esmx-shop-audit-dashboard__section-header">
-                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.missingPrice') }}</span>
-                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-high">
-                                        {{ $tc('esmx-shop-audit-ai.severity.high') }}
-                                    </span>
-                                </div>
-                            </template>
-
-                            <template v-if="issues.missingPrice?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.missingPrice"
-                                        :columns="gridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Missing translations                                #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-missing-translation"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                <div class="esmx-shop-audit-dashboard__section-header">
-                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.missingTranslation') }}</span>
-                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-medium">
-                                        {{ $tc('esmx-shop-audit-ai.severity.medium') }}
-                                    </span>
-                                </div>
-                            </template>
-
-                            <template v-if="issues.missingTranslation?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.missingTranslation"
-                                        :columns="translationGridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Missing product meta descriptions                 #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-product-missing-meta-description"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                <div class="esmx-shop-audit-dashboard__section-header">
-                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.productMissingMetaDescription') }}</span>
-                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-medium">
-                    {{ $tc('esmx-shop-audit-ai.severity.medium') }}
-                </span>
-                                </div>
-                            </template>
-
-                            <template v-if="issues.product_missing_meta_description?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.product_missing_meta_description"
-                                        :columns="gridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Products with weak titles                         #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-product-weak-title"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                <div class="esmx-shop-audit-dashboard__section-header">
-                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.productWeakTitle') }}</span>
-                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-low">
-                    {{ $tc('esmx-shop-audit-ai.severity.low') }}
-                </span>
-                                </div>
-                            </template>
-
-                            <template v-if="issues.product_weak_title?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.product_weak_title"
-                                        :columns="gridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Products with short descriptions                  #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-product-short-description"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                <div class="esmx-shop-audit-dashboard__section-header">
-                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.productShortDescription') }}</span>
-                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-medium">
-                    {{ $tc('esmx-shop-audit-ai.severity.medium') }}
-                </span>
-                                </div>
-                            </template>
-
-                            <template v-if="issues.product_short_description?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.product_short_description"
-                                        :columns="gridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Categories without SEO meta title                #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-category-missing-meta-title"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                <div class="esmx-shop-audit-dashboard__section-header">
-                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.categoryMissingMetaTitle') }}</span>
-                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-medium">
-                    {{ $tc('esmx-shop-audit-ai.severity.medium') }}
-                </span>
-                                </div>
-                            </template>
-
-                            <template v-if="issues.category_missing_meta_title?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.category_missing_meta_title"
-                                        :columns="categoryGridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Categories without SEO meta description          #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-category-missing-meta-description"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                <div class="esmx-shop-audit-dashboard__section-header">
-                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.categoryMissingMetaDescription') }}</span>
-                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-medium">
-                    {{ $tc('esmx-shop-audit-ai.severity.medium') }}
-                </span>
-                                </div>
-                            </template>
-
-                            <template v-if="issues.category_missing_meta_description?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.category_missing_meta_description"
-                                        :columns="categoryGridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
-                    </div>
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Detail section: Categories without description                   #}
-                    {# ------------------------------------------------------------------ #}
-                    <div
-                            id="audit-section-category-missing-description"
-                            class="esmx-shop-audit-dashboard__details-section"
-                    >
-                        <mt-card>
-                            <template #headline>
-                                <div class="esmx-shop-audit-dashboard__section-header">
-                                    <span>{{ $tc('esmx-shop-audit-ai.dashboard.categoryMissingDescription') }}</span>
-                                    <span class="esmx-shop-audit-dashboard__severity-badge severity-low">
-                    {{ $tc('esmx-shop-audit-ai.severity.low') }}
-                </span>
-                                </div>
-                            </template>
-
-                            <template v-if="issues.category_missing_description?.length">
-                                <sw-data-grid
-                                        :dataSource="issues.category_missing_description"
-                                        :columns="categoryGridColumns"
-                                />
-                            </template>
-                            <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
-                            </template>
-                        </mt-card>
                     </div>
 
                 </template>

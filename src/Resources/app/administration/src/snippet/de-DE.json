@@ -69,7 +69,19 @@
       "lowStockProductsSubtitle": "Schnelldrehende Produkte mit geringem Bestand",
       "salesInsightsSubtitle": "Letzte 30 Tage · verglichen mit den vorherigen 30 Tagen",
       "salesInsightsInfo": "Umsatz- und Bestellkennzahlen für die letzten 30 Tage, verglichen mit dem vorherigen 30-Tage-Zeitraum.",
-      "viewAllFindings": "Alle Findings anzeigen"
+      "viewAllFindings": "Alle Findings anzeigen",
+      "storeHealthTitle": "Shop-Gesundheit",
+      "affectedProductsLabel": "Betroffene Produkte",
+      "criticalIssuesLabel": "Kritische Probleme",
+      "healthSummaryGood": "Ihr Shop ist insgesamt in gutem Zustand. Kleinere Qualitätslücken können weiter verbessert werden.",
+      "healthSummaryWarning": "Ihr Shop hat mehrere Probleme, die die Leistung beeinträchtigen können und bald geprüft werden sollten.",
+      "healthSummaryCritical": "Ihr Shop hat kritische Probleme, die sich direkt auf Umsatz oder Kundenerlebnis auswirken können.",
+      "healthStatus": {
+        "good": "Gut",
+        "warning": "Benötigt Aufmerksamkeit",
+        "critical": "Kritisch"
+      },
+      "storeHealthInfo": "Die Shop-Gesundheit ist ein Gesamtqualitätswert von 0 bis 100. Sie wird auf Basis wichtiger Audit-Probleme berechnet, zum Beispiel nicht verfügbare Produkte, fehlende Preise, inaktive Produkte, fehlende Beschreibungen, fehlende Bilder, SEO-bezogene Lücken und kritische Probleme. Schwerwiegende und häufige Probleme verringern den Wert stärker. Um den Wert zu verbessern, sollten zuerst kritische Probleme und danach Inhalts- und SEO-Lücken behoben werden."
     },
     "dashboardInsights": {
       "kpiHeadline": "Kennzahlen",
@@ -136,7 +148,8 @@
         "entity": "Entität",
         "affectedCount": "Anzahl betroffen"
       },
-      "activeFilterHeadline": "Aktiver Findings-Filter"
+      "activeFilterHeadline": "Aktiver Findings-Filter",
+      "affectedItems": "betroffen"
     },
     "tasks": {
       "pageTitle": "Tasks",

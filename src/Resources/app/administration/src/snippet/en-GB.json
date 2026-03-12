@@ -69,7 +69,19 @@
       "lowStockProductsSubtitle": "Fast-moving products with low stock",
       "salesInsightsSubtitle": "Last 30 days · compared with the previous 30 days",
       "salesInsightsInfo": "Revenue and order KPIs for the last 30 days, compared with the previous 30-day period.",
-      "viewAllFindings": "View all findings"
+      "viewAllFindings": "View all findings",
+      "storeHealthTitle": "Store health",
+      "affectedProductsLabel": "Affected products",
+      "criticalIssuesLabel": "Critical issues",
+      "healthSummaryGood": "Your store is in good condition overall. Keep improving smaller quality gaps.",
+      "healthSummaryWarning": "Your store has several issues that may affect performance and should be reviewed soon.",
+      "healthSummaryCritical": "Your store has critical problems that can directly impact sales or customer experience.",
+      "healthStatus": {
+        "good": "Good",
+        "warning": "Needs attention",
+        "critical": "Critical"
+      },
+      "storeHealthInfo": "Store Health is an overall quality score from 0 to 100. It is calculated from important audit issues such as out-of-stock products, missing prices, inactive products, missing descriptions, missing images, SEO-related gaps, and critical issues. More severe and more frequent problems reduce the score more strongly. To improve your score, fix critical issues first, then resolve content and SEO gaps."
     },
     "dashboardInsights": {
       "kpiHeadline": "Key metrics",
@@ -136,7 +148,8 @@
         "entity": "Entity",
         "affectedCount": "Affected count"
       },
-      "activeFilterHeadline": "Active findings filter"
+      "activeFilterHeadline": "Active findings filter",
+      "affectedItems": "affected"
     },
     "tasks": {
       "pageTitle": "Tasks",

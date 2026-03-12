@@ -1,11 +1,6 @@
 import template from './esmx-shop-audit-dashboard.html.twig';
 import './esmx-shop-audit-dashboard.scss';
 import { buildSummaryCards } from './constants/summary-cards.constant';
-import {
-    productGridColumns,
-    translationGridColumns,
-    categoryGridColumns,
-} from './constants/grid-columns.constant';
 
 Shopware.Component.register('esmx-shop-audit-dashboard', {
     template,
@@ -29,6 +24,7 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             activeWidgetTooltip: null,      // Controls Widgets tooltip
             affectedProducts: 0,
             criticalIssues: 0,
+            animatedHealthScore: 0,
         };
     },
 
@@ -48,11 +44,6 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             return this.dashboard?.liveAudit?.meta ?? {};
         },
 
-        // Detailed issue groups returned by the audit engine
-        issues() {
-            return this.dashboard?.liveAudit?.issues ?? {};
-        },
-
         // AI-generated insights and recommendations
         insights() {
             return this.dashboard?.insights ?? {};
@@ -68,30 +59,10 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             return this.insights.openTaskCount ?? 0;
         },
 
-        // Summary statistics from the most recent scan
-        latestScanSummary() {
-            return this.latestScan?.summaryJson ?? {};
-        },
-
         // Configuration for dashboard metric cards
         // Each card represents a detected issue category
         summaryCards() {
             return buildSummaryCards(this.$tc.bind(this), this.totals);
-        },
-
-        // Grid column definition for product tables
-        gridColumns() {
-            return productGridColumns(this.$tc.bind(this));
-        },
-
-        // Grid configuration used for translation related audit results
-        translationGridColumns() {
-            return translationGridColumns(this.$tc.bind(this));
-        },
-
-        // Grid configuration used for category audit results
-        categoryGridColumns() {
-            return categoryGridColumns();
         },
 
         // Sales insights returned by backend (sales performance analysis)
@@ -111,7 +82,6 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
 
         // List of top-selling products
         topSellingProducts() {
-            console.log('topSellingProducts', this.salesInsights?.topProducts);
             return this.salesInsights?.topProducts ?? [];
         },
 
@@ -196,32 +166,100 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             if ((this.totals.outOfStockProducts || 0) > 0) {
                 return {
                     label: this.$tc('esmx-shop-audit-ai.dashboard.nextActionRestock'),
-                    target: 'audit-section-out-of-stock-products',
+                    code: 'outOfStockProducts',
                 };
             }
 
             if ((this.totals.missingPrice || 0) > 0) {
                 return {
                     label: this.$tc('esmx-shop-audit-ai.dashboard.nextActionPrice'),
-                    target: 'audit-section-missing-price',
+                    code: 'missingPrice',
                 };
             }
 
             if ((this.totals.missingDescription || 0) > 0) {
                 return {
                     label: this.$tc('esmx-shop-audit-ai.dashboard.nextActionDescriptions'),
-                    target: 'audit-section-missing-description',
+                    code: 'missingDescription',
                 };
             }
 
             if ((this.totals.missingMetaTitle || 0) > 0) {
                 return {
                     label: this.$tc('esmx-shop-audit-ai.dashboard.nextActionSeo'),
-                    target: 'audit-section-missing-meta-title',
+                    code: 'missingMetaTitle',
                 };
             }
 
             return null;
+        },
+
+        healthScore() {
+            let score = 100;
+
+            score -= Math.min((this.totals.outOfStockProducts || 0) * 3, 30);
+            score -= Math.min((this.totals.missingPrice || 0) * 4, 25);
+            score -= Math.min((this.totals.inactiveProducts || 0) * 3, 20);
+            score -= Math.min((this.totals.missingDescription || 0) * 1, 10);
+            score -= Math.min((this.totals.missingCoverImage || 0) * 1, 8);
+            score -= Math.min((this.totals.missingMetaTitle || 0) * 1, 7);
+            score -= Math.min((this.totals.missingCategory || 0) * 2, 12);
+            score -= Math.min((this.totals.missingManufacturer || 0) * 1, 8);
+            score -= Math.min((this.totals.missingTranslation || 0) * 1, 10);
+            score -= Math.min((this.criticalIssues || 0) * 4, 20);
+
+            return Math.max(0, Math.round(score));
+        },
+
+        healthStatus() {
+            if (this.healthScore >= 85) {
+                return 'good';
+            }
+
+            if (this.healthScore >= 60) {
+                return 'warning';
+            }
+
+            return 'critical';
+        },
+
+        healthStatusLabel() {
+            return this.$tc(`esmx-shop-audit-ai.dashboard.healthStatus.${this.healthStatus}`);
+        },
+
+        healthSummaryText() {
+            if (this.healthStatus === 'good') {
+                return this.$tc('esmx-shop-audit-ai.dashboard.healthSummaryGood');
+            }
+
+            if (this.healthStatus === 'warning') {
+                return this.$tc('esmx-shop-audit-ai.dashboard.healthSummaryWarning');
+            }
+
+            return this.$tc('esmx-shop-audit-ai.dashboard.healthSummaryCritical');
+        },
+
+        healthRingStyle() {
+            const score = Math.max(0, Math.min(this.animatedHealthScore, 100));
+            let angle = Math.round((score / 100) * 360);
+
+            if (score === 0) {
+                angle = 6;
+            }
+
+            let color = '#10b981';
+
+            if (this.healthStatus === 'warning') {
+                color = '#f59e0b';
+            }
+
+            if (this.healthStatus === 'critical') {
+                color = '#ef4444';
+            }
+
+            return {
+                background: `conic-gradient(${color} 0deg ${angle}deg, #e5e7eb ${angle}deg 360deg)`,
+            };
         },
 
     },
@@ -259,6 +297,10 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                     this.dashboard = response;
                     this.affectedProducts = response?.insights?.affectedProducts || 0;
                     this.criticalIssues = response?.insights?.criticalIssues || 0;
+
+                    this.$nextTick(() => {
+                        this.animateHealthScore();
+                    });
                 })
                 .catch((error) => {
                     console.error('EsmxShopAuditAi dashboard error:', error);
@@ -336,20 +378,6 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             });
         },
 
-        // Scroll smoothly to a specific dashboard section
-        scrollToSection(sectionId) {
-            const section = document.getElementById(sectionId);
-
-            if (!section) {
-                return;
-            }
-
-            section.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start',
-            });
-        },
-
         // Returns CSS class for severity styling
         getSeverityClass(severity) {
             return `esmx-shop-audit-dashboard__metric-card--${severity}`;
@@ -362,11 +390,16 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
 
         // Execute the suggested next action from the dashboard helper card
         handleNextBestAction() {
-            if (!this.nextBestAction?.target) {
+            if (!this.nextBestAction?.code) {
                 return;
             }
 
-            this.scrollToSection(this.nextBestAction.target);
+            this.$router.push({
+                name: 'esmx.shop.audit.ai.findings',
+                query: {
+                    code: this.nextBestAction.code,
+                },
+            });
         },
 
         // Open Shopware product detail page in administration
@@ -405,9 +438,34 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                 name: 'esmx.shop.audit.ai.findings',
                 query: {
                     code: card.code,
-                    severity: card.severity,
                 },
             });
+        },
+
+        animateHealthScore() {
+            const target = Math.max(0, Math.min(this.healthScore, 100));
+            const duration = 900;
+            const start = this.animatedHealthScore;
+            const startTime = performance.now();
+
+            const animate = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // ease-out animation
+                const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+                this.animatedHealthScore = Math.round(start + ((target - start) * easedProgress));
+
+                if (progress < 1) {
+                    window.requestAnimationFrame(animate);
+                    return;
+                }
+
+                this.animatedHealthScore = target;
+            };
+
+            window.requestAnimationFrame(animate);
         },
     }
 });

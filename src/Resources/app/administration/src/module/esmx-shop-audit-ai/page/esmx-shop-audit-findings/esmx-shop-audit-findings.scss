@@ -1,0 +1,64 @@
+
+.esmx-shop-audit-findings__detail-card,
+.esmx-shop-audit-findings__detail-card .mt-card__content {
+  overflow: visible !important;
+}
+
+.esmx-shop-audit-findings__detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.esmx-shop-audit-findings__detail-header-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.esmx-shop-audit-findings__detail-title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #111827;
+}
+
+.esmx-shop-audit-findings__detail-meta {
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+.esmx-shop-audit-findings__detail-body {
+  position: relative;
+}
+
+.esmx-shop-audit-dashboard__section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.esmx-shop-audit-dashboard__section-header-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.esmx-shop-audit-dashboard__section-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #111827;
+}
+
+.esmx-shop-audit-dashboard__section-meta {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b7280;
+}
