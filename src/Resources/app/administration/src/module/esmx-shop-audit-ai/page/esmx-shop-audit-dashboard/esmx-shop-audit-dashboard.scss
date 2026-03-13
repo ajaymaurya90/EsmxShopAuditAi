@@ -855,4 +855,334 @@
     align-items: center;
     gap: 8px;
   }
+
+  // Section 1 New css added here after decided reshape the dashboard
+  .esmx-shop-audit-dashboard__scan-overview-card {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    flex: 0 0 100%;
+    align-self: stretch;
+    box-sizing: border-box;
+    margin-bottom: 24px;
+  }
+
+  .esmx-shop-audit-dashboard__section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .esmx-shop-audit-dashboard__section-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .esmx-shop-audit-dashboard__section-title {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #111827;
+  }
+
+  .esmx-shop-audit-dashboard__section-subtitle {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #6b7280;
+    white-space: nowrap;
+  }
+
+  .esmx-shop-audit-dashboard__scan-overview-stats {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #ffffff;
+  }
+
+  .esmx-shop-audit-dashboard__scan-overview-stat {
+    padding: 20px 16px;
+    text-align: center;
+    min-height: 104px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+  }
+
+  .esmx-shop-audit-dashboard__scan-overview-stat:last-child {
+    border-right: none;
+  }
+
+  .esmx-shop-audit-dashboard__scan-overview-stat-label {
+    font-size: 13px;
+    line-height: 1.4;
+    color: #6b7280;
+    margin-bottom: 8px;
+  }
+
+  .esmx-shop-audit-dashboard__scan-overview-stat-value {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #111827;
+  }
+
+  @media (max-width: 1400px) {
+    .esmx-shop-audit-dashboard__scan-overview-stats {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .esmx-shop-audit-dashboard__scan-overview-stat {
+      border-right: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .esmx-shop-audit-dashboard__scan-overview-stat:nth-child(3n) {
+      border-right: none;
+    }
+
+    .esmx-shop-audit-dashboard__scan-overview-stat:nth-last-child(-n + 3) {
+      border-bottom: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .esmx-shop-audit-dashboard__section-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .esmx-shop-audit-dashboard__section-header-meta {
+      width: 100%;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .esmx-shop-audit-dashboard__section-subtitle {
+      white-space: normal;
+    }
+    .esmx-shop-audit-dashboard__scan-overview-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .esmx-shop-audit-dashboard__scan-overview-stat:nth-child(3n) {
+      border-right: 1px solid #e5e7eb;
+    }
+
+    .esmx-shop-audit-dashboard__scan-overview-stat:nth-child(2n) {
+      border-right: none;
+    }
+
+    .esmx-shop-audit-dashboard__scan-overview-stat:nth-last-child(-n + 3) {
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .esmx-shop-audit-dashboard__scan-overview-stat:nth-last-child(-n + 2) {
+      border-bottom: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .esmx-shop-audit-dashboard__scan-overview-stats {
+      grid-template-columns: 1fr;
+    }
+
+    .esmx-shop-audit-dashboard__scan-overview-stat {
+      border-right: none;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .esmx-shop-audit-dashboard__scan-overview-stat:last-child {
+      border-bottom: none;
+    }
+  }
+
+  // Section 1 css end here
+
+  // Section 2 Css Start here
+  .esmx-shop-audit-dashboard__primary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .esmx-shop-audit-dashboard__store-health-card,
+  .esmx-shop-audit-dashboard__top-tasks-card {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .esmx-shop-audit-dashboard__store-health-layout {
+    display: grid;
+    grid-template-columns: minmax(180px, 25%) minmax(0, 1fr);
+    gap: 24px;
+    align-items: center;
+  }
+
+  .esmx-shop-audit-dashboard__store-health-score-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .esmx-shop-audit-dashboard__store-health-status {
+    display: flex;
+    justify-content: center;
+  }
+
+  .esmx-shop-audit-dashboard__store-health-action-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .esmx-shop-audit-dashboard__widget-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .esmx-shop-audit-dashboard__top-tasks-card .esmx-shop-audit-dashboard__widget-body {
+    padding-top: 4px;
+  }
+
+  .esmx-shop-audit-dashboard__store-health-card,
+  .esmx-shop-audit-dashboard__top-tasks-card {
+    width: 100%;
+    min-width: 0;
+  }
+
+  @media (max-width: 1200px) {
+    .esmx-shop-audit-dashboard__primary-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .esmx-shop-audit-dashboard__store-health-layout {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .esmx-shop-audit-dashboard__store-health-score-column {
+      align-items: flex-start;
+    }
+
+    .esmx-shop-audit-dashboard__store-health-status {
+      justify-content: flex-start;
+    }
+  }
+
+  // Section 2 css end here
+
+  // Section 3 css start here
+  .esmx-shop-audit-dashboard__sales-section {
+    width: 100%;
+    margin-bottom: 24px;
+  }
+
+  .esmx-shop-audit-dashboard__sales-section-card {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .esmx-shop-audit-dashboard__sales-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .esmx-shop-audit-dashboard__sales-widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .esmx-shop-audit-dashboard__sales-widget {
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #ffffff;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 1200px) {
+    .esmx-shop-audit-dashboard__sales-kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .esmx-shop-audit-dashboard__sales-widgets-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .esmx-shop-audit-dashboard__sales-kpis {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // Section 3 ends here
+  // Section 4 Start Here
+  .esmx-shop-audit-dashboard__summary {
+    width: 100%;
+    margin-bottom: 24px;
+  }
+
+  .esmx-shop-audit-dashboard__summary-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .esmx-shop-audit-dashboard__headline h3 {
+    margin: 0 0 6px;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #111827;
+  }
+
+  .esmx-shop-audit-dashboard__summary-subtitle {
+    margin: 0 0 6px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #6b7280;
+  }
+
+  .esmx-shop-audit-dashboard__summary-stats {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #6b7280;
+  }
+
+  @media (max-width: 900px) {
+    .esmx-shop-audit-dashboard__summary-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  // Section 4 ends here
 }

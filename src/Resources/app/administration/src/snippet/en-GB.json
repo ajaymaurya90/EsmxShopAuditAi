@@ -7,6 +7,13 @@
       "clearFilters": "Clear filters"
     },
     "dashboard": {
+      "scanResultsTitle": "Shop scan results",
+      "issueGroups": "Issue groups",
+      "viewAll": "View all",
+      "topTasksSubtitle": "Review the most important audit tasks to improve store quality.",
+      "topTasksInfo": "These are the most important current audit tasks based on issue priority, impact, and affected products.",
+      "scanCriteriaInfo": "This scan reviews core store quality signals such as missing prices, descriptions, cover images, categories, manufacturers, translations, stock status, and selected SEO fields.",
+      "issueGroupsSubtitle": "Review grouped audit findings by severity and impact.",
       "cardTitle": "Audit Dashboard",
       "refresh": "Refresh",
       "refreshButton": "Refresh audit",
@@ -82,6 +89,7 @@
         "critical": "Critical"
       },
       "storeHealthInfo": "Store Health is an overall quality score from 0 to 100. It is calculated from important audit issues such as out-of-stock products, missing prices, inactive products, missing descriptions, missing images, SEO-related gaps, and critical issues. More severe and more frequent problems reduce the score more strongly. To improve your score, fix critical issues first, then resolve content and SEO gaps."
+
     },
     "dashboardInsights": {
       "kpiHeadline": "Key metrics",

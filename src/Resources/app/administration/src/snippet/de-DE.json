@@ -7,6 +7,13 @@
       "clearFilters": "Filter zurücksetzen"
     },
     "dashboard": {
+      "scanResultsTitle": "Shop-Scan-Ergebnisse",
+      "issueGroups": "Problemgruppen",
+      "viewAll": "Alle anzeigen",
+      "topTasksSubtitle": "Prüfen Sie die wichtigsten Audit-Aufgaben, um die Shop-Qualität zu verbessern.",
+      "topTasksInfo": "Dies sind die aktuell wichtigsten Audit-Aufgaben basierend auf Priorität, Auswirkung und betroffenen Produkten.",
+      "scanCriteriaInfo": "Dieser Scan prüft zentrale Qualitätsmerkmale des Shops wie fehlende Preise, Beschreibungen, Titelbilder, Kategorien, Hersteller, Übersetzungen, Lagerstatus und ausgewählte SEO-Felder.",
+      "issueGroupsSubtitle": "Prüfen Sie gruppierte Audit-Ergebnisse nach Schweregrad und Auswirkung.",
       "cardTitle": "Audit-Dashboard",
       "refresh": "Aktualisieren",
       "refreshButton": "Audit aktualisieren",
@@ -82,6 +89,7 @@
         "critical": "Kritisch"
       },
       "storeHealthInfo": "Die Shop-Gesundheit ist ein Gesamtqualitätswert von 0 bis 100. Sie wird auf Basis wichtiger Audit-Probleme berechnet, zum Beispiel nicht verfügbare Produkte, fehlende Preise, inaktive Produkte, fehlende Beschreibungen, fehlende Bilder, SEO-bezogene Lücken und kritische Probleme. Schwerwiegende und häufige Probleme verringern den Wert stärker. Um den Wert zu verbessern, sollten zuerst kritische Probleme und danach Inhalts- und SEO-Lücken behoben werden."
+
     },
     "dashboardInsights": {
       "kpiHeadline": "Kennzahlen",
