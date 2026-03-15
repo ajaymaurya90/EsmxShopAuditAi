@@ -50,13 +50,14 @@
             <tag name="controller.service_arguments" />
         </service>
 
+        <service id="EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider">
+            <argument type="service" id="product.repository" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+        </service>
+
         <service id="EsmxShopAuditAi\Service\Audit\Seo\SeoAuditService">
-            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductMissingMetaDescriptionRule" />
-            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductWeakTitleRule" />
-            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductShortDescriptionRule" />
-            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\Rule\CategoryMissingMetaTitleRule" />
-            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\Rule\CategoryMissingMetaDescriptionRule" />
-            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\Rule\CategoryMissingDescriptionRule" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider" />
+            <argument type="tagged_iterator" tag="esmx_shop_audit_ai.seo_rule" />
         </service>
 
         <service id="EsmxShopAuditAi\Service\Insights\Sales\SalesInsightService">
@@ -66,19 +67,16 @@
         </service>
 
         <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductMissingMetaDescriptionRule">
-            <argument type="service" id="product.repository" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <tag name="esmx_shop_audit_ai.seo_rule" />
         </service>
 
         <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductWeakTitleRule">
-            <argument type="service" id="product.repository" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <tag name="esmx_shop_audit_ai.seo_rule" />
         </service>
 
         <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductShortDescriptionRule">
-            <argument type="service" id="product.repository" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <tag name="esmx_shop_audit_ai.seo_rule" />
         </service>

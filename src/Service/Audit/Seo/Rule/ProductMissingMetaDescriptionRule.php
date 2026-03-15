@@ -2,8 +2,8 @@
 
 namespace EsmxShopAuditAi\Service\Audit\Seo\Rule;
 
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\Context;
 
 class ProductMissingMetaDescriptionRule extends AbstractProductSeoAuditRule
 {
@@ -32,16 +32,12 @@ class ProductMissingMetaDescriptionRule extends AbstractProductSeoAuditRule
         return (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkProductMetaDescription') ?? true);
     }
 
-    public function audit(Context $context): array
+    public function auditProducts(ProductCollection $products): array
     {
-        if (!$this->isEnabled()) {
-            return [];
-        }
-
         $result = [];
 
         /** @var ProductEntity $product */
-        foreach ($this->loadProducts($context) as $product) {
+        foreach ($products as $product) {
             $translated = $product->getTranslated();
             $metaDescription = trim((string) ($translated['metaDescription'] ?? ''));
 

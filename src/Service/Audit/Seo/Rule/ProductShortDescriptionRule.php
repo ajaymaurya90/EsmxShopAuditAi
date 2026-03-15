@@ -2,8 +2,8 @@
 
 namespace EsmxShopAuditAi\Service\Audit\Seo\Rule;
 
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\Context;
 
 class ProductShortDescriptionRule extends AbstractProductSeoAuditRule
 {
@@ -32,17 +32,13 @@ class ProductShortDescriptionRule extends AbstractProductSeoAuditRule
         return (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkShortProductDescription') ?? true);
     }
 
-    public function audit(Context $context): array
+    public function auditProducts(ProductCollection $products): array
     {
-        if (!$this->isEnabled()) {
-            return [];
-        }
-
         $minLength = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.minProductDescriptionLength') ?? 80);
         $result = [];
 
         /** @var ProductEntity $product */
-        foreach ($this->loadProducts($context) as $product) {
+        foreach ($products as $product) {
             $translated = $product->getTranslated();
             $description = trim(strip_tags((string) ($translated['description'] ?? '')));
 

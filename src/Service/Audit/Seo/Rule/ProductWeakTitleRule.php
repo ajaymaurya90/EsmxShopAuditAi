@@ -2,12 +2,11 @@
 
 namespace EsmxShopAuditAi\Service\Audit\Seo\Rule;
 
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\Context;
 
 class ProductWeakTitleRule extends AbstractProductSeoAuditRule
 {
-
     public function getCode(): string
     {
         return 'product_weak_title';
@@ -33,18 +32,13 @@ class ProductWeakTitleRule extends AbstractProductSeoAuditRule
         return (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkWeakProductTitle') ?? true);
     }
 
-    public function audit(Context $context): array
+    public function auditProducts(ProductCollection $products): array
     {
-        if (!$this->isEnabled()) {
-            return [];
-        }
-
         $minLength = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.minProductTitleLength') ?? 20);
-
         $result = [];
 
         /** @var ProductEntity $product */
-        foreach ($this->loadProducts($context) as $product) {
+        foreach ($products as $product) {
             $translated = $product->getTranslated();
             $title = trim((string) ($translated['name'] ?? ''));
 
@@ -57,5 +51,4 @@ class ProductWeakTitleRule extends AbstractProductSeoAuditRule
 
         return $result;
     }
-
 }
