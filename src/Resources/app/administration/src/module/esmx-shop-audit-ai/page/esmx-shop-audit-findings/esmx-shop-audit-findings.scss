@@ -1,64 +1,488 @@
+.esmx-shop-audit-findings {
+  // ==========================================================================
+  // Shared: severity badge
+  // ==========================================================================
 
-.esmx-shop-audit-findings__detail-card,
-.esmx-shop-audit-findings__detail-card .mt-card__content {
-  overflow: visible !important;
-}
+  .esmx-shop-audit-findings__severity-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
 
-.esmx-shop-audit-findings__detail-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #e5e7eb;
-}
+  .severity-low {
+    background: #e0f2fe;
+    color: #0369a1;
+  }
 
-.esmx-shop-audit-findings__detail-header-main {
-  min-width: 0;
-  flex: 1;
-}
+  .severity-medium {
+    background: #fef3c7;
+    color: #92400e;
+  }
 
-.esmx-shop-audit-findings__detail-title {
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.4;
-  color: #111827;
-}
+  .severity-high {
+    background: #fde68a;
+    color: #78350f;
+  }
 
-.esmx-shop-audit-findings__detail-meta {
-  margin-top: 3px;
-  font-size: 12px;
-  line-height: 1.4;
-  color: #6b7280;
-}
+  .severity-critical {
+    background: #fee2e2;
+    color: #991b1b;
+  }
 
-.esmx-shop-audit-findings__detail-body {
-  position: relative;
-}
+  // ==========================================================================
+  // Filters + findings table
+  // ==========================================================================
 
-.esmx-shop-audit-dashboard__section-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
+  .esmx-shop-audit-findings__table-card {
+    margin-bottom: 24px;
+  }
 
-.esmx-shop-audit-dashboard__section-header-main {
-  min-width: 0;
-  flex: 1;
-}
+  .esmx-shop-audit-findings__filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
+  }
 
-.esmx-shop-audit-dashboard__section-title {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.4;
-  color: #111827;
-}
+  .esmx-shop-audit-findings__filters-summary {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #111827;
+  }
 
-.esmx-shop-audit-dashboard__section-meta {
-  margin-top: 2px;
-  font-size: 12px;
-  line-height: 1.4;
-  color: #6b7280;
+  .esmx-shop-audit-findings__filters-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .esmx-shop-audit-findings__filter-dropdown-wrapper {
+    position: relative;
+  }
+
+  .esmx-shop-audit-findings__filter-dropdown-trigger {
+    appearance: none;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #374151;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s ease;
+  }
+
+  .esmx-shop-audit-findings__filter-dropdown-trigger:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+  }
+
+  .esmx-shop-audit-findings__filter-count {
+    min-width: 18px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #111827;
+    color: #ffffff;
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+  }
+
+  .esmx-shop-audit-findings__filter-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 30;
+    min-width: 180px;
+    padding: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .esmx-shop-audit-findings__filter-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px;
+    font-size: 13px;
+    color: #374151;
+    cursor: pointer;
+  }
+
+  .esmx-shop-audit-findings__filter-option.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .esmx-shop-audit-findings__filter-option.is-disabled input,
+  .esmx-shop-audit-findings__filter-option.is-disabled span {
+    cursor: not-allowed;
+  }
+
+  .esmx-shop-audit-findings__clear-filter-button {
+    appearance: none;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #374151;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .esmx-shop-audit-findings__clear-filter-button:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #9ca3af;
+  }
+
+  .esmx-shop-audit-findings__clear-filter-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .esmx-shop-audit-findings__filters-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .esmx-shop-audit-findings__filters-list {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .esmx-shop-audit-findings__filter-chip {
+    appearance: none;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #374151;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .esmx-shop-audit-findings__filter-chip:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+  }
+
+  .esmx-shop-audit-findings__filter-chip.is-active {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+  }
+
+  .esmx-shop-audit-findings__table {
+    width: 100%;
+    position: relative;
+  }
+
+  .esmx-shop-audit-findings__table-sticky-top {
+    position: static;
+    background: #ffffff;
+    padding-bottom: 8px;
+  }
+
+  /*.esmx-shop-audit-findings__filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
+  }*/
+
+  .esmx-shop-audit-findings__table-header,
+  .esmx-shop-audit-findings__table-row {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr 1fr 0.7fr 0.9fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .esmx-shop-audit-findings__table-header {
+    background: #ffffff;
+    padding: 0 0 12px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .esmx-shop-audit-findings__table-body {
+    position: relative;
+  }
+
+  .esmx-shop-audit-findings__table-row {
+    padding: 12px 8px;
+    margin: 0 -8px;
+    border-bottom: 1px solid #edf0f2;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+    background: #ffffff;
+  }
+
+  .esmx-shop-audit-findings__table-row:hover {
+    background-color: #f6f8fa;
+  }
+
+  .esmx-shop-audit-findings__col {
+    min-width: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #111827;
+    word-break: break-word;
+  }
+
+  .esmx-shop-audit-findings__cell-title {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .esmx-shop-audit-findings__row-label {
+    display: none;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .esmx-shop-audit-findings__header-button {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .esmx-shop-audit-findings__header-button:hover {
+    color: #111827;
+  }
+
+  .esmx-shop-audit-findings__header-button span {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .esmx-shop-audit-findings__header-button:hover span {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .esmx-shop-audit-findings__action-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+
+  .esmx-shop-audit-findings__impact-trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: help;
+    flex-shrink: 0;
+  }
+
+  .esmx-shop-audit-findings__impact-icon {
+    color: #6b7280;
+    transition: color 0.2s ease;
+  }
+
+  .esmx-shop-audit-findings__impact-trigger:hover .esmx-shop-audit-findings__impact-icon {
+    color: #111827;
+  }
+
+  .esmx-shop-audit-findings__impact-tooltip {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 9999;
+    width: 240px;
+    max-width: 280px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: #111827;
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: left;
+    white-space: normal;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+  }
+
+  .esmx-shop-audit-findings__impact-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    right: 8px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent #111827 transparent;
+  }
+
+  .esmx-shop-audit-findings__empty-state {
+    padding-top: 8px;
+  }
+
+  .esmx-shop-audit-findings__table-card,
+  .esmx-shop-audit-findings__table-card .mt-card__content,
+  .esmx-shop-audit-findings .sw-card-view {
+    overflow: visible !important;
+  }
+
+  // ==========================================================================
+  // Finding detail cards
+  // ==========================================================================
+
+  .esmx-shop-audit-findings__detail-section {
+    scroll-margin-top: 24px;
+    margin-bottom: 24px;
+  }
+
+  .esmx-shop-audit-findings__detail-card,
+  .esmx-shop-audit-findings__detail-card .mt-card__content {
+    overflow: visible !important;
+  }
+
+  .esmx-shop-audit-findings__detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .esmx-shop-audit-findings__detail-header-main {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .esmx-shop-audit-findings__detail-title {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #111827;
+  }
+
+  .esmx-shop-audit-findings__detail-meta {
+    margin-top: 3px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #6b7280;
+    text-transform: capitalize;
+  }
+
+  .esmx-shop-audit-findings__detail-body {
+    position: relative;
+  }
+
+  .esmx-shop-audit-findings__detail-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .esmx-shop-audit-findings__detail-pagination-meta {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #4b5563;
+  }
+
+  .esmx-shop-audit-findings__detail-pagination-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  // ==========================================================================
+  // Responsive
+  // ==========================================================================
+
+  @media (max-width: 1200px) {
+    .esmx-shop-audit-findings__table-sticky-top {
+      position: static;
+      padding-bottom: 0;
+    }
+
+    .esmx-shop-audit-findings__table-header {
+      display: none;
+    }
+
+    .esmx-shop-audit-findings__table-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 16px;
+      margin: 0 0 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: #ffffff;
+    }
+
+    .esmx-shop-audit-findings__table-row:hover {
+      background-color: #f6f8fa;
+    }
+
+    .esmx-shop-audit-findings__row-label {
+      display: block;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .esmx-shop-audit-findings__detail-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
 }

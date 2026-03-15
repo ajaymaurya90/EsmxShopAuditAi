@@ -40,8 +40,8 @@
                     :disabled="isRunningScan"
                     @click="runScan"
             >
-                <span v-if="isRunningScan">{{ $tc('esmx-shop-audit-ai.dashboard.runningScanButton') }}</span>
-                <span v-else>{{ $tc('esmx-shop-audit-ai.dashboard.runScanButton') }}</span>
+                <span v-if="isRunningScan">{{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}</span>
+                <span v-else>{{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}</span>
             </mt-button>
         </template>
 
@@ -59,65 +59,221 @@
                     </mt-banner>
                 </template>
 
-                <mt-card v-if="activeCodeFilter" class="esmx-shop-audit-dashboard__latest-scan-card">
-                    <template #headline>
-                        {{ $tc('esmx-shop-audit-ai.findings.activeFilterHeadline') }}
-                    </template>
-
-                    <div class="esmx-shop-audit-dashboard__latest-scan-meta">
-                        <p>
-                            Code:
-                            <strong>{{ activeCodeFilter }}</strong>
-                        </p>
-                    </div>
-
-                    <div style="margin-top: 12px;">
-                        <mt-button size="default" @click="clearFilters">
-                            {{ $tc('esmx-shop-audit-ai.general.clearFilters') }}
-                        </mt-button>
-                    </div>
-                </mt-card>
-
-                <mt-card>
+                <mt-card class="esmx-shop-audit-findings__table-card">
                     <template #headline>
                         {{ $tc('esmx-shop-audit-ai.findings.gridHeadline') }}
                     </template>
 
-                    <template v-if="findings.length">
-                        <div
-                                v-for="finding in findings"
-                                :key="finding.id"
-                                class="esmx-shop-audit-dashboard__insight-list-item esmx-shop-audit-dashboard__insight-list-item--clickable"
-                                @click="goToFindingDetailSection(finding)"
-                        >
-                            <div>
-                                <div class="esmx-shop-audit-dashboard__insight-title">
-                                    {{ finding.title }}
+                    <div v-if="sortedFindings.length" class="esmx-shop-audit-findings__table">
+                        <div class="esmx-shop-audit-findings__table-sticky-top">
+                            <div class="esmx-shop-audit-findings__filters">
+                                <div class="esmx-shop-audit-findings__filters-summary">
+                                    {{ resultsSummaryText }}
                                 </div>
-                                <div class="esmx-shop-audit-dashboard__insight-meta">
-                                    {{ finding.entity }} ·
-                                    <span
-                                            class="esmx-shop-audit-dashboard__severity-badge"
-                                            :class="getSeverityClass(finding.severity)"
+
+                                <div class="esmx-shop-audit-findings__filters-toolbar">
+                                    <div class="esmx-shop-audit-findings__filter-dropdown-wrapper">
+                                        <button
+                                                type="button"
+                                                class="esmx-shop-audit-findings__filter-dropdown-trigger"
+                                                @click="toggleFilterMenu"
+                                        >
+                                            <mt-icon name="regular-filter" size="16px" />
+                                            <span>{{ $tc('esmx-shop-audit-ai.findings.filterSeverity') }}</span>
+
+                                            <span
+                                                    v-if="selectedSeverityFilters.length"
+                                                    class="esmx-shop-audit-findings__filter-count"
+                                            >
+                                {{ selectedSeverityFilters.length }}
+                            </span>
+                                        </button>
+
+                                        <div
+                                                v-if="isFilterMenuOpen"
+                                                class="esmx-shop-audit-findings__filter-dropdown-menu"
+                                        >
+                                            <label
+                                                    v-for="filter in severityFilters"
+                                                    :key="filter.key"
+                                                    class="esmx-shop-audit-findings__filter-option"
+                                                    :class="{ 'is-disabled': filter.disabled }"
+                                            >
+                                                <input
+                                                        type="checkbox"
+                                                        :checked="isSeveritySelected(filter.key)"
+                                                        :disabled="filter.disabled"
+                                                        @change="toggleSeverityFilter(filter.key)"
+                                                >
+                                                <span>{{ filter.label }} ({{ filter.count }})</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                            type="button"
+                                            class="esmx-shop-audit-findings__clear-filter-button"
+                                            :disabled="!selectedSeverityFilters.length"
+                                            @click="clearSeverityFilters"
                                     >
-                                        {{ getSeverityLabel(finding.severity) }}
-                                    </span>
+                                        <mt-icon name="regular-times-s" size="16px" />
+                                    </button>
                                 </div>
                             </div>
-                            <strong>{{ finding.affectedCount }}</strong>
-                        </div>
-                    </template>
 
-                    <template v-else>
-                        <p>{{ $tc('esmx-shop-audit-ai.findings.emptyState') }}</p>
-                    </template>
+                            <div class="esmx-shop-audit-findings__table-header">
+                                <button
+                                        type="button"
+                                        class="esmx-shop-audit-findings__header-button esmx-shop-audit-findings__col esmx-shop-audit-findings__col--title"
+                                        @click="toggleSort('title')"
+                                >
+                                    <span>{{ $tc('esmx-shop-audit-ai.findings.columns.title') }}</span>
+                                    <mt-icon
+                                            v-if="isSortedBy('title')"
+                                            :name="sortIconMap[sortDirection]"
+                                            size="16px"
+                                    />
+                                </button>
+
+                                <button
+                                        type="button"
+                                        class="esmx-shop-audit-findings__header-button esmx-shop-audit-findings__col esmx-shop-audit-findings__col--category"
+                                        @click="toggleSort('category')"
+                                >
+                                    <span>{{ $tc('esmx-shop-audit-ai.findings.columns.category') }}</span>
+                                    <mt-icon
+                                            v-if="isSortedBy('category')"
+                                            :name="sortIconMap[sortDirection]"
+                                            size="16px"
+                                    />
+                                </button>
+
+                                <button
+                                        type="button"
+                                        class="esmx-shop-audit-findings__header-button esmx-shop-audit-findings__col esmx-shop-audit-findings__col--severity"
+                                        @click="toggleSort('severity')"
+                                >
+                                    <span>{{ $tc('esmx-shop-audit-ai.findings.columns.severity') }}</span>
+                                    <mt-icon
+                                            v-if="isSortedBy('severity')"
+                                            :name="sortIconMap[sortDirection]"
+                                            size="16px"
+                                    />
+                                </button>
+
+                                <button
+                                        type="button"
+                                        class="esmx-shop-audit-findings__header-button esmx-shop-audit-findings__col esmx-shop-audit-findings__col--count"
+                                        @click="toggleSort('count')"
+                                >
+                                    <span>{{ $tc('esmx-shop-audit-ai.findings.columns.affectedCount') }}</span>
+                                    <mt-icon
+                                            v-if="isSortedBy('count')"
+                                            :name="sortIconMap[sortDirection]"
+                                            size="16px"
+                                    />
+                                </button>
+
+                                <div class="esmx-shop-audit-findings__col esmx-shop-audit-findings__col--action">
+                                    {{ $tc('esmx-shop-audit-ai.findings.columns.action') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="esmx-shop-audit-findings__table-body">
+                            <div
+                                    v-for="finding in sortedFindings"
+                                    :key="finding.id"
+                                    class="esmx-shop-audit-findings__table-row"
+                            >
+                                <div class="esmx-shop-audit-findings__col esmx-shop-audit-findings__col--title">
+                                    <div class="esmx-shop-audit-findings__row-label">
+                                        {{ $tc('esmx-shop-audit-ai.findings.columns.title') }}
+                                    </div>
+                                    <div class="esmx-shop-audit-findings__cell-title">
+                                        {{ finding.title }}
+                                    </div>
+                                </div>
+
+                                <div class="esmx-shop-audit-findings__col esmx-shop-audit-findings__col--category">
+                                    <div class="esmx-shop-audit-findings__row-label">
+                                        {{ $tc('esmx-shop-audit-ai.findings.columns.category') }}
+                                    </div>
+                                    <div>{{ getCategoryLabel(finding.entity) }}</div>
+                                </div>
+
+                                <div class="esmx-shop-audit-findings__col esmx-shop-audit-findings__col--severity">
+                                    <div class="esmx-shop-audit-findings__row-label">
+                                        {{ $tc('esmx-shop-audit-ai.findings.columns.severity') }}
+                                    </div>
+                                    <span
+                                            class="esmx-shop-audit-findings__severity-badge"
+                                            :class="getSeverityClass(finding.severity)"
+                                    >
+                        {{ getSeverityLabel(finding.severity) }}
+                    </span>
+                                </div>
+
+                                <div class="esmx-shop-audit-findings__col esmx-shop-audit-findings__col--count">
+                                    <div class="esmx-shop-audit-findings__row-label">
+                                        {{ $tc('esmx-shop-audit-ai.findings.columns.affectedCount') }}
+                                    </div>
+                                    <strong>{{ finding.affectedCount }}</strong>
+                                </div>
+
+                                <div class="esmx-shop-audit-findings__col esmx-shop-audit-findings__col--action">
+                                    <div class="esmx-shop-audit-findings__row-label">
+                                        {{ $tc('esmx-shop-audit-ai.findings.columns.action') }}
+                                    </div>
+
+                                    <div class="esmx-shop-audit-findings__action-group">
+                        <span
+                                class="esmx-shop-audit-findings__impact-trigger"
+                                @mouseenter="activeImpactCode = finding.code"
+                                @mouseleave="activeImpactCode = null"
+                        >
+                            <mt-icon
+                                    name="regular-info-circle"
+                                    size="16px"
+                                    class="esmx-shop-audit-findings__impact-icon"
+                            />
+
+                            <span
+                                    v-if="activeImpactCode === finding.code"
+                                    class="esmx-shop-audit-findings__impact-tooltip"
+                            >
+                                {{ getImpactLabel(finding.code) }}
+                            </span>
+                        </span>
+
+                                        <mt-button
+                                                size="small"
+                                                variant="secondary"
+                                                @click="goToFindingDetailSection(finding)"
+                                        >
+                                            <mt-icon name="regular-eye" size="16px" />
+                                        </mt-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-else class="esmx-shop-audit-findings__empty-state">
+                        <p v-if="hasActiveFilters">
+                            {{ $tc('esmx-shop-audit-ai.findings.emptyFilteredState') }}
+                        </p>
+                        <p v-else>
+                            {{ $tc('esmx-shop-audit-ai.findings.emptyState') }}
+                        </p>
+                    </div>
                 </mt-card>
 
                 <div
-                        v-for="finding in findings"
+                        v-for="finding in sortedFindings"
                         :key="`section-${finding.id}`"
                         :id="`finding-section-${finding.code}`"
-                        class="esmx-shop-audit-dashboard__details-section"
+                        class="esmx-shop-audit-findings__detail-section"
                 >
                     <mt-card class="esmx-shop-audit-findings__detail-card">
                         <div class="esmx-shop-audit-findings__detail-header">
@@ -131,27 +287,67 @@
                             </div>
 
                             <span
-                                    class="esmx-shop-audit-dashboard__severity-badge"
+                                    class="esmx-shop-audit-findings__severity-badge"
                                     :class="getSeverityClass(finding.severity)"
                             >
-            {{ getSeverityLabel(finding.severity) }}
-        </span>
+                                {{ getSeverityLabel(finding.severity) }}
+                            </span>
                         </div>
 
                         <div class="esmx-shop-audit-findings__detail-body">
                             <template v-if="finding.items?.length">
                                 <sw-data-grid
-                                        :dataSource="finding.items"
+                                        :dataSource="getPaginatedFindingItems(finding)"
                                         :columns="[
-                    { property: 'name', label: $tc('esmx-shop-audit-ai.grid.productName'), primary: true },
-                    { property: 'productNumber', label: $tc('esmx-shop-audit-ai.grid.productNumber') },
-                    { property: 'stock', label: $tc('esmx-shop-audit-ai.grid.stock') }
-                ]"
-                                />
+        { property: 'name', label: $tc('esmx-shop-audit-ai.grid.productName'), primary: true },
+        { property: 'productNumber', label: $tc('esmx-shop-audit-ai.grid.productNumber') },
+        { property: 'stock', label: $tc('esmx-shop-audit-ai.grid.stock') }
+    ]"
+                                        :showSelection="false"
+                                        :showActions="true"
+                                >
+                                    <template #actions="{ item }">
+                                        <sw-context-menu-item @click="openProductDetailInNewTab(item)">
+                                            {{ $tc('esmx-shop-audit-ai.findings.viewDetail') }}
+                                        </sw-context-menu-item>
+                                    </template>
+                                </sw-data-grid>
+
+                                <div
+                                        v-if="getDetailTotalPages(finding) > 1"
+                                        class="esmx-shop-audit-findings__detail-pagination"
+                                >
+                                    <div class="esmx-shop-audit-findings__detail-pagination-meta">
+                                        {{ $tc('esmx-shop-audit-ai.findings.pageLabel') }}
+                                        <strong>{{ getDetailCurrentPage(finding.id) }}</strong>
+                                        {{ $tc('esmx-shop-audit-ai.findings.ofLabel') }}
+                                        <strong>{{ getDetailTotalPages(finding) }}</strong>
+                                    </div>
+
+                                    <div class="esmx-shop-audit-findings__detail-pagination-actions">
+                                        <mt-button
+                                                size="small"
+                                                variant="secondary"
+                                                :disabled="getDetailCurrentPage(finding.id) <= 1"
+                                                @click="goToDetailPrevPage(finding)"
+                                        >
+                                            {{ $tc('esmx-shop-audit-ai.findings.previousPage') }}
+                                        </mt-button>
+
+                                        <mt-button
+                                                size="small"
+                                                variant="secondary"
+                                                :disabled="getDetailCurrentPage(finding.id) >= getDetailTotalPages(finding)"
+                                                @click="goToDetailNextPage(finding)"
+                                        >
+                                            {{ $tc('esmx-shop-audit-ai.findings.nextPage') }}
+                                        </mt-button>
+                                    </div>
+                                </div>
                             </template>
 
                             <template v-else>
-                                <p>{{ $tc('esmx-shop-audit-ai.dashboard.noEntries') }}</p>
+                                <p>{{ $tc('esmx-shop-audit-ai.findings.noEntries') }}</p>
                             </template>
                         </div>
                     </mt-card>

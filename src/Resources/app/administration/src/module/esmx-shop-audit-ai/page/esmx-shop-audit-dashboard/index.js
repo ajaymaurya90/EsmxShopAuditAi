@@ -30,9 +30,9 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
 
     computed: {
         // Translated title of the dashboard card
-        cardTitle() {
-            return this.$tc('esmx-shop-audit-ai.dashboard.cardTitle');
-        },
+        //cardTitle() {
+          //  return this.$tc('esmx-shop-audit-ai.dashboard.cardTitle');
+        //},
 
         // Totals section of the audit results (counts of issues)
         totals() {
@@ -59,6 +59,7 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             return this.insights.openTaskCount ?? 0;
         },
 
+        // Section 1: top scan overview counters shown in the full-width header card
         scanOverviewStats() {
             return [
                 {
@@ -196,7 +197,7 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             return this.$tc('esmx-shop-audit-ai.dashboard.healthyHeadline');
         },
 
-        // Suggest the next most useful action so the user knows what to do first
+        // Section 2: determines the most urgent action for the store health card
         nextBestAction() {
             if ((this.totals.outOfStockProducts || 0) > 0) {
                 return {

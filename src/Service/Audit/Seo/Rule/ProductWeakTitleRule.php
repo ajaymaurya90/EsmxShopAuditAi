@@ -2,21 +2,11 @@
 
 namespace EsmxShopAuditAi\Service\Audit\Seo\Rule;
 
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-class ProductWeakTitleRule implements SeoAuditRuleInterface
+class ProductWeakTitleRule extends AbstractProductSeoAuditRule
 {
-    public function __construct(
-        private readonly EntityRepository $productRepository,
-        private readonly SystemConfigService $systemConfigService
-    ) {
-    }
 
     public function getCode(): string
     {
@@ -51,30 +41,21 @@ class ProductWeakTitleRule implements SeoAuditRuleInterface
 
         $minLength = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.minProductTitleLength') ?? 20);
 
-        $criteria = new Criteria();
-        $criteria->setLimit((int) ($this->systemConfigService->get('EsmxShopAuditAi.config.auditProductLimit') ?? 100));
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
-
-        /** @var ProductCollection $products */
-        $products = $this->productRepository->search($criteria, $context)->getEntities();
-
         $result = [];
 
         /** @var ProductEntity $product */
-        foreach ($products as $product) {
+        foreach ($this->loadProducts($context) as $product) {
             $translated = $product->getTranslated();
             $title = trim((string) ($translated['name'] ?? ''));
 
             if ($title !== '' && mb_strlen($title) < $minLength) {
-                $result[] = [
-                    'id' => $product->getId(),
+                $result[] = $this->buildProductPayload($product, [
                     'name' => $title,
-                    'productNumber' => $product->getProductNumber(),
-                    'stock' => $product->getStock(),
-                ];
+                ]);
             }
         }
 
         return $result;
     }
+
 }

@@ -23,6 +23,7 @@ class ManualScanRunner
 
     public function run(Context $context): string
     {
+        $auditSummary = [];
         $scanId = Uuid::randomHex();
         $startedAt = new \DateTimeImmutable();
 
@@ -95,6 +96,7 @@ class ManualScanRunner
                     'status' => 'failed',
                     'finishedAt' => new \DateTimeImmutable(),
                     'summaryJson' => [
+                        'meta' => $auditSummary['meta'] ?? [],
                         'error' => $exception->getMessage(),
                     ],
                 ],

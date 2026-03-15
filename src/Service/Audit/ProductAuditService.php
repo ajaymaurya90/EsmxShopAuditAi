@@ -15,6 +15,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class ProductAuditService
 {
     private const DEFAULT_LIMIT = 100;
+    private const VARIANT_AUDIT_MODE_EFFECTIVE = 'effective';   // audit should evaluate the effective storefront data inherited from parent products
+    private const VARIANT_AUDIT_MODE_RAW = 'raw';               // strictly check the raw values stored on variant records
 
     public function __construct(
         private readonly EntityRepository $productRepository,
@@ -31,7 +33,7 @@ class ProductAuditService
             $limit = self::DEFAULT_LIMIT;
         }
 
-        $products = $this->loadProducts($context, $limit);
+        $variantAuditMode = $this->getVariantAuditMode();
 
         $enableAudit = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.enableAudit') ?? true);
         $checkMissingManufacturer = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkMissingManufacturer') ?? true);
@@ -43,6 +45,7 @@ class ProductAuditService
                 'meta' => [
                     'scannedProducts' => 0,
                     'productLimit' => $limit,
+                    'variantAuditMode' => $variantAuditMode,
                 ],
                 'totals' => [
                     'missingDescription' => 0,
@@ -69,6 +72,8 @@ class ProductAuditService
                 ],
             ];
         }
+
+        $products = $this->loadProducts($context, $limit, $variantAuditMode);
 
         $languages = $this->loadLanguages($context);
 
@@ -124,7 +129,7 @@ class ProductAuditService
             }
 
             if ($checkMissingTranslations) {
-                $missingLanguages = $this->getMissingTranslationLanguages($product, $languages);
+                $missingLanguages = $this->getMissingTranslationLanguages($product, $languages, $variantAuditMode);
 
                 if ($missingLanguages !== []) {
                     $issues['missingTranslation'][] = $this->buildProductPayload($product, [
@@ -138,6 +143,7 @@ class ProductAuditService
             'meta' => [
                 'scannedProducts' => $products->count(),
                 'productLimit' => $limit,
+                'variantAuditMode' => $variantAuditMode,
             ],
             'totals' => [
                 'missingDescription' => \count($issues['missingDescription']),
@@ -165,7 +171,7 @@ class ProductAuditService
         ];
     }
 
-    private function loadProducts(Context $context, int $limit): ProductCollection
+    private function loadProducts(Context $context, int $limit, string $variantAuditMode): ProductCollection
     {
         $criteria = new Criteria();
         $criteria->setLimit($limit);
@@ -174,8 +180,16 @@ class ProductAuditService
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('translations');
 
+        $searchContext = clone $context;
+
+        if ($variantAuditMode === self::VARIANT_AUDIT_MODE_EFFECTIVE) {
+            $searchContext->setConsiderInheritance(true);
+        } else {
+            $searchContext->setConsiderInheritance(false);
+        }
+
         /** @var ProductCollection $products */
-        $products = $this->productRepository->search($criteria, $context)->getEntities();
+        $products = $this->productRepository->search($criteria, $searchContext)->getEntities();
 
         return $products;
     }
@@ -211,9 +225,31 @@ class ProductAuditService
         return true;
     }
 
-    private function getMissingTranslationLanguages(ProductEntity $product, LanguageCollection $languages): array
-    {
+    private function getMissingTranslationLanguages(
+        ProductEntity $product,
+        LanguageCollection $languages,
+        string $variantAuditMode
+    ): array {
         $missingLanguages = [];
+
+        if ($variantAuditMode === self::VARIANT_AUDIT_MODE_EFFECTIVE) {
+            $translated = $product->getTranslated();
+
+            $effectiveName = trim((string) ($translated['name'] ?? ''));
+            $effectiveDescription = trim((string) ($translated['description'] ?? ''));
+
+            foreach ($languages as $language) {
+                $locale = $language->getTranslationCode();
+                $languageLabel = $locale?->getCode() ?? $language->getId();
+
+                if ($effectiveName === '' || $effectiveDescription === '') {
+                    $missingLanguages[] = $languageLabel;
+                }
+            }
+
+            return $missingLanguages;
+        }
+
         $translations = $product->getTranslations();
 
         foreach ($languages as $language) {
@@ -221,12 +257,7 @@ class ProductAuditService
             $locale = $language->getTranslationCode();
             $languageLabel = $locale?->getCode() ?? $languageId;
 
-            if ($translations === null || !$translations->has($languageId)) {
-                $missingLanguages[] = $languageLabel;
-                continue;
-            }
-
-            $translation = $translations->get($languageId);
+            $translation = $translations?->get($languageId);
 
             if ($translation === null) {
                 $missingLanguages[] = $languageLabel;
@@ -251,10 +282,23 @@ class ProductAuditService
 
         return array_merge([
             'id' => $product->getId(),
+            'parentId' => $product->getParentId(),
             'name' => $name,
             'productNumber' => $product->getProductNumber(),
             'active' => $product->getActive(),
             'stock' => $product->getStock(),
         ], $extra);
+    }
+
+    private function getVariantAuditMode(): string
+    {
+        $mode = (string) ($this->systemConfigService->get('EsmxShopAuditAi.config.variantAuditMode')
+            ?? self::VARIANT_AUDIT_MODE_EFFECTIVE);
+
+        if (!\in_array($mode, [self::VARIANT_AUDIT_MODE_EFFECTIVE, self::VARIANT_AUDIT_MODE_RAW], true)) {
+            return self::VARIANT_AUDIT_MODE_EFFECTIVE;
+        }
+
+        return $mode;
     }
 }

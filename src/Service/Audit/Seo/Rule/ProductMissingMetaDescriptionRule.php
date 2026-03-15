@@ -2,22 +2,11 @@
 
 namespace EsmxShopAuditAi\Service\Audit\Seo\Rule;
 
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-class ProductMissingMetaDescriptionRule implements SeoAuditRuleInterface
+class ProductMissingMetaDescriptionRule extends AbstractProductSeoAuditRule
 {
-    public function __construct(
-        private readonly EntityRepository $productRepository,
-        private readonly SystemConfigService $systemConfigService
-    ) {
-    }
-
     public function getCode(): string
     {
         return 'product_missing_meta_description';
@@ -49,27 +38,15 @@ class ProductMissingMetaDescriptionRule implements SeoAuditRuleInterface
             return [];
         }
 
-        $criteria = new Criteria();
-        $criteria->setLimit((int) ($this->systemConfigService->get('EsmxShopAuditAi.config.auditProductLimit') ?? 100));
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
-
-        /** @var ProductCollection $products */
-        $products = $this->productRepository->search($criteria, $context)->getEntities();
-
         $result = [];
 
         /** @var ProductEntity $product */
-        foreach ($products as $product) {
+        foreach ($this->loadProducts($context) as $product) {
             $translated = $product->getTranslated();
             $metaDescription = trim((string) ($translated['metaDescription'] ?? ''));
 
             if ($metaDescription === '') {
-                $result[] = [
-                    'id' => $product->getId(),
-                    'name' => (string) ($translated['name'] ?? $product->getProductNumber() ?? $product->getId()),
-                    'productNumber' => $product->getProductNumber(),
-                    'stock' => $product->getStock(),
-                ];
+                $result[] = $this->buildProductPayload($product);
             }
         }
 

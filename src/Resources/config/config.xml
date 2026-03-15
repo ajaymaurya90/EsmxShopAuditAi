@@ -3,6 +3,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
 
+
     <card>
         <title>General settings</title>
         <title lang="de-DE">Allgemeine Einstellungen</title>
@@ -19,6 +20,38 @@
             <label>Product audit limit per run</label>
             <label lang="de-DE">Produktlimit pro Audit-Lauf</label>
             <defaultValue>100</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Esmx Shop Audit AI</title>
+        <title lang="de-DE">Esmx Shop Audit AI</title>
+
+        <input-field type="single-select">
+            <name>variantAuditMode</name>
+
+            <label>Variant audit mode</label>
+            <label lang="de-DE">Modus für Variantenprüfung</label>
+            <options>
+                <option>
+                    <id>effective</id>
+                    <name>Audit effective storefront data</name>
+                    <name lang="de-DE">Effektive Storefront-Daten prüfen</name>
+                </option>
+                <option>
+                    <id>raw</id>
+                    <name>Audit raw variant records</name>
+                    <name lang="de-DE">Rohe Varianten-Datensätze prüfen</name>
+                </option>
+            </options>
+            <defaultValue>effective</defaultValue>
+
+            <helpText>
+                Choose whether the audit should evaluate the effective storefront data inherited from parent products, or strictly check the raw values stored on variant records.
+            </helpText>
+            <helpText lang="de-DE">
+                Wählen Sie, ob das Audit die effektiven Storefront-Daten inklusive Vererbung vom Elternprodukt prüfen soll oder strikt die rohen Werte der Varianten-Datensätze.
+            </helpText>
         </input-field>
     </card>
 
