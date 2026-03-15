@@ -46,72 +46,232 @@
         </template>
 
         <template #content>
-            <sw-card-view>
+            <sw-card-view class="esmx-shop-audit__page-view">
                 <template v-if="loadError">
                     <mt-banner variant="danger">
                         {{ loadError }}
                     </mt-banner>
                 </template>
+
                 <template v-if="scanError">
                     <mt-banner variant="danger">
                         {{ scanError }}
                     </mt-banner>
                 </template>
 
-                <mt-card v-if="activePriorityFilter || activeCodeFilter" class="esmx-shop-audit-dashboard__latest-scan-card">
+                <mt-card class="esmx-shop-audit__overview-card">
+                    <div class="esmx-shop-audit__section-header">
+                        <div class="esmx-shop-audit__section-title">
+                            Task overview
+                        </div>
+
+                        <div class="esmx-shop-audit__section-header-meta">
+                            <div
+                                    v-if="formattedLatestScanDate"
+                                    class="esmx-shop-audit__section-subtitle"
+                            >
+                                {{ $tc('esmx-shop-audit-ai.dashboard.lastScanLabel') }}: {{ formattedLatestScanDate }}
+                            </div>
+
+                            <span
+                                    class="esmx-shop-audit__info-trigger"
+                                    @mouseenter="activeWidgetTooltip = 'taskOverview'"
+                                    @mouseleave="activeWidgetTooltip = null"
+                            >
+                                <mt-icon
+                                        name="regular-info-circle"
+                                        size="16px"
+                                        class="esmx-shop-audit__info-icon"
+                                />
+
+                                <span
+                                        v-if="activeWidgetTooltip === 'taskOverview'"
+                                        class="esmx-shop-audit__tooltip"
+                                >
+                                    Overview of the latest generated task workload, priorities and affected entities.
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="esmx-shop-audit__stats-strip">
+                        <div class="esmx-shop-audit__stat-item">
+                            <div class="esmx-shop-audit__stat-label">Total Tasks</div>
+                            <div class="esmx-shop-audit__stat-value">{{ totalTasks }}</div>
+                        </div>
+
+                        <div class="esmx-shop-audit__stat-item">
+                            <div class="esmx-shop-audit__stat-label">Open Tasks</div>
+                            <div class="esmx-shop-audit__stat-value">{{ openTaskCount }}</div>
+                        </div>
+
+                        <div class="esmx-shop-audit__stat-item">
+                            <div class="esmx-shop-audit__stat-label">High Priority</div>
+                            <div class="esmx-shop-audit__stat-value">{{ highPriorityTaskCount }}</div>
+                        </div>
+
+                        <div class="esmx-shop-audit__stat-item">
+                            <div class="esmx-shop-audit__stat-label">Medium Priority</div>
+                            <div class="esmx-shop-audit__stat-value">{{ mediumPriorityTaskCount }}</div>
+                        </div>
+
+                        <div class="esmx-shop-audit__stat-item">
+                            <div class="esmx-shop-audit__stat-label">Resolved</div>
+                            <div class="esmx-shop-audit__stat-value">{{ resolvedTaskCount }}</div>
+                        </div>
+
+                        <div class="esmx-shop-audit__stat-item">
+                            <div class="esmx-shop-audit__stat-label">Total Affected</div>
+                            <div class="esmx-shop-audit__stat-value">{{ totalAffectedCount }}</div>
+                        </div>
+                    </div>
+                </mt-card>
+
+                <mt-card class="esmx-shop-audit__table-card">
                     <template #headline>
-                        {{ $tc('esmx-shop-audit-ai.tasks.activeFilterHeadline') }}
+                        {{ $tc('esmx-shop-audit-ai.tasks.gridHeadline') }}
                     </template>
 
-                    <div class="esmx-shop-audit-dashboard__latest-scan-meta">
+                    <div class="esmx-shop-audit__table-topbar">
+                        <div class="esmx-shop-audit__table-meta">
+                            Showing <strong>{{ processedTasks.length }}</strong> tasks
+                        </div>
+
+                        <div class="esmx-shop-audit__filters-toolbar">
+                            <div class="esmx-shop-audit__filter-dropdown-wrapper">
+                                <button
+                                        type="button"
+                                        class="esmx-shop-audit__filter-dropdown-trigger"
+                                        @click="togglePriorityFilterMenu"
+                                >
+                                    <mt-icon name="regular-filter" size="16px" />
+                                    <span>{{ $tc('esmx-shop-audit-ai.tasks.columns.priority') }}</span>
+
+                                    <span
+                                            v-if="selectedPriorityFilters.length"
+                                            class="esmx-shop-audit__filter-count"
+                                    >
+                                        {{ selectedPriorityFilters.length }}
+                                    </span>
+                                </button>
+
+                                <div
+                                        v-if="isPriorityFilterMenuOpen"
+                                        class="esmx-shop-audit__filter-dropdown-menu"
+                                >
+                                    <label
+                                            v-for="filter in priorityFilters"
+                                            :key="filter.key"
+                                            class="esmx-shop-audit__filter-option"
+                                            :class="{ 'is-disabled': filter.disabled }"
+                                    >
+                                        <input
+                                                type="checkbox"
+                                                :checked="isPrioritySelected(filter.key)"
+                                                :disabled="filter.disabled"
+                                                @change="togglePriorityFilter(filter.key)"
+                                        >
+                                        <span>{{ filter.label }} ({{ filter.count }})</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="esmx-shop-audit__filter-dropdown-wrapper">
+                                <button
+                                        type="button"
+                                        class="esmx-shop-audit__filter-dropdown-trigger"
+                                        @click="toggleStatusFilterMenu"
+                                >
+                                    <mt-icon name="regular-filter" size="16px" />
+                                    <span>{{ $tc('esmx-shop-audit-ai.tasks.columns.status') }}</span>
+
+                                    <span
+                                            v-if="selectedStatusFilters.length"
+                                            class="esmx-shop-audit__filter-count"
+                                    >
+                                        {{ selectedStatusFilters.length }}
+                                    </span>
+                                </button>
+
+                                <div
+                                        v-if="isStatusFilterMenuOpen"
+                                        class="esmx-shop-audit__filter-dropdown-menu"
+                                >
+                                    <label
+                                            v-for="filter in statusFilters"
+                                            :key="filter.key"
+                                            class="esmx-shop-audit__filter-option"
+                                            :class="{ 'is-disabled': filter.disabled }"
+                                    >
+                                        <input
+                                                type="checkbox"
+                                                :checked="isStatusSelected(filter.key)"
+                                                :disabled="filter.disabled"
+                                                @change="toggleStatusFilter(filter.key)"
+                                        >
+                                        <span>{{ filter.label }} ({{ filter.count }})</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button
+                                    type="button"
+                                    class="esmx-shop-audit__clear-filter-button"
+                                    :disabled="!hasActiveInlineFilters"
+                                    @click="clearFilters"
+                            >
+                                <mt-icon name="regular-times-s" size="16px" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div
+                            v-if="activePriorityFilter || activeCodeFilter"
+                            class="esmx-shop-audit__active-filters"
+                    >
                         <p v-if="activePriorityFilter">
                             {{ $tc('esmx-shop-audit-ai.tasks.columns.priority') }}:
                             <strong>{{ activePriorityFilter }}</strong>
                         </p>
+
                         <p v-if="activeCodeFilter">
                             Code:
                             <strong>{{ activeCodeFilter }}</strong>
                         </p>
                     </div>
 
-                    <div style="margin-top: 12px;">
-                        <mt-button size="default" @click="clearFilters">
-                            {{ $tc('esmx-shop-audit-ai.general.clearFilters') }}
-                        </mt-button>
-                    </div>
-                </mt-card>
-
-                <mt-card v-if="latestScan" class="esmx-shop-audit-dashboard__latest-scan-card">
-                    <template #headline>
-                        {{ $tc('esmx-shop-audit-ai.tasks.latestScanHeadline') }}
-                    </template>
-
-                    <div class="esmx-shop-audit-dashboard__latest-scan-meta">
-                        <p>
-                            {{ $tc('esmx-shop-audit-ai.dashboard.scanStatus') }}:
-                            <strong>{{ latestScan.status }}</strong>
-                        </p>
-                        <p>
-                            {{ $tc('esmx-shop-audit-ai.tasks.totalTasks') }}:
-                            <strong>{{ tasks.length }}</strong>
-                        </p>
-                        <p>
-                            {{ $tc('esmx-shop-audit-ai.dashboard.highPriorityFindings') }}:
-                            <strong>{{ latestScan.highPriorityFindings }}</strong>
-                        </p>
-                    </div>
-                </mt-card>
-
-                <mt-card>
-                    <template #headline>
-                        {{ $tc('esmx-shop-audit-ai.tasks.gridHeadline') }}
-                    </template>
-
-                    <template v-if="filteredTasks.length">
+                    <template v-if="processedTasks.length">
                         <sw-data-grid
-                                :dataSource="filteredTasks"
+                                :dataSource="processedTasks"
                                 :columns="columns"
-                        />
+                                :allow-column-edit="false"
+                                :allow-inline-edit="false"
+                                :show-selection="false"
+                                @column-sort="onSortColumn"
+                        >
+                            <template #column-title="{ item }">
+                                <div class="esmx-shop-audit__task-title-cell">
+                                    <div class="esmx-shop-audit__task-title-main">{{ item.title }}</div>
+                                    <div class="esmx-shop-audit__task-title-code">{{ item.code }}</div>
+                                </div>
+                            </template>
+
+                            <template #column-priority="{ item }">
+                                <mt-badge :variant="getPriorityVariant(item.priority)">
+                                    {{ item.priority }}
+                                </mt-badge>
+                            </template>
+
+                            <template #column-affectedCount="{ item }">
+                                <strong>{{ item.affectedCount }}</strong>
+                            </template>
+
+                            <template #column-status="{ item }">
+                                <mt-badge :variant="getStatusVariant(item.status)">
+                                    {{ item.status }}
+                                </mt-badge>
+                            </template>
+                        </sw-data-grid>
                     </template>
 
                     <template v-else>
