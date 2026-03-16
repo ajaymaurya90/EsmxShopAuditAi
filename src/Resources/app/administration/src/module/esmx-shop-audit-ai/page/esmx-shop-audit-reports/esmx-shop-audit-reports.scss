@@ -1,0 +1,135 @@
+.esmx-shop-audit-reports {
+  .esmx-shop-audit-reports__history-list {
+    width: 100%;
+  }
+
+  .esmx-shop-audit-reports__history-header,
+  .esmx-shop-audit-reports__history-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 0.8fr 1fr 1fr 0.8fr;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .esmx-shop-audit-reports__history-header {
+    padding: 0 0 12px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .esmx-shop-audit-reports__history-row {
+    padding: 14px 8px;
+    margin: 0 -8px;
+    border-bottom: 1px solid #edf0f2;
+    border-radius: 8px;
+    background: #ffffff;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+  }
+
+  .esmx-shop-audit-reports__history-row:hover {
+    background-color: #f6f8fa;
+  }
+
+  .esmx-shop-audit-reports__history-row.is-selected {
+    background: #f8fafc;
+    box-shadow: inset 0 0 0 1px #dbe4ee;
+  }
+
+  .esmx-shop-audit-reports__row-label {
+    display: none;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+
+  .esmx-shop-audit-reports__small-stat {
+    font-size: 20px;
+  }
+
+  .esmx-shop-audit-reports__delta-value.is-positive {
+    color: #15803d;
+  }
+
+  .esmx-shop-audit-reports__delta-value.is-negative {
+    color: #b91c1c;
+  }
+
+  .esmx-shop-audit-reports__delta-value.is-neutral {
+    color: #6b7280;
+  }
+
+  .esmx-shop-audit-reports__detail-card,
+  .esmx-shop-audit-reports__detail-card .mt-card__content {
+    overflow: visible !important;
+  }
+
+  .esmx-shop-audit-reports__detail-summary-header {
+    margin-bottom: 20px;
+  }
+
+  .esmx-shop-audit-reports__detail-section {
+    margin-top: 24px;
+  }
+
+  .esmx-shop-audit-reports__detail-section-heading {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #111827;
+  }
+
+  .esmx-shop-audit-reports__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .esmx-shop-audit-reports__pagination-meta {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #4b5563;
+  }
+
+  .esmx-shop-audit-reports__pagination-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 1200px) {
+    .esmx-shop-audit-reports__history-header {
+      display: none;
+    }
+
+    .esmx-shop-audit-reports__history-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 16px;
+      margin: 0 0 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+    }
+
+    .esmx-shop-audit-reports__row-label {
+      display: block;
+    }
+  }
+}

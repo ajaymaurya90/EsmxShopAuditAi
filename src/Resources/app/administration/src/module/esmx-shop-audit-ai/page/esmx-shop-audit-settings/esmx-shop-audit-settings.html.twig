@@ -33,14 +33,17 @@
                 {{ $tc('esmx-shop-audit-ai.general.refresh') }}
             </mt-button>
 
-            <mt-button
-                    variant="primary"
-                    size="default"
-                    disabled
-            >
-                <span v-if="isRunningScan">{{ $tc('esmx-shop-audit-ai.dashboard.runningScanButton') }}</span>
-                <span v-else>{{ $tc('esmx-shop-audit-ai.dashboard.runScanButton') }}</span>
-            </mt-button>
+            <div class="esmx-shop-audit-dashboard__actions" style="margin-left:5px" >
+                <mt-button
+                        variant="primary"
+                        size="default"
+                        disabled
+                >
+                    <span class="esmx-shop-audit-dashboard__scan-status" >
+                        {{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
+                    </span>
+                </mt-button>
+            </div>
         </template>
 
         <template #content>

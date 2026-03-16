@@ -4,7 +4,12 @@
       "mainMenuItemGeneral": "Shop Audit AI",
       "descriptionTextModule": "Audit and reporting tools for Shopware stores",
       "refresh": "Refresh",
-      "clearFilters": "Clear filters"
+      "clearFilters": "Clear filters",
+      "code": "Code",
+      "page": "Page",
+      "of": "of",
+      "previous": "Previous",
+      "next": "Next"
     },
     "dashboard": {
       "runScanButton": "Run scan",
@@ -169,7 +174,13 @@
       "pageLabel": "Page",
       "ofLabel": "of",
       "previousPage": "Previous",
-      "nextPage": "Next"
+      "nextPage": "Next",
+      "overviewTitle": "Findings overview",
+      "overviewTooltip": "Overview of the latest audit findings by severity and affected entities.",
+      "stats": {
+        "totalFindings": "Total Findings",
+        "affectedItems": "Affected Items"
+      }
     },
     "tasks": {
       "pageTitle": "Tasks",
@@ -184,7 +195,19 @@
         "affectedCount": "Affected count",
         "status": "Status"
       },
-      "activeFilterHeadline": "Active tasks filter"
+      "activeFilterHeadline": "Active tasks filter",
+      "overviewTitle": "Task overview",
+      "overviewTooltip": "Overview of the latest generated task workload, priorities and affected entities.",
+      "showingTasksPrefix": "Showing",
+      "showingTasksSuffix": "tasks",
+      "stats": {
+        "totalTasks": "Total Tasks",
+        "openTasks": "Open Tasks",
+        "highPriority": "High Priority",
+        "mediumPriority": "Medium Priority",
+        "resolved": "Resolved",
+        "totalAffected": "Total Affected"
+      }
     },
     "reports": {
       "pageTitle": "Reports",
@@ -200,6 +223,31 @@
         "scannedProducts": "Scanned products",
         "totalFindings": "Grouped findings",
         "highPriorityFindings": "High-priority findings"
+      },
+      "overviewTitle": "Reports overview",
+      "overviewTooltip": "Historical view of completed audit scans and report quality trends.",
+      "selectedReportDetailTitle": "Selected report detail",
+      "selectedReportSummaryTitle": "Selected report summary",
+      "selectedFindingsTitle": "Selected findings",
+      "selectedTasksTitle": "Selected tasks",
+      "table": {
+        "date": "Date",
+        "status": "Status",
+        "products": "Products",
+        "totalFindings": "Total Findings",
+        "highPriority": "High Priority",
+        "action": "Action",
+        "view": "View"
+      },
+      "stats": {
+        "totalReports": "Total Reports",
+        "completed": "Completed",
+        "latestFindings": "Latest Findings",
+        "latestHighPriority": "Latest High Priority",
+        "findingsVsPrevious": "Findings vs Previous",
+        "avgFindingsPerScan": "Avg Findings / Scan",
+        "findingGroups": "Finding Groups",
+        "tasks": "Tasks"
       }
     },
     "settings": {

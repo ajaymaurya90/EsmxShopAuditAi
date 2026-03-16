@@ -1,31 +1,6 @@
 .esmx-shop-audit-dashboard {
   scroll-behavior: smooth;
 
-  // ==========================================================================
-  // Common: shared layout, actions, badges, widget headers, tooltips, lists
-  // ==========================================================================
-
-  .esmx-shop-audit-dashboard__actions {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-left: 5px;
-  }
-
-  // Scan button loading text
-  .esmx-shop-audit-dashboard__scan-status {
-    font-size: 14px;
-    color: #6b7280;
-    white-space: nowrap;
-  }
-
-  // Shared card padding override
-  .mt-card__content {
-    padding: 15px !important;
-  }
-
-  // Shared severity badge
   .esmx-shop-audit-dashboard__severity-badge {
     font-size: 11px;
     font-weight: 600;
@@ -55,7 +30,6 @@
     color: #991b1b;
   }
 
-  // Shared widget header
   .esmx-shop-audit-dashboard__widget-header {
     display: flex;
     align-items: flex-start;
@@ -95,54 +69,6 @@
     position: relative;
   }
 
-  // Shared info tooltip trigger
-  .esmx-shop-audit-dashboard__widget-info-trigger {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: help;
-    flex-shrink: 0;
-  }
-
-  .esmx-shop-audit-dashboard__widget-info-icon {
-    color: #6b7280;
-    transition: color 0.2s ease;
-  }
-
-  .esmx-shop-audit-dashboard__widget-info-trigger:hover .esmx-shop-audit-dashboard__widget-info-icon {
-    color: #111827;
-  }
-
-  .esmx-shop-audit-dashboard__widget-tooltip {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    z-index: 9999;
-    width: 240px;
-    max-width: 280px;
-    padding: 8px 10px;
-    border-radius: 6px;
-    background: #111827;
-    color: #ffffff;
-    font-size: 12px;
-    line-height: 1.4;
-    text-align: left;
-    white-space: normal;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
-  }
-
-  .esmx-shop-audit-dashboard__widget-tooltip::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    right: 8px;
-    border-width: 6px;
-    border-style: solid;
-    border-color: transparent transparent #111827 transparent;
-  }
-
-  // Shared clickable list style
   .esmx-shop-audit-dashboard__insight-list-item {
     display: flex;
     justify-content: space-between;
@@ -182,7 +108,6 @@
     text-transform: capitalize;
   }
 
-  // Optional shared product link style
   .esmx-shop-audit-dashboard__product-link {
     color: #2563eb;
     cursor: pointer;
@@ -193,87 +118,6 @@
   .esmx-shop-audit-dashboard__product-link:hover {
     color: #1d4ed8;
     text-decoration: underline;
-  }
-
-  // ==========================================================================
-  // Unified Audit Overview
-  // Shop scan results + Store health + Top tasks
-  // ==========================================================================
-
-  .esmx-shop-audit-dashboard__audit-overview-card {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 24px;
-  }
-
-  .esmx-shop-audit-dashboard__section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  .esmx-shop-audit-dashboard__section-header-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-  }
-
-  .esmx-shop-audit-dashboard__section-title {
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1.3;
-    color: #111827;
-  }
-
-  .esmx-shop-audit-dashboard__section-subtitle {
-    font-size: 14px;
-    line-height: 1.5;
-    color: #6b7280;
-    white-space: nowrap;
-  }
-
-  .esmx-shop-audit-dashboard__scan-overview-stats {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 0;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    overflow: hidden;
-    background: #ffffff;
-  }
-
-  .esmx-shop-audit-dashboard__scan-overview-stat {
-    padding: 20px 16px;
-    text-align: center;
-    min-height: 104px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    background: #ffffff;
-    border-right: 1px solid #e5e7eb;
-  }
-
-  .esmx-shop-audit-dashboard__scan-overview-stat:last-child {
-    border-right: none;
-  }
-
-  .esmx-shop-audit-dashboard__scan-overview-stat-label {
-    font-size: 13px;
-    line-height: 1.4;
-    color: #6b7280;
-    margin-bottom: 8px;
-  }
-
-  .esmx-shop-audit-dashboard__scan-overview-stat-value {
-    font-size: 30px;
-    font-weight: 700;
-    line-height: 1.2;
-    color: #111827;
   }
 
   .esmx-shop-audit-dashboard__audit-overview-content {
@@ -402,11 +246,6 @@
     padding-top: 4px;
   }
 
-  // ==========================================================================
-  // Section 3: Sales Insights
-  // Revenue/order KPIs and product performance widgets
-  // ==========================================================================
-
   .esmx-shop-audit-dashboard__sales-section {
     width: 100%;
     margin-bottom: 24px;
@@ -457,11 +296,6 @@
     background: #ffffff;
     box-sizing: border-box;
   }
-
-  // ==========================================================================
-  // Section 4: Issue Groups
-  // Grouped audit issue cards with severity and impact tooltip
-  // ==========================================================================
 
   .esmx-shop-audit-dashboard__summary {
     width: 100%;
@@ -538,7 +372,6 @@
     transform: translateY(-2px);
   }
 
-  // Card-level severity accent for grouped issue cards
   .esmx-shop-audit-dashboard__metric-card--low {
     border-left: 4px solid #0ea5e9;
   }
@@ -662,71 +495,21 @@
     border-color: #111827 transparent transparent transparent;
   }
 
-  // ==========================================================================
-  // Responsive: Unified Audit Overview
-  // ==========================================================================
-
-  @media (max-width: 1400px) {
-    .esmx-shop-audit-dashboard__scan-overview-stats {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .esmx-shop-audit-dashboard__scan-overview-stat {
-      border-right: 1px solid #e5e7eb;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .esmx-shop-audit-dashboard__scan-overview-stat:nth-child(3n) {
-      border-right: none;
-    }
-
-    .esmx-shop-audit-dashboard__scan-overview-stat:nth-last-child(-n + 3) {
-      border-bottom: none;
-    }
-  }
-
   @media (max-width: 1200px) {
     .esmx-shop-audit-dashboard__audit-overview-content {
+      grid-template-columns: 1fr;
+    }
+
+    .esmx-shop-audit-dashboard__sales-kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .esmx-shop-audit-dashboard__sales-widgets-grid {
       grid-template-columns: 1fr;
     }
   }
 
   @media (max-width: 900px) {
-    .esmx-shop-audit-dashboard__section-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .esmx-shop-audit-dashboard__section-header-meta {
-      width: 100%;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-    }
-
-    .esmx-shop-audit-dashboard__section-subtitle {
-      white-space: normal;
-    }
-
-    .esmx-shop-audit-dashboard__scan-overview-stats {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .esmx-shop-audit-dashboard__scan-overview-stat:nth-child(3n) {
-      border-right: 1px solid #e5e7eb;
-    }
-
-    .esmx-shop-audit-dashboard__scan-overview-stat:nth-child(2n) {
-      border-right: none;
-    }
-
-    .esmx-shop-audit-dashboard__scan-overview-stat:nth-last-child(-n + 3) {
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .esmx-shop-audit-dashboard__scan-overview-stat:nth-last-child(-n + 2) {
-      border-bottom: none;
-    }
-
     .esmx-shop-audit-dashboard__store-health-layout {
       grid-template-columns: 1fr;
       gap: 20px;
@@ -739,51 +522,16 @@
     .esmx-shop-audit-dashboard__store-health-status {
       justify-content: flex-start;
     }
-  }
 
-  @media (max-width: 600px) {
-    .esmx-shop-audit-dashboard__scan-overview-stats {
-      grid-template-columns: 1fr;
-    }
-
-    .esmx-shop-audit-dashboard__scan-overview-stat {
-      border-right: none;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .esmx-shop-audit-dashboard__scan-overview-stat:last-child {
-      border-bottom: none;
-    }
-  }
-
-  // ==========================================================================
-  // Responsive: Section 3
-  // ==========================================================================
-
-  @media (max-width: 1200px) {
-    .esmx-shop-audit-dashboard__sales-kpis {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .esmx-shop-audit-dashboard__sales-widgets-grid {
-      grid-template-columns: 1fr;
+    .esmx-shop-audit-dashboard__summary-header {
+      flex-direction: column;
+      align-items: flex-start;
     }
   }
 
   @media (max-width: 700px) {
     .esmx-shop-audit-dashboard__sales-kpis {
       grid-template-columns: 1fr;
-    }
-  }
-
-  // ==========================================================================
-  // Responsive: Section 4
-  // ==========================================================================
-
-  @media (max-width: 900px) {
-    .esmx-shop-audit-dashboard__summary-header {
-      flex-direction: column;
-      align-items: flex-start;
     }
   }
 }

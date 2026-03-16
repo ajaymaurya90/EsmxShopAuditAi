@@ -1,4 +1,4 @@
-.esmx-shop-audit-tasks {
+.esmx-shop-audit {
   width: 100%;
 
   .sw-page__content,
@@ -19,7 +19,8 @@
   }
 
   .esmx-shop-audit__overview-card,
-  .esmx-shop-audit__table-card {
+  .esmx-shop-audit__table-card,
+  .esmx-shop-audit__section-card {
     display: block;
     width: 100%;
     max-width: 100%;
@@ -278,15 +279,6 @@
     margin-bottom: 0;
   }
 
-  .esmx-shop-audit__task-title-main {
-    font-weight: 600;
-  }
-
-  .esmx-shop-audit__task-title-code {
-    font-size: 12px;
-    opacity: 0.7;
-  }
-
   @media (max-width: 1400px) {
     .esmx-shop-audit__stats-strip {
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -305,6 +297,21 @@
       border-bottom: none;
     }
   }
+
+  .esmx-shop-audit-dashboard__actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-left: 5px;
+  }
+
+  .esmx-shop-audit-dashboard__scan-status {
+    font-size: 14px;
+    color: #6b7280;
+    white-space: nowrap;
+  }
+
 
   @media (max-width: 900px) {
     .esmx-shop-audit__section-header {

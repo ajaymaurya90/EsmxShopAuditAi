@@ -1,5 +1,5 @@
 {% block esmx_shop_audit_findings %}
-    <sw-page class="esmx-shop-audit-findings">
+    <sw-page class="esmx-shop-audit esmx-shop-audit-findings">
         <template #smart-bar-header>
             <h2>{{ pageTitle }}</h2>
         </template>
@@ -34,19 +34,26 @@
                 {{ $tc('esmx-shop-audit-ai.general.refresh') }}
             </mt-button>
 
-            <mt-button
-                    variant="primary"
-                    size="default"
-                    :disabled="isRunningScan"
-                    @click="runScan"
-            >
-                <span v-if="isRunningScan">{{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}</span>
-                <span v-else>{{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}</span>
-            </mt-button>
+            <div class="esmx-shop-audit-dashboard__actions">
+                <mt-button
+                        variant="primary"
+                        size="default"
+                        :loading="isRunningScan"
+                        :disabled="isRunningScan"
+                        @click="runScan"
+                >
+                    <span v-if="isRunningScan" class="esmx-shop-audit-dashboard__scan-status">
+                        {{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}
+                    </span>
+                    <span v-else>
+                        {{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
+                    </span>
+                </mt-button>
+            </div>
         </template>
 
         <template #content>
-            <sw-card-view>
+            <sw-card-view class="esmx-shop-audit__page-view">
                 <template v-if="loadError">
                     <mt-banner variant="danger">
                         {{ loadError }}
@@ -59,23 +66,91 @@
                     </mt-banner>
                 </template>
 
-                <mt-card class="esmx-shop-audit-findings__table-card">
+                <mt-card class="esmx-shop-audit__overview-card">
+                    <div class="esmx-shop-audit__section-header">
+                        <div class="esmx-shop-audit__section-title">
+                            {{ $tc('esmx-shop-audit-ai.findings.overviewTitle') }}
+                        </div>
+
+                        <div class="esmx-shop-audit__section-header-meta">
+                            <div
+                                    v-if="latestScan && latestScan.finishedAt"
+                                    class="esmx-shop-audit__section-subtitle"
+                            >
+                                {{ $tc('esmx-shop-audit-ai.dashboard.lastScanLabel') }}: {{ formatDate(latestScan.finishedAt) }}
+                            </div>
+
+                            <span
+                                    class="esmx-shop-audit__info-trigger"
+                                    @mouseenter="activeWidgetTooltip = 'findingsOverview'"
+                                    @mouseleave="activeWidgetTooltip = null"
+                            >
+                                <mt-icon
+                                        name="regular-info-circle"
+                                        size="16px"
+                                        class="esmx-shop-audit__info-icon"
+                                />
+
+                                <span
+                                        v-if="activeWidgetTooltip === 'findingsOverview'"
+                                        class="esmx-shop-audit__tooltip"
+                                >
+                                    {{ $tc('esmx-shop-audit-ai.findings.overviewTooltip') }}
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="esmx-shop-audit__stats-strip">
+                        <div class="esmx-shop-audit__stat-item">
+                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.findings.stats.totalFindings') }}</div>
+                            <div class="esmx-shop-audit__stat-value">{{ findings.length }}</div>
+                        </div>
+
+                        <div class="esmx-shop-audit__stat-item">
+                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.severity.critical') }}</div>
+                            <div class="esmx-shop-audit__stat-value">{{ findingsBySeverity.critical }}</div>
+                        </div>
+
+                        <div class="esmx-shop-audit__stat-item">
+                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.severity.high') }}</div>
+                            <div class="esmx-shop-audit__stat-value">{{ findingsBySeverity.high }}</div>
+                        </div>
+
+                        <div class="esmx-shop-audit__stat-item">
+                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.severity.medium') }}</div>
+                            <div class="esmx-shop-audit__stat-value">{{ findingsBySeverity.medium }}</div>
+                        </div>
+
+                        <div class="esmx-shop-audit__stat-item">
+                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.severity.low') }}</div>
+                            <div class="esmx-shop-audit__stat-value">{{ findingsBySeverity.low }}</div>
+                        </div>
+
+                        <div class="esmx-shop-audit__stat-item">
+                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.findings.stats.affectedItems') }}</div>
+                            <div class="esmx-shop-audit__stat-value">{{ totalAffectedCount }}</div>
+                        </div>
+                    </div>
+                </mt-card>
+
+                <mt-card class="esmx-shop-audit__table-card">
                     <template #headline>
                         {{ $tc('esmx-shop-audit-ai.findings.gridHeadline') }}
                     </template>
 
                     <div v-if="sortedFindings.length" class="esmx-shop-audit-findings__table">
                         <div class="esmx-shop-audit-findings__table-sticky-top">
-                            <div class="esmx-shop-audit-findings__filters">
-                                <div class="esmx-shop-audit-findings__filters-summary">
+                            <div class="esmx-shop-audit__table-topbar">
+                                <div class="esmx-shop-audit__table-meta">
                                     {{ resultsSummaryText }}
                                 </div>
 
-                                <div class="esmx-shop-audit-findings__filters-toolbar">
-                                    <div class="esmx-shop-audit-findings__filter-dropdown-wrapper">
+                                <div class="esmx-shop-audit__filters-toolbar">
+                                    <div class="esmx-shop-audit__filter-dropdown-wrapper">
                                         <button
                                                 type="button"
-                                                class="esmx-shop-audit-findings__filter-dropdown-trigger"
+                                                class="esmx-shop-audit__filter-dropdown-trigger"
                                                 @click="toggleFilterMenu"
                                         >
                                             <mt-icon name="regular-filter" size="16px" />
@@ -83,20 +158,20 @@
 
                                             <span
                                                     v-if="selectedSeverityFilters.length"
-                                                    class="esmx-shop-audit-findings__filter-count"
+                                                    class="esmx-shop-audit__filter-count"
                                             >
-                                {{ selectedSeverityFilters.length }}
-                            </span>
+                                                {{ selectedSeverityFilters.length }}
+                                            </span>
                                         </button>
 
                                         <div
                                                 v-if="isFilterMenuOpen"
-                                                class="esmx-shop-audit-findings__filter-dropdown-menu"
+                                                class="esmx-shop-audit__filter-dropdown-menu"
                                         >
                                             <label
                                                     v-for="filter in severityFilters"
                                                     :key="filter.key"
-                                                    class="esmx-shop-audit-findings__filter-option"
+                                                    class="esmx-shop-audit__filter-option"
                                                     :class="{ 'is-disabled': filter.disabled }"
                                             >
                                                 <input
@@ -112,7 +187,7 @@
 
                                     <button
                                             type="button"
-                                            class="esmx-shop-audit-findings__clear-filter-button"
+                                            class="esmx-shop-audit__clear-filter-button"
                                             :disabled="!selectedSeverityFilters.length"
                                             @click="clearSeverityFilters"
                                     >
@@ -210,8 +285,8 @@
                                             class="esmx-shop-audit-findings__severity-badge"
                                             :class="getSeverityClass(finding.severity)"
                                     >
-                        {{ getSeverityLabel(finding.severity) }}
-                    </span>
+                                        {{ getSeverityLabel(finding.severity) }}
+                                    </span>
                                 </div>
 
                                 <div class="esmx-shop-audit-findings__col esmx-shop-audit-findings__col--count">
@@ -227,24 +302,24 @@
                                     </div>
 
                                     <div class="esmx-shop-audit-findings__action-group">
-                        <span
-                                class="esmx-shop-audit-findings__impact-trigger"
-                                @mouseenter="activeImpactCode = finding.code"
-                                @mouseleave="activeImpactCode = null"
-                        >
-                            <mt-icon
-                                    name="regular-info-circle"
-                                    size="16px"
-                                    class="esmx-shop-audit-findings__impact-icon"
-                            />
+                                        <span
+                                                class="esmx-shop-audit-findings__impact-trigger"
+                                                @mouseenter="activeImpactCode = finding.code"
+                                                @mouseleave="activeImpactCode = null"
+                                        >
+                                            <mt-icon
+                                                    name="regular-info-circle"
+                                                    size="16px"
+                                                    class="esmx-shop-audit-findings__impact-icon"
+                                            />
 
-                            <span
-                                    v-if="activeImpactCode === finding.code"
-                                    class="esmx-shop-audit-findings__impact-tooltip"
-                            >
-                                {{ getImpactLabel(finding.code) }}
-                            </span>
-                        </span>
+                                            <span
+                                                    v-if="activeImpactCode === finding.code"
+                                                    class="esmx-shop-audit-findings__impact-tooltip"
+                                            >
+                                                {{ getImpactLabel(finding.code) }}
+                                            </span>
+                                        </span>
 
                                         <mt-button
                                                 size="small"
@@ -299,10 +374,10 @@
                                 <sw-data-grid
                                         :dataSource="getPaginatedFindingItems(finding)"
                                         :columns="[
-        { property: 'name', label: $tc('esmx-shop-audit-ai.grid.productName'), primary: true },
-        { property: 'productNumber', label: $tc('esmx-shop-audit-ai.grid.productNumber') },
-        { property: 'stock', label: $tc('esmx-shop-audit-ai.grid.stock') }
-    ]"
+                                        { property: 'name', label: $tc('esmx-shop-audit-ai.grid.productName'), primary: true },
+                                        { property: 'productNumber', label: $tc('esmx-shop-audit-ai.grid.productNumber') },
+                                        { property: 'stock', label: $tc('esmx-shop-audit-ai.grid.stock') }
+                                    ]"
                                         :showSelection="false"
                                         :showActions="true"
                                 >

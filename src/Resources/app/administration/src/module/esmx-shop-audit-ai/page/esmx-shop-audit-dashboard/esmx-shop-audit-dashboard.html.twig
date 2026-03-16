@@ -1,16 +1,10 @@
 {% block esmx_shop_audit_dashboard %}
-    <sw-page class="esmx-shop-audit-dashboard">
+    <sw-page class="esmx-shop-audit esmx-shop-audit-dashboard">
 
-        {# ------------------------------------------------------------------ #}
-        {# Smart bar header section: Main page title                          #}
-        {# ------------------------------------------------------------------ #}
         <template #smart-bar-header>
             <h2>{{ $tc('esmx-shop-audit-ai.general.mainMenuItemGeneral') }}</h2>
         </template>
 
-        {# ------------------------------------------------------------------ #}
-        {# Smart bar actions section: Navigation + page actions               #}
-        {# ------------------------------------------------------------------ #}
         <template #smart-bar-actions>
             <mt-button variant="primary" size="default">
                 {{ $tc('esmx-shop-audit-ai.navigation.dashboard') }}
@@ -50,93 +44,76 @@
                         @click="runScan"
                 >
                     <span v-if="isRunningScan" class="esmx-shop-audit-dashboard__scan-status">
-                    {{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}
-                </span>
+                        {{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}
+                    </span>
                     <span v-else>
-                    {{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
-                </span>
+                        {{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
+                    </span>
                 </mt-button>
-
-
             </div>
         </template>
 
-        {# ------------------------------------------------------------------ #}
-        {# Main content section: All dashboard widgets and detail grids       #}
-        {# ------------------------------------------------------------------ #}
         <template #content>
-            <sw-card-view>
-
-                {# ------------------------------------------------------------------ #}
-                {# Global page error banner: Display dashboard load error              #}
-                {# ------------------------------------------------------------------ #}
+            <sw-card-view class="esmx-shop-audit__page-view">
                 <template v-if="loadError">
                     <mt-banner variant="danger">
                         {{ loadError }}
                     </mt-banner>
                 </template>
 
-                {# ------------------------------------------------------------------ #}
-                {# Dashboard loaded state: Render all dashboard widgets                #}
-                {# ------------------------------------------------------------------ #}
                 <template v-else-if="dashboard">
-
-                    {# ------------------------------------------------------------------ #}
-                    {# Scan action error banner: Display scan execution error            #}
-                    {# ------------------------------------------------------------------ #}
                     <template v-if="scanError">
                         <mt-banner variant="danger">
                             {{ scanError }}
                         </mt-banner>
                     </template>
 
-                    {# Section 1 + 2: Unified Audit Overview #}
-                    <mt-card class="esmx-shop-audit-dashboard__audit-overview-card">
-                        <div class="esmx-shop-audit-dashboard__section-header">
-                            <div class="esmx-shop-audit-dashboard__section-title">
+                    <mt-card class="esmx-shop-audit__overview-card">
+                        <div class="esmx-shop-audit__section-header">
+                            <div class="esmx-shop-audit__section-title">
                                 {{ $tc('esmx-shop-audit-ai.dashboard.scanResultsTitle') }}
                             </div>
 
-                            <div class="esmx-shop-audit-dashboard__section-header-meta">
+                            <div class="esmx-shop-audit__section-header-meta">
                                 <div
                                         v-if="formattedLatestScanDate"
-                                        class="esmx-shop-audit-dashboard__section-subtitle"
+                                        class="esmx-shop-audit__section-subtitle"
                                 >
                                     {{ $tc('esmx-shop-audit-ai.dashboard.lastScanLabel') }}: {{ formattedLatestScanDate }}
                                 </div>
 
                                 <span
-                                        class="esmx-shop-audit-dashboard__widget-info-trigger"
+                                        class="esmx-shop-audit__info-trigger"
                                         @mouseenter="activeWidgetTooltip = 'scanCriteria'"
                                         @mouseleave="activeWidgetTooltip = null"
                                 >
-                <mt-icon
-                        name="regular-info-circle"
-                        size="16px"
-                        class="esmx-shop-audit-dashboard__widget-info-icon"
-                />
+                                    <mt-icon
+                                            name="regular-info-circle"
+                                            size="16px"
+                                            class="esmx-shop-audit__info-icon"
+                                    />
 
-                <span
-                        v-if="activeWidgetTooltip === 'scanCriteria'"
-                        class="esmx-shop-audit-dashboard__widget-tooltip"
-                >
-                    {{ $tc('esmx-shop-audit-ai.dashboard.scanCriteriaInfo') }}
-                </span>
-            </span>
+                                    <span
+                                            v-if="activeWidgetTooltip === 'scanCriteria'"
+                                            class="esmx-shop-audit__tooltip"
+                                    >
+                                        {{ $tc('esmx-shop-audit-ai.dashboard.scanCriteriaInfo') }}
+                                    </span>
+                                </span>
                             </div>
                         </div>
 
-                        <div class="esmx-shop-audit-dashboard__scan-overview-stats">
+                        <div class="esmx-shop-audit__stats-strip">
                             <div
                                     v-for="stat in scanOverviewStats"
                                     :key="stat.key"
-                                    class="esmx-shop-audit-dashboard__scan-overview-stat"
+                                    class="esmx-shop-audit__stat-item"
                             >
-                                <div class="esmx-shop-audit-dashboard__scan-overview-stat-label">
+                                <div class="esmx-shop-audit__stat-label">
                                     {{ stat.label }}
                                 </div>
 
-                                <div class="esmx-shop-audit-dashboard__scan-overview-stat-value">
+                                <div class="esmx-shop-audit__stat-value">
                                     {{ stat.value }}
                                 </div>
                             </div>
@@ -155,23 +132,23 @@
                                     </div>
 
                                     <span
-                                            class="esmx-shop-audit-dashboard__widget-info-trigger"
+                                            class="esmx-shop-audit__info-trigger"
                                             @mouseenter="activeWidgetTooltip = 'storeHealth'"
                                             @mouseleave="activeWidgetTooltip = null"
                                     >
-                    <mt-icon
-                            name="regular-info-circle"
-                            size="16px"
-                            class="esmx-shop-audit-dashboard__widget-info-icon"
-                    />
+                                        <mt-icon
+                                                name="regular-info-circle"
+                                                size="16px"
+                                                class="esmx-shop-audit__info-icon"
+                                        />
 
-                    <span
-                            v-if="activeWidgetTooltip === 'storeHealth'"
-                            class="esmx-shop-audit-dashboard__widget-tooltip"
-                    >
-                        {{ $tc('esmx-shop-audit-ai.dashboard.storeHealthInfo') }}
-                    </span>
-                </span>
+                                        <span
+                                                v-if="activeWidgetTooltip === 'storeHealth'"
+                                                class="esmx-shop-audit__tooltip"
+                                        >
+                                            {{ $tc('esmx-shop-audit-ai.dashboard.storeHealthInfo') }}
+                                        </span>
+                                    </span>
                                 </div>
 
                                 <div class="esmx-shop-audit-dashboard__store-health-layout">
@@ -191,12 +168,12 @@
                                         </div>
 
                                         <div class="esmx-shop-audit-dashboard__store-health-status">
-                        <span
-                                class="esmx-shop-audit-dashboard__severity-badge"
-                                :class="'severity-' + healthStatus"
-                        >
-                            {{ healthStatusLabel }}
-                        </span>
+                                            <span
+                                                    class="esmx-shop-audit-dashboard__severity-badge"
+                                                    :class="'severity-' + healthStatus"
+                                            >
+                                                {{ healthStatusLabel }}
+                                            </span>
                                         </div>
                                     </div>
 
@@ -258,24 +235,24 @@
                                     </div>
 
                                     <div class="esmx-shop-audit-dashboard__widget-header-actions">
-                    <span
-                            class="esmx-shop-audit-dashboard__widget-info-trigger"
-                            @mouseenter="activeWidgetTooltip = 'topTasks'"
-                            @mouseleave="activeWidgetTooltip = null"
-                    >
-                        <mt-icon
-                                name="regular-info-circle"
-                                size="16px"
-                                class="esmx-shop-audit-dashboard__widget-info-icon"
-                        />
+                                        <span
+                                                class="esmx-shop-audit__info-trigger"
+                                                @mouseenter="activeWidgetTooltip = 'topTasks'"
+                                                @mouseleave="activeWidgetTooltip = null"
+                                        >
+                                            <mt-icon
+                                                    name="regular-info-circle"
+                                                    size="16px"
+                                                    class="esmx-shop-audit__info-icon"
+                                            />
 
-                        <span
-                                v-if="activeWidgetTooltip === 'topTasks'"
-                                class="esmx-shop-audit-dashboard__widget-tooltip"
-                        >
-                            {{ $tc('esmx-shop-audit-ai.dashboard.topTasksInfo') }}
-                        </span>
-                    </span>
+                                            <span
+                                                    v-if="activeWidgetTooltip === 'topTasks'"
+                                                    class="esmx-shop-audit__tooltip"
+                                            >
+                                                {{ $tc('esmx-shop-audit-ai.dashboard.topTasksInfo') }}
+                                            </span>
+                                        </span>
 
                                         <mt-button
                                                 size="small"
@@ -315,7 +292,6 @@
                         </div>
                     </mt-card>
 
-                    {# Section 3: Sales Insights #}
                     <div class="esmx-shop-audit-dashboard__sales-section">
                         <mt-card class="esmx-shop-audit-dashboard__sales-section-card">
                             <div class="esmx-shop-audit-dashboard__widget-header">
@@ -329,23 +305,23 @@
                                 </div>
 
                                 <span
-                                        class="esmx-shop-audit-dashboard__widget-info-trigger"
+                                        class="esmx-shop-audit__info-trigger"
                                         @mouseenter="activeWidgetTooltip = 'salesInsights'"
                                         @mouseleave="activeWidgetTooltip = null"
                                 >
-                <mt-icon
-                        name="regular-info-circle"
-                        size="16px"
-                        class="esmx-shop-audit-dashboard__widget-info-icon"
-                />
+                                    <mt-icon
+                                            name="regular-info-circle"
+                                            size="16px"
+                                            class="esmx-shop-audit__info-icon"
+                                    />
 
-                <span
-                        v-if="activeWidgetTooltip === 'salesInsights'"
-                        class="esmx-shop-audit-dashboard__widget-tooltip"
-                >
-                    {{ $tc('esmx-shop-audit-ai.dashboard.salesInsightsInfo') }}
-                </span>
-            </span>
+                                    <span
+                                            v-if="activeWidgetTooltip === 'salesInsights'"
+                                            class="esmx-shop-audit__tooltip"
+                                    >
+                                        {{ $tc('esmx-shop-audit-ai.dashboard.salesInsightsInfo') }}
+                                    </span>
+                                </span>
                             </div>
 
                             <div class="esmx-shop-audit-dashboard__sales-kpis">
@@ -383,23 +359,23 @@
                                         </div>
 
                                         <span
-                                                class="esmx-shop-audit-dashboard__widget-info-trigger"
+                                                class="esmx-shop-audit__info-trigger"
                                                 @mouseenter="activeWidgetTooltip = 'topSellingProducts'"
                                                 @mouseleave="activeWidgetTooltip = null"
                                         >
-                        <mt-icon
-                                name="regular-info-circle"
-                                size="16px"
-                                class="esmx-shop-audit-dashboard__widget-info-icon"
-                        />
+                                            <mt-icon
+                                                    name="regular-info-circle"
+                                                    size="16px"
+                                                    class="esmx-shop-audit__info-icon"
+                                            />
 
-                        <span
-                                v-if="activeWidgetTooltip === 'topSellingProducts'"
-                                class="esmx-shop-audit-dashboard__widget-tooltip"
-                        >
-                            {{ $tc('esmx-shop-audit-ai.dashboard.topSellingProductsInfo') }}
-                        </span>
-                    </span>
+                                            <span
+                                                    v-if="activeWidgetTooltip === 'topSellingProducts'"
+                                                    class="esmx-shop-audit__tooltip"
+                                            >
+                                                {{ $tc('esmx-shop-audit-ai.dashboard.topSellingProductsInfo') }}
+                                            </span>
+                                        </span>
                                     </div>
 
                                     <div class="esmx-shop-audit-dashboard__widget-body">
@@ -433,23 +409,23 @@
                                         </div>
 
                                         <span
-                                                class="esmx-shop-audit-dashboard__widget-info-trigger"
+                                                class="esmx-shop-audit__info-trigger"
                                                 @mouseenter="activeWidgetTooltip = 'lowStockProducts'"
                                                 @mouseleave="activeWidgetTooltip = null"
                                         >
-                        <mt-icon
-                                name="regular-info-circle"
-                                size="16px"
-                                class="esmx-shop-audit-dashboard__widget-info-icon"
-                        />
+                                            <mt-icon
+                                                    name="regular-info-circle"
+                                                    size="16px"
+                                                    class="esmx-shop-audit__info-icon"
+                                            />
 
-                        <span
-                                v-if="activeWidgetTooltip === 'lowStockProducts'"
-                                class="esmx-shop-audit-dashboard__widget-tooltip"
-                        >
-                            {{ $tc('esmx-shop-audit-ai.dashboard.lowStockProductsInfo') }}
-                        </span>
-                    </span>
+                                            <span
+                                                    v-if="activeWidgetTooltip === 'lowStockProducts'"
+                                                    class="esmx-shop-audit__tooltip"
+                                            >
+                                                {{ $tc('esmx-shop-audit-ai.dashboard.lowStockProductsInfo') }}
+                                            </span>
+                                        </span>
                                     </div>
 
                                     <div class="esmx-shop-audit-dashboard__widget-body">
@@ -476,7 +452,6 @@
                         </mt-card>
                     </div>
 
-                    {# Section 4: Issue Groups #}
                     <div class="esmx-shop-audit-dashboard__summary">
                         <div class="esmx-shop-audit-dashboard__summary-meta">
                             <div class="esmx-shop-audit-dashboard__summary-header">
@@ -521,9 +496,9 @@
                                                 class="esmx-shop-audit-dashboard__metric-card-count-area"
                                                 :class="'severity-' + card.severity"
                                         >
-                        <span class="esmx-shop-audit-dashboard__metric-card-number">
-                            {{ card.count }}
-                        </span>
+                                            <span class="esmx-shop-audit-dashboard__metric-card-number">
+                                                {{ card.count }}
+                                            </span>
                                         </div>
 
                                         <div class="esmx-shop-audit-dashboard__metric-card-details">
@@ -534,31 +509,31 @@
                                             </div>
 
                                             <div class="esmx-shop-audit-dashboard__metric-card-meta-row">
-                            <span
-                                    class="esmx-shop-audit-dashboard__severity-badge"
-                                    :class="'severity-' + card.severity"
-                            >
-                                {{ getSeverityLabel(card.severity) }}
-                            </span>
+                                                <span
+                                                        class="esmx-shop-audit-dashboard__severity-badge"
+                                                        :class="'severity-' + card.severity"
+                                                >
+                                                    {{ getSeverityLabel(card.severity) }}
+                                                </span>
 
                                                 <span
                                                         class="esmx-shop-audit-dashboard__metric-card-info-wrapper"
                                                         @mouseenter="activeImpactKey = card.key"
                                                         @mouseleave="activeImpactKey = null"
                                                 >
-                                <mt-icon
-                                        name="regular-info-circle"
-                                        size="16px"
-                                        class="esmx-shop-audit-dashboard__metric-card-info"
-                                />
+                                                    <mt-icon
+                                                            name="regular-info-circle"
+                                                            size="16px"
+                                                            class="esmx-shop-audit-dashboard__metric-card-info"
+                                                    />
 
-                                <span
-                                        v-if="activeImpactKey === card.key"
-                                        class="esmx-shop-audit-dashboard__metric-card-tooltip"
-                                >
-                                    {{ card.impact }}
-                                </span>
-                            </span>
+                                                    <span
+                                                            v-if="activeImpactKey === card.key"
+                                                            class="esmx-shop-audit-dashboard__metric-card-tooltip"
+                                                    >
+                                                        {{ card.impact }}
+                                                    </span>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -566,18 +541,13 @@
                             </a>
                         </div>
                     </div>
-
                 </template>
 
-                {# ------------------------------------------------------------------ #}
-                {# Empty state section: Shown when no dashboard data is available       #}
-                {# ------------------------------------------------------------------ #}
                 <template v-else>
                     <mt-card>
                         <p>{{ $tc('esmx-shop-audit-ai.dashboard.emptyState') }}</p>
                     </mt-card>
                 </template>
-
             </sw-card-view>
         </template>
     </sw-page>

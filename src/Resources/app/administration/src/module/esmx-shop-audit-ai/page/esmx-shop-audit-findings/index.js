@@ -1,4 +1,5 @@
 import template from './esmx-shop-audit-findings.html.twig';
+import '../../shared/esmx-shop-audit-shared.scss';
 import './esmx-shop-audit-findings.scss';
 import { getFindingImpact } from './constants/finding-impact.constant';
 
@@ -16,6 +17,7 @@ Shopware.Component.register('esmx-shop-audit-findings', {
             loadError: null,
             scanError: null,
             activeImpactCode: null,
+            activeWidgetTooltip: null,
             sortBy: 'severity',
             sortDirection: 'desc',
             selectedSeverityFilters: [],
@@ -42,6 +44,19 @@ Shopware.Component.register('esmx-shop-audit-findings', {
     computed: {
         pageTitle() {
             return this.$tc('esmx-shop-audit-ai.findings.pageTitle');
+        },
+
+        findingsBySeverity() {
+            return {
+                critical: this.findings.filter((item) => item.severity === 'critical').length,
+                high: this.findings.filter((item) => item.severity === 'high').length,
+                medium: this.findings.filter((item) => item.severity === 'medium').length,
+                low: this.findings.filter((item) => item.severity === 'low').length,
+            };
+        },
+
+        totalAffectedCount() {
+            return this.findings.reduce((sum, item) => sum + (item.affectedCount || 0), 0);
         },
 
         activeCodeFilter() {
@@ -151,9 +166,9 @@ Shopware.Component.register('esmx-shop-audit-findings', {
             if (this.selectedSeverityFilters.length === 1) {
                 const severityLabel = this.$tc(`esmx-shop-audit-ai.severity.${this.selectedSeverityFilters[0]}`).toLowerCase();
 
-                return `${this.$tc('esmx-shop-audit-ai.findings.resultsSummaryPrefix')} 
-                ${items} ${this.$tc('esmx-shop-audit-ai.findings.resultsSummaryMiddle')} 
-                ${groups} ${this.$tc('esmx-shop-audit-ai.findings.resultsSummarySuffix')} ${this.$tc('esmx-shop-audit-ai.findings.resultsSummaryWithSeverityPrefix')} 
+                return `${this.$tc('esmx-shop-audit-ai.findings.resultsSummaryPrefix')}
+                ${items} ${this.$tc('esmx-shop-audit-ai.findings.resultsSummaryMiddle')}
+                ${groups} ${this.$tc('esmx-shop-audit-ai.findings.resultsSummarySuffix')} ${this.$tc('esmx-shop-audit-ai.findings.resultsSummaryWithSeverityPrefix')}
                 ${severityLabel} ${this.$tc('esmx-shop-audit-ai.findings.resultsSummaryWithSeveritySuffix')}`;
             }
 
@@ -174,6 +189,7 @@ Shopware.Component.register('esmx-shop-audit-findings', {
                 .then((response) => {
                     this.latestScan = response.scan;
                     this.findings = response.findings ?? [];
+                    this.detailCurrentPages = {};
                 })
                 .then(() => {
                     this.$nextTick(() => {
@@ -206,6 +222,24 @@ Shopware.Component.register('esmx-shop-audit-findings', {
                 .finally(() => {
                     this.isRunningScan = false;
                 });
+        },
+
+        formatDate(value) {
+            if (!value) {
+                return '';
+            }
+
+            try {
+                return Shopware.Utils.format.date(value, {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    year: 'numeric',
+                    month: 'short',
+                    day: '2-digit',
+                });
+            } catch (e) {
+                return value;
+            }
         },
 
         toggleFilterMenu() {
@@ -330,8 +364,6 @@ Shopware.Component.register('esmx-shop-audit-findings', {
             this.scrollToFindingSection(finding.code);
         },
 
-
-
         goToDashboard() {
             this.$router.push({ name: 'esmx.shop.audit.ai.index' });
         },
@@ -417,6 +449,5 @@ Shopware.Component.register('esmx-shop-audit-findings', {
                 window.open(resolved.href, '_blank');
             }
         },
-
     }
 });

@@ -1,5 +1,5 @@
 {% block esmx_shop_audit_tasks %}
-    <sw-page class="esmx-shop-audit-tasks">
+    <sw-page class="esmx-shop-audit esmx-shop-audit-tasks">
         <template #smart-bar-header>
             <h2>{{ pageTitle }}</h2>
         </template>
@@ -34,15 +34,22 @@
                 {{ $tc('esmx-shop-audit-ai.general.refresh') }}
             </mt-button>
 
-            <mt-button
-                    variant="primary"
-                    size="default"
-                    :disabled="isRunningScan"
-                    @click="runScan"
-            >
-                <span v-if="isRunningScan">{{ $tc('esmx-shop-audit-ai.dashboard.runningScanButton') }}</span>
-                <span v-else>{{ $tc('esmx-shop-audit-ai.dashboard.runScanButton') }}</span>
-            </mt-button>
+            <div class="esmx-shop-audit-dashboard__actions">
+                <mt-button
+                        variant="primary"
+                        size="default"
+                        :loading="isRunningScan"
+                        :disabled="isRunningScan"
+                        @click="runScan"
+                >
+                    <span v-if="isRunningScan" class="esmx-shop-audit-dashboard__scan-status">
+                        {{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}
+                    </span>
+                    <span v-else>
+                        {{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
+                    </span>
+                </mt-button>
+            </div>
         </template>
 
         <template #content>
@@ -62,7 +69,7 @@
                 <mt-card class="esmx-shop-audit__overview-card">
                     <div class="esmx-shop-audit__section-header">
                         <div class="esmx-shop-audit__section-title">
-                            Task overview
+                            {{ $tc('esmx-shop-audit-ai.tasks.overviewTitle') }}
                         </div>
 
                         <div class="esmx-shop-audit__section-header-meta">
@@ -88,7 +95,7 @@
                                         v-if="activeWidgetTooltip === 'taskOverview'"
                                         class="esmx-shop-audit__tooltip"
                                 >
-                                    Overview of the latest generated task workload, priorities and affected entities.
+                                    {{ $tc('esmx-shop-audit-ai.tasks.overviewTooltip') }}
                                 </span>
                             </span>
                         </div>
@@ -96,32 +103,32 @@
 
                     <div class="esmx-shop-audit__stats-strip">
                         <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">Total Tasks</div>
+                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.tasks.stats.totalTasks') }}</div>
                             <div class="esmx-shop-audit__stat-value">{{ totalTasks }}</div>
                         </div>
 
                         <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">Open Tasks</div>
+                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.tasks.stats.openTasks') }}</div>
                             <div class="esmx-shop-audit__stat-value">{{ openTaskCount }}</div>
                         </div>
 
                         <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">High Priority</div>
+                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.tasks.stats.highPriority') }}</div>
                             <div class="esmx-shop-audit__stat-value">{{ highPriorityTaskCount }}</div>
                         </div>
 
                         <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">Medium Priority</div>
+                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.tasks.stats.mediumPriority') }}</div>
                             <div class="esmx-shop-audit__stat-value">{{ mediumPriorityTaskCount }}</div>
                         </div>
 
                         <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">Resolved</div>
+                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.tasks.stats.resolved') }}</div>
                             <div class="esmx-shop-audit__stat-value">{{ resolvedTaskCount }}</div>
                         </div>
 
                         <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">Total Affected</div>
+                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.tasks.stats.totalAffected') }}</div>
                             <div class="esmx-shop-audit__stat-value">{{ totalAffectedCount }}</div>
                         </div>
                     </div>
@@ -134,7 +141,9 @@
 
                     <div class="esmx-shop-audit__table-topbar">
                         <div class="esmx-shop-audit__table-meta">
-                            Showing <strong>{{ processedTasks.length }}</strong> tasks
+                            {{ $tc('esmx-shop-audit-ai.tasks.showingTasksPrefix') }}
+                            <strong>{{ processedTasks.length }}</strong>
+                            {{ $tc('esmx-shop-audit-ai.tasks.showingTasksSuffix') }}
                         </div>
 
                         <div class="esmx-shop-audit__filters-toolbar">
@@ -235,7 +244,7 @@
                         </p>
 
                         <p v-if="activeCodeFilter">
-                            Code:
+                            {{ $tc('esmx-shop-audit-ai.general.code') }}:
                             <strong>{{ activeCodeFilter }}</strong>
                         </p>
                     </div>

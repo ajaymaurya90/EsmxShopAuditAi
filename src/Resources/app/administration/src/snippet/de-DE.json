@@ -4,7 +4,12 @@
       "mainMenuItemGeneral": "Shop Audit AI",
       "descriptionTextModule": "Audit- und Reporting-Tools für Shopware-Shops",
       "refresh": "Aktualisieren",
-      "clearFilters": "Filter zurücksetzen"
+      "clearFilters": "Filter zurücksetzen",
+      "code": "Code",
+      "page": "Seite",
+      "of": "von",
+      "previous": "Zurück",
+      "next": "Weiter"
     },
     "dashboard": {
       "runScanButton": "Scan starten",
@@ -168,7 +173,13 @@
       "pageLabel": "Seite",
       "ofLabel": "von",
       "previousPage": "Zurück",
-      "nextPage": "Weiter"
+      "nextPage": "Weiter",
+      "overviewTitle": "Findings-Übersicht",
+      "overviewTooltip": "Übersicht der neuesten Audit-Findings nach Schweregrad und betroffenen Einträgen.",
+      "stats": {
+        "totalFindings": "Findings gesamt",
+        "affectedItems": "Betroffene Einträge"
+      }
     },
     "tasks": {
       "pageTitle": "Tasks",
@@ -183,7 +194,19 @@
         "affectedCount": "Anzahl",
         "status": "Status"
       },
-      "activeFilterHeadline": "Aktiver Tasks-Filter"
+      "activeFilterHeadline": "Aktiver Tasks-Filter",
+      "overviewTitle": "Aufgabenübersicht",
+      "overviewTooltip": "Übersicht über die zuletzt generierte Aufgabenlast, Prioritäten und betroffene Einträge.",
+      "showingTasksPrefix": "Es werden",
+      "showingTasksSuffix": "Aufgaben angezeigt",
+      "stats": {
+        "totalTasks": "Aufgaben gesamt",
+        "openTasks": "Offene Aufgaben",
+        "highPriority": "Hohe Priorität",
+        "mediumPriority": "Mittlere Priorität",
+        "resolved": "Erledigt",
+        "totalAffected": "Insgesamt betroffen"
+      }
     },
     "reports": {
       "pageTitle": "Berichte",
@@ -199,6 +222,31 @@
         "scannedProducts": "Geprüfte Produkte",
         "totalFindings": "Gruppierte Findings",
         "highPriorityFindings": "Findings mit hoher Priorität"
+      },
+      "overviewTitle": "Berichtsübersicht",
+      "overviewTooltip": "Historische Ansicht abgeschlossener Audit-Scans und Berichtstrends.",
+      "selectedReportDetailTitle": "Ausgewählter Bericht",
+      "selectedReportSummaryTitle": "Zusammenfassung des ausgewählten Berichts",
+      "selectedFindingsTitle": "Ausgewählte Findings",
+      "selectedTasksTitle": "Ausgewählte Aufgaben",
+      "table": {
+        "date": "Datum",
+        "status": "Status",
+        "products": "Produkte",
+        "totalFindings": "Findings gesamt",
+        "highPriority": "Hohe Priorität",
+        "action": "Aktion",
+        "view": "Ansehen"
+      },
+      "stats": {
+        "totalReports": "Berichte gesamt",
+        "completed": "Abgeschlossen",
+        "latestFindings": "Neueste Findings",
+        "latestHighPriority": "Neueste hohe Priorität",
+        "findingsVsPrevious": "Findings vs. vorheriger Scan",
+        "avgFindingsPerScan": "Ø Findings / Scan",
+        "findingGroups": "Finding-Gruppen",
+        "tasks": "Aufgaben"
       }
     },
     "settings": {

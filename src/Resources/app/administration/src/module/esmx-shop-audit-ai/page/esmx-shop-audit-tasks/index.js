@@ -1,6 +1,7 @@
 
 import template from './esmx-shop-audit-tasks.html.twig';
-import '../../shared/esmx-shop-audit-shared.scss'
+import '../../shared/esmx-shop-audit-shared.scss';
+import './esmx-shop-audit-tasks.scss';
 
 Shopware.Component.register('esmx-shop-audit-tasks', {
     template,
