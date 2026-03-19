@@ -85,4 +85,43 @@ export default class EsmxShopAuditApiService extends ApiService {
             })
             .then((response) => ApiService.handleResponse(response));
     }
+
+    // Fetch detailed affected items for one task
+    getTaskDetail(taskId) {
+        const apiRoute = `${this.getApiBasePath()}/task-detail/${taskId}`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    getTaskAutoFixPreview(taskId, itemId) {
+        const apiRoute = `${this.getApiBasePath()}/task-auto-fix-preview/${taskId}/${itemId}`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    applyTaskAutoFix(taskId, itemId) {
+        const apiRoute = `${this.getApiBasePath()}/task-auto-fix-apply/${taskId}/${itemId}`;
+
+        return this.httpClient
+            .post(apiRoute, {}, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    applyTaskAutoFixAll(taskId) {
+        const apiRoute = `${this.getApiBasePath()}/task-auto-fix-apply-all/${taskId}`;
+
+        return this.httpClient
+            .post(apiRoute, {}, { headers: this.getBasicHeaders() })
+            .then((response) => ApiService.handleResponse(response));
+    }
 }

@@ -54,6 +54,11 @@ class TaskBuilder
                 'title' => sprintf('Add SEO meta titles to %d products', $affectedCount),
                 'priority' => 'low',
             ],
+            'product_missing_meta_description' => [
+                'code' => 'add_meta_descriptions',
+                'title' => sprintf('Add SEO meta descriptions to %d products', $affectedCount),
+                'priority' => 'low',
+            ],
             'missing_category' => [
                 'code' => 'assign_product_categories',
                 'title' => sprintf('Assign categories to %d products', $affectedCount),

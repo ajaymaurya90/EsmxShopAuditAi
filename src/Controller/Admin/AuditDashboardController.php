@@ -18,6 +18,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use EsmxShopAuditAi\Service\Task\TaskAutoFixService;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['api']])]
 class AuditDashboardController extends AbstractController
@@ -30,7 +31,7 @@ class AuditDashboardController extends AbstractController
         private readonly EntityRepository $scanRepository,
         private readonly EntityRepository $findingRepository,
         private readonly EntityRepository $taskRepository,
-
+        private readonly TaskAutoFixService $taskAutoFixService,
     ) {
     }
 
@@ -200,6 +201,7 @@ class AuditDashboardController extends AbstractController
 
     #[Route(
         path: '/api/_action/esmx-shop-audit-ai/run-scan',
+
         name: 'api.action.esmx-shop-audit-ai.run-scan',
         methods: ['POST']
     )]
@@ -326,6 +328,10 @@ class AuditDashboardController extends AbstractController
                 'priority' => $task->getPriority(),
                 'affectedCount' => $task->getAffectedCount(),
                 'status' => $task->getStatus(),
+                'impactScore' => $this->calculateTaskImpactScore(
+                    (string) $task->getCode(),
+                    (int) $task->getAffectedCount()
+                ),
                 'payloadJson' => $task->getPayloadJson(),
             ];
         }
@@ -413,6 +419,11 @@ class AuditDashboardController extends AbstractController
                     'affectedCount' => $task->getAffectedCount(),
                     'status' => $task->getStatus(),
                     'payloadJson' => $task->getPayloadJson(),
+                    'impactScore' => $this->calculateTaskImpactScore(
+                        (string) $task->getCode(),
+                        (int) $task->getAffectedCount()
+                    ),
+                    'autoFixSupported' => $this->isAutoFixSupported($task),
                 ];
             }
         }
@@ -424,6 +435,107 @@ class AuditDashboardController extends AbstractController
         ]);
     }
 
+
+    #[Route(
+        path: '/api/_action/esmx-shop-audit-ai/task-detail/{taskId}',
+        name: 'api.action.esmx-shop-audit-ai.task-detail',
+        methods: ['GET']
+    )]
+    public function loadTaskDetail(string $taskId, Context $context): JsonResponse
+    {
+        $criteria = new Criteria([$taskId]);
+
+        /** @var ?TaskEntity $task */
+        $task = $this->taskRepository->search($criteria, $context)->first();
+
+        if ($task === null) {
+            return new JsonResponse([
+                'task' => null,
+                'items' => [],
+            ], 404);
+        }
+
+        $taskPayload = $task->getPayloadJson() ?? [];
+        $findingCode = $taskPayload['findingCode'] ?? null;
+
+        $findingItems = [];
+
+        if ($findingCode) {
+            $findingCriteria = new Criteria();
+            $findingCriteria->addFilter(new EqualsFilter('scanId', $task->getScanId()));
+            $findingCriteria->addFilter(new EqualsFilter('code', $findingCode));
+
+            /** @var ?FindingEntity $finding */
+            $finding = $this->findingRepository->search($findingCriteria, $context)->first();
+
+            if ($finding !== null) {
+                $findingPayload = $finding->getPayloadJson() ?? [];
+
+                if (isset($findingPayload['items']) && \is_array($findingPayload['items'])) {
+                    $findingItems = $findingPayload['items'];
+                } elseif (array_is_list($findingPayload)) {
+                    $findingItems = $findingPayload;
+                }
+            }
+        }
+
+        $items = $this->normalizeTaskDetailItems($findingItems, $task);
+
+        return new JsonResponse([
+            'task' => [
+                'id' => $task->getId(),
+                'scanId' => $task->getScanId(),
+                'code' => $task->getCode(),
+                'title' => $task->getTitle(),
+                'priority' => $task->getPriority(),
+                'affectedCount' => $task->getAffectedCount(),
+                'status' => $task->getStatus(),
+                'impactScore' => $this->calculateTaskImpactScore(
+                    (string) $task->getCode(),
+                    (int) $task->getAffectedCount()
+                ),
+                'payloadJson' => $taskPayload,
+                'autoFixSupported' => $this->isAutoFixSupported($task),
+            ],
+            'items' => $items,
+        ]);
+    }
+
+    #[Route(
+        path: '/api/_action/esmx-shop-audit-ai/task-auto-fix-preview/{taskId}/{itemId}',
+        name: 'api.action.esmx-shop-audit-ai.task-auto-fix-preview',
+        methods: ['GET']
+    )]
+    public function loadTaskAutoFixPreview(string $taskId, string $itemId, Context $context): JsonResponse
+    {
+        $preview = $this->taskAutoFixService->getPreview($taskId, $itemId, $context);
+
+        return new JsonResponse($preview);
+    }
+
+    #[Route(
+        path: '/api/_action/esmx-shop-audit-ai/task-auto-fix-apply/{taskId}/{itemId}',
+        name: 'api.action.esmx-shop-audit-ai.task-auto-fix-apply',
+        methods: ['POST']
+    )]
+    public function applyTaskAutoFix(string $taskId, string $itemId, Context $context): JsonResponse
+    {
+        $result = $this->taskAutoFixService->apply($taskId, $itemId, $context);
+
+        return new JsonResponse($result);
+    }
+
+    #[Route(
+        path: '/api/_action/esmx-shop-audit-ai/task-auto-fix-apply-all/{taskId}',
+        name: 'api.action.esmx-shop-audit-ai.task-auto-fix-apply-all',
+        methods: ['POST']
+    )]
+    public function applyTaskAutoFixAll(string $taskId, Context $context): JsonResponse
+    {
+        $result = $this->taskAutoFixService->applyAll($taskId, $context);
+
+        return new JsonResponse($result);
+    }
     private function getLatestScanEntity(Context $context): ?ScanEntity
     {
         $criteria = new Criteria();
@@ -448,5 +560,161 @@ class AuditDashboardController extends AbstractController
             'highPriorityFindings' => $scan->getHighPriorityFindings(),
             'summaryJson' => $scan->getSummaryJson(),
         ];
+    }
+
+    private function normalizeTaskDetailItems(array $rawItems, TaskEntity $task): array
+    {
+        $normalized = [];
+
+        foreach ($rawItems as $index => $item) {
+            if (!\is_array($item)) {
+                continue;
+            }
+
+            $normalized[] = [
+                'id' => (string) ($item['id'] ?? $index),
+                'entityId' => $item['id'] ?? null,
+                'entityType' => $this->resolveTaskEntityType($task, $item),
+                'name' => $this->resolveTaskItemName($item),
+                'identifier' => $this->resolveTaskItemIdentifier($item),
+                'issue' => $this->resolveTaskItemIssue($item, $task),
+                'currentValue' => $this->resolveTaskItemCurrentValue($item),
+                'raw' => $item,
+                'autoFixSupported' => $this->isAutoFixSupported($task),
+            ];
+        }
+
+        return $normalized;
+    }
+
+    private function resolveTaskEntityType(TaskEntity $task, array $item): string
+    {
+        if (!empty($item['entity'])) {
+            return (string) $item['entity'];
+        }
+
+        if (!empty($item['entityType'])) {
+            return (string) $item['entityType'];
+        }
+
+        $code = $task->getCode() ?? '';
+
+        if (str_contains($code, 'category')) {
+            return 'category';
+        }
+
+        return 'product';
+    }
+
+    private function resolveTaskItemName(array $item): string
+    {
+        $candidates = [
+            'name',
+            'productName',
+            'categoryName',
+            'title',
+            'label',
+        ];
+
+        foreach ($candidates as $key) {
+            if (!empty($item[$key])) {
+                return (string) $item[$key];
+            }
+        }
+
+        return 'Unnamed item';
+    }
+
+    private function resolveTaskItemIdentifier(array $item): string
+    {
+        $candidates = [
+            'productNumber',
+            'identifier',
+            'number',
+            'id',
+        ];
+
+        foreach ($candidates as $key) {
+            if (!empty($item[$key])) {
+                return (string) $item[$key];
+            }
+        }
+
+        return '-';
+    }
+
+    private function resolveTaskItemIssue(array $item, TaskEntity $task): string
+    {
+        $candidates = [
+            'issue',
+            'reason',
+            'message',
+        ];
+
+        foreach ($candidates as $key) {
+            if (!empty($item[$key])) {
+                return (string) $item[$key];
+            }
+        }
+
+        return (string) ($task->getTitle() ?? 'Issue detected');
+    }
+
+    private function resolveTaskItemCurrentValue(array $item): string
+    {
+        $candidates = [
+            'currentValue',
+            'metaTitle',
+            'metaDescription',
+            'description',
+            'value',
+        ];
+
+        foreach ($candidates as $key) {
+            if (array_key_exists($key, $item)) {
+                $value = $item[$key];
+
+                if ($value === null || $value === '') {
+                    return '-';
+                }
+
+                if (\is_scalar($value)) {
+                    return (string) $value;
+                }
+
+                return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '-';
+            }
+        }
+
+        return '-';
+    }
+
+    private function isAutoFixSupported(TaskEntity $task): bool
+    {
+        return match ($task->getCode()) {
+            'add_meta_titles',
+            'add_meta_descriptions' => true,
+            default => false,
+        };
+    }
+
+    private function calculateTaskImpactScore(string $taskCode, int $affectedCount): int
+    {
+        $weights = [
+            'add_meta_titles' => 2.0,
+            'add_meta_descriptions' => 2.0,
+            'add_product_descriptions' => 1.5,
+            'upload_product_images' => 1.0,
+            'review_inactive_products' => 1.5,
+            'review_out_of_stock_products' => 2.0,
+            'assign_product_categories' => 1.5,
+            'assign_product_manufacturers' => 1.0,
+            'add_product_prices' => 3.0,
+            'complete_product_translations' => 1.5,
+        ];
+
+        $weight = $weights[$taskCode] ?? 1.0;
+
+        return (int) round($affectedCount * $weight);
     }
 }

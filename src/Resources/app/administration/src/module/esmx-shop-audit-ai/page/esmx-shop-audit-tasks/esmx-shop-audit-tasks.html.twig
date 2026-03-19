@@ -256,29 +256,69 @@
                                 :allow-column-edit="false"
                                 :allow-inline-edit="false"
                                 :show-selection="false"
+                                :showActions="false"
                                 @column-sort="onSortColumn"
                         >
                             <template #column-title="{ item }">
-                                <div class="esmx-shop-audit__task-title-cell">
-                                    <div class="esmx-shop-audit__task-title-main">{{ item.title }}</div>
-                                    <div class="esmx-shop-audit__task-title-code">{{ item.code }}</div>
+                                <div
+                                        class="esmx-shop-audit__task-clickable-cell esmx-shop-audit__task-title-cell"
+                                        :class="{ 'is-selected': isTaskSelected(item) }"
+                                        @click="onTaskClick(item)"
+                                >
+                                    <div class="esmx-shop-audit__task-title-main">
+                                        {{ getDynamicTaskTitle(item) }}
+                                    </div>
+
+                                    <div class="esmx-shop-audit__task-title-code">
+                                        {{ item.code }}
+                                    </div>
                                 </div>
                             </template>
 
                             <template #column-priority="{ item }">
-                                <mt-badge :variant="getPriorityVariant(item.priority)">
-                                    {{ item.priority }}
-                                </mt-badge>
+                                <div
+                                        class="esmx-shop-audit__task-clickable-cell"
+                                        :class="{ 'is-selected': isTaskSelected(item) }"
+                                        @click="onTaskClick(item)"
+                                >
+                                    <mt-badge :variant="getPriorityVariant(item.priority)">
+                                        {{ item.priority }}
+                                    </mt-badge>
+                                </div>
                             </template>
 
                             <template #column-affectedCount="{ item }">
-                                <strong>{{ item.affectedCount }}</strong>
+                                <div
+                                        class="esmx-shop-audit__task-clickable-cell esmx-shop-audit__task-number-cell"
+                                        :class="{ 'is-selected': isTaskSelected(item) }"
+                                        @click="onTaskClick(item)"
+                                >
+                                    <strong>{{ item.affectedCount }}</strong>
+                                </div>
+                            </template>
+
+                            <template #column-impactScore="{ item }">
+                                <div
+                                        class="esmx-shop-audit__task-clickable-cell esmx-shop-audit__task-number-cell"
+                                        :class="{ 'is-selected': isTaskSelected(item) }"
+                                        @click="onTaskClick(item)"
+                                >
+                                    <mt-badge variant="success">
+                                        +{{ item.impactScore || 0 }}
+                                    </mt-badge>
+                                </div>
                             </template>
 
                             <template #column-status="{ item }">
-                                <mt-badge :variant="getStatusVariant(item.status)">
-                                    {{ item.status }}
-                                </mt-badge>
+                                <div
+                                        class="esmx-shop-audit__task-clickable-cell"
+                                        :class="{ 'is-selected': isTaskSelected(item) }"
+                                        @click="onTaskClick(item)"
+                                >
+                                    <mt-badge :variant="getStatusVariant(item.status)">
+                                        {{ item.status }}
+                                    </mt-badge>
+                                </div>
                             </template>
                         </sw-data-grid>
                     </template>
@@ -287,7 +327,276 @@
                         <p>{{ $tc('esmx-shop-audit-ai.tasks.emptyState') }}</p>
                     </template>
                 </mt-card>
+
+
+
+                <mt-card
+                        ref="taskDetailsSection"
+                        class="esmx-shop-audit__section-card esmx-shop-audit__task-details-card"
+                >
+                    <template #headline>
+                        {{ detailSectionTitle }}
+                    </template>
+
+                    <template v-if="!selectedTask">
+                        <div class="esmx-shop-audit__empty-detail-state">
+                            {{ $tc('esmx-shop-audit-ai.tasks.detailSection.emptyState') }}
+                        </div>
+                    </template>
+
+                    <template v-else>
+                        <div class="esmx-shop-audit__task-details-summary">
+                            <div class="esmx-shop-audit__task-summary-item">
+                                <span class="esmx-shop-audit__task-summary-label">
+                                    {{ $tc('esmx-shop-audit-ai.tasks.columns.priority') }}
+                                </span>
+                                <mt-badge :variant="getPriorityVariant(selectedTask.priority)">
+                                    {{ selectedTask.priority }}
+                                </mt-badge>
+                            </div>
+
+                            <div class="esmx-shop-audit__task-summary-item">
+                                <span class="esmx-shop-audit__task-summary-label">
+                                    {{ $tc('esmx-shop-audit-ai.tasks.columns.status') }}
+                                </span>
+                                <mt-badge :variant="getStatusVariant(selectedTask.status)">
+                                    {{ selectedTask.status }}
+                                </mt-badge>
+                            </div>
+
+                            <div class="esmx-shop-audit__task-summary-item">
+                                <span class="esmx-shop-audit__task-summary-label">
+                                    {{ $tc('esmx-shop-audit-ai.tasks.columns.affectedCount') }}
+                                </span>
+                                <strong>{{ selectedTask.affectedCount }}</strong>
+                            </div>
+
+                            <div class="esmx-shop-audit__task-summary-item">
+    <span class="esmx-shop-audit__task-summary-label">
+        {{ $tc('esmx-shop-audit-ai.tasks.columns.impact') }}
+    </span>
+                                <strong>+{{ selectedTask.impactScore || 0 }}</strong>
+                            </div>
+
+                            <div class="esmx-shop-audit__task-summary-item">
+                                <span class="esmx-shop-audit__task-summary-label">
+                                    {{ $tc('esmx-shop-audit-ai.general.code') }}
+                                </span>
+                                <strong>{{ selectedTask.code }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="esmx-shop-audit__task-detail-toolbar">
+                            <mt-button size="small" variant="secondary">
+                                {{ $tc('esmx-shop-audit-ai.tasks.detailSection.openListing') }}
+                            </mt-button>
+
+                            <mt-button size="small" variant="primary">
+                                {{ $tc('esmx-shop-audit-ai.tasks.detailSection.previewAndFix') }}
+                            </mt-button>
+
+                            <mt-button
+                                    size="small"
+                                    variant="primary"
+                                    :disabled="!canApplyAutoFixAll || isApplyingAutoFix"
+                                    @click="openAutoFixAllModal"
+                            >
+                                {{ $tc('esmx-shop-audit-ai.tasks.autoFixAll.openButton') }}
+                            </mt-button>
+                        </div>
+
+                        <div v-if="isTaskDetailLoading" class="esmx-shop-audit__task-detail-loading">
+                            {{ $tc('esmx-shop-audit-ai.general.loading') }}
+                        </div>
+
+                        <template v-else-if="detailItems.length">
+                            <div
+                                    v-if="selectedTaskDetails?.task?.payloadJson?.findingTitle"
+                                    class="esmx-shop-audit__detail-issue-banner"
+                            >
+                                {{ selectedTaskDetails.task.payloadJson.findingTitle }}
+                            </div>
+
+                            <sw-data-grid
+                                    :dataSource="detailItems"
+                                    :columns="detailColumns"
+                                    :allow-column-edit="false"
+                                    :allow-inline-edit="false"
+                                    :show-selection="false"
+                                    :showActions="false"
+                            >
+                                <template #column-name="{ item }">
+                                    <div class="esmx-shop-audit__affected-name">
+                                        {{ item.name }}
+                                    </div>
+                                </template>
+
+                                <template #column-currentValue="{ item }">
+                                    <div class="esmx-shop-audit__current-value-cell">
+                                        {{ item.currentValue || '-' }}
+                                    </div>
+                                </template>
+
+                                <template #column-actions="{ item }">
+                                    <div class="esmx-shop-audit__action-cell">
+                                        <div class="esmx-shop-audit__row-action-menu-wrapper">
+                                            <button
+                                                    type="button"
+                                                    class="esmx-shop-audit__icon-action-button"
+                                                    :title="$tc('esmx-shop-audit-ai.tasks.detailGrid.actionsMenu')"
+                                                    @click.stop="toggleDetailActionMenu(item.id)"
+                                            >
+                                                <mt-icon name="regular-ellipsis-h" size="16px" />
+                                            </button>
+
+                                            <div
+                                                    v-if="activeDetailActionMenuId === item.id"
+                                                    class="esmx-shop-audit__row-action-menu"
+                                                    @click.stop
+                                            >
+                                                <button
+                                                        type="button"
+                                                        class="esmx-shop-audit__row-action-menu-item"
+                                                        @click.stop="openManualFix(item)"
+                                                >
+                                                    {{ $tc('esmx-shop-audit-ai.tasks.detailGrid.manualFix') }}
+                                                </button>
+
+                                                <button
+                                                        v-if="item.autoFixSupported"
+                                                        type="button"
+                                                        class="esmx-shop-audit__row-action-menu-item"
+                                                        @click.stop="openAutoFix(item)"
+                                                >
+                                                    {{ $tc('esmx-shop-audit-ai.tasks.detailGrid.autoFix') }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </sw-data-grid>
+                        </template>
+
+                        <template v-else>
+                            <div class="esmx-shop-audit__empty-detail-state">
+                                {{ $tc('esmx-shop-audit-ai.tasks.detailSection.noAffectedItems') }}
+                            </div>
+                        </template>
+                    </template>
+                </mt-card>
             </sw-card-view>
+
+
+            <sw-modal
+                    v-if="isAutoFixModalOpen"
+                    :title="$tc('esmx-shop-audit-ai.tasks.autoFix.modalTitle')"
+                    @modal-close="closeAutoFixModal"
+            >
+                <template v-if="autoFixError">
+                    <mt-banner variant="danger">
+                        {{ autoFixError }}
+                    </mt-banner>
+                </template>
+
+                <template v-else-if="isAutoFixPreviewLoading">
+                    <div class="esmx-shop-audit__task-detail-loading">
+                        {{ $tc('esmx-shop-audit-ai.general.loading') }}
+                    </div>
+                </template>
+
+                <template v-else-if="autoFixPreview">
+                    <div class="esmx-shop-audit__auto-fix-preview">
+                        <div class="esmx-shop-audit__auto-fix-preview-row">
+                            <strong>{{ $tc('esmx-shop-audit-ai.tasks.detailGrid.columns.name') }}:</strong>
+                            <span>{{ autoFixPreview.itemName }}</span>
+                        </div>
+
+                        <div class="esmx-shop-audit__auto-fix-preview-row">
+                            <strong>{{ $tc('esmx-shop-audit-ai.general.field') }}:</strong>
+                            <span>{{ autoFixPreview.fieldLabel }}</span>
+                        </div>
+
+                        <div class="esmx-shop-audit__auto-fix-preview-row">
+                            <strong>{{ $tc('esmx-shop-audit-ai.general.currentValue') }}:</strong>
+                            <span>{{ autoFixPreview.currentValue || '-' }}</span>
+                        </div>
+
+                        <div class="esmx-shop-audit__auto-fix-preview-row">
+                            <strong>{{ $tc('esmx-shop-audit-ai.general.suggestedValue') }}:</strong>
+                            <span>{{ autoFixPreview.suggestedValue || '-' }}</span>
+                        </div>
+                    </div>
+                </template>
+
+                <template #modal-footer>
+                    <mt-button
+                            size="small"
+                            @click="closeAutoFixModal"
+                    >
+                        {{ $tc('esmx-shop-audit-ai.general.cancel') }}
+                    </mt-button>
+
+                    <mt-button
+                            variant="primary"
+                            size="small"
+                            :loading="isApplyingAutoFix"
+                            :disabled="!autoFixPreview || isApplyingAutoFix || autoFixPreview.willChange === false"
+                            @click="applyAutoFix"
+                    >
+                        {{ $tc('esmx-shop-audit-ai.tasks.autoFix.confirmButton') }}
+                    </mt-button>
+                </template>
+            </sw-modal>
+
+            <sw-modal
+                    v-if="isAutoFixAllModalOpen"
+                    :title="$tc('esmx-shop-audit-ai.tasks.autoFixAll.modalTitle')"
+                    @modal-close="closeAutoFixAllModal"
+            >
+                <template v-if="autoFixAllError">
+                    <mt-banner variant="danger">
+                        {{ autoFixAllError }}
+                    </mt-banner>
+                </template>
+
+                <div class="esmx-shop-audit__auto-fix-preview">
+                    <div class="esmx-shop-audit__auto-fix-preview-row">
+                        <strong>{{ $tc('esmx-shop-audit-ai.tasks.detailSection.titlePrefix') }}:</strong>
+                        <span>{{ getDynamicTaskTitle(selectedTask) }}</span>
+                    </div>
+
+                    <div class="esmx-shop-audit__auto-fix-preview-row">
+                        <strong>{{ $tc('esmx-shop-audit-ai.tasks.columns.affectedCount') }}:</strong>
+                        <span>{{ detailItems.length }}</span>
+                    </div>
+
+                    <div class="esmx-shop-audit__auto-fix-preview-row">
+                        <strong>{{ $tc('esmx-shop-audit-ai.tasks.autoFixAll.whatWillChangeLabel') }}:</strong>
+                        <span>{{ $tc('esmx-shop-audit-ai.tasks.autoFixAll.whatWillChangeText') }}</span>
+                    </div>
+                </div>
+
+                <template #modal-footer>
+                    <mt-button
+                            size="small"
+                            :disabled="isApplyingAutoFix"
+                            @click="closeAutoFixAllModal"
+                    >
+                        {{ $tc('esmx-shop-audit-ai.general.cancel') }}
+                    </mt-button>
+
+                    <mt-button
+                            variant="primary"
+                            size="small"
+                            :loading="isApplyingAutoFix"
+                            :disabled="isApplyingAutoFix || !detailItems.length"
+                            @click="confirmAutoFixAll"
+                    >
+                        {{ $tc('esmx-shop-audit-ai.tasks.autoFixAll.confirmButton') }}
+                    </mt-button>
+                </template>
+            </sw-modal>
+
         </template>
     </sw-page>
 {% endblock %}

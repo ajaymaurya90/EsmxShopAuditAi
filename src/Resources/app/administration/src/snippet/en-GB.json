@@ -9,7 +9,12 @@
       "page": "Page",
       "of": "of",
       "previous": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "loading": "Loading...",
+      "field": "Field",
+      "currentValue": "Current value",
+      "suggestedValue": "Suggested value",
+      "cancel": "Cancel"
     },
     "dashboard": {
       "runScanButton": "Run scan",
@@ -190,9 +195,12 @@
       "emptyState": "No tasks available yet.",
       "loadError": "The tasks page could not be loaded.",
       "columns": {
+        "actions": "Actions",
+        "viewDetails": "View details",
         "title": "Title",
         "priority": "Priority",
-        "affectedCount": "Affected count",
+        "affectedCount": "Affected",
+        "impact": "Impact",
         "status": "Status"
       },
       "activeFilterHeadline": "Active tasks filter",
@@ -207,6 +215,46 @@
         "mediumPriority": "Medium Priority",
         "resolved": "Resolved",
         "totalAffected": "Total Affected"
+      },
+      "detailSection": {
+        "titleDefault": "Task details",
+        "titlePrefix": "Task details",
+        "emptyState": "Select a task from the list above to view its affected items and actions.",
+        "openListing": "Open in listing",
+        "previewAndFix": "Preview & Fix",
+        "noAffectedItems": "No affected items are available for this task yet."
+      },
+      "detailGrid": {
+        "columns": {
+          "name": "Name",
+          "identifier": "Identifier",
+          "issue": "Issue",
+          "currentValue": "Current value",
+          "actions": "Actions"
+        },
+        "manualFix": "Manual fix",
+        "autoFix": "Auto fix",
+        "actionsMenu": "Actions"
+      },
+      "autoFix": {
+        "modalTitle": "Preview auto fix",
+        "confirmButton": "Apply auto fix",
+        "success": "Auto fix applied successfully.",
+        "previewError": "Unable to load auto fix preview.",
+        "applyError": "Unable to apply auto fix."
+      },
+      "autoFixAll": {
+        "openButton": "Apply auto fix to all",
+        "modalTitle": "Apply auto fix to all affected items",
+        "confirmButton": "Apply to all",
+        "success": "Auto fix applied to {count} item | Auto fix applied to {count} items",
+        "applyError": "Unable to apply auto fix to all items.",
+        "whatWillChangeLabel": "What will change",
+        "whatWillChangeText": "The system will safely apply supported fixes to all affected items in this task."
+      },
+      "dynamic": {
+        "addMetaTitles": "Add SEO meta titles to {count} product | Add SEO meta titles to {count} products",
+        "addMetaDescriptions": "Add SEO meta descriptions to {count} product | Add SEO meta descriptions to {count} products"
       }
     },
     "reports": {

@@ -9,7 +9,12 @@
       "page": "Seite",
       "of": "von",
       "previous": "Zurück",
-      "next": "Weiter"
+      "next": "Weiter",
+      "loading": "Wird geladen...",
+      "field": "Feld",
+      "currentValue": "Aktueller Wert",
+      "suggestedValue": "Vorgeschlagener Wert",
+      "cancel": "Abbrechen"
     },
     "dashboard": {
       "runScanButton": "Scan starten",
@@ -192,7 +197,10 @@
         "title": "Titel",
         "priority": "Priorität",
         "affectedCount": "Anzahl",
-        "status": "Status"
+        "status": "Status",
+        "actions": "Aktionen",
+        "viewDetails": "Details anzeigen",
+        "impact": "Auswirkung"
       },
       "activeFilterHeadline": "Aktiver Tasks-Filter",
       "overviewTitle": "Aufgabenübersicht",
@@ -206,6 +214,46 @@
         "mediumPriority": "Mittlere Priorität",
         "resolved": "Erledigt",
         "totalAffected": "Insgesamt betroffen"
+      },
+      "detailSection": {
+        "titleDefault": "Aufgabendetails",
+        "titlePrefix": "Aufgabendetails",
+        "emptyState": "Wählen Sie oben eine Aufgabe aus, um die betroffenen Einträge und verfügbaren Aktionen anzuzeigen.",
+        "openListing": "In Liste öffnen",
+        "previewAndFix": "Vorschau & beheben",
+        "noAffectedItems": "Für diese Aufgabe sind aktuell keine betroffenen Einträge verfügbar."
+      },
+      "detailGrid": {
+        "columns": {
+          "name": "Name",
+          "identifier": "Kennung",
+          "issue": "Problem",
+          "currentValue": "Aktueller Wert",
+          "actions": "Aktionen"
+        },
+        "manualFix": "Manuell bearbeiten",
+        "autoFix": "Automatisch beheben",
+        "actionsMenu": "Aktionen"
+      },
+      "autoFix": {
+        "modalTitle": "Auto-Fix Vorschau",
+        "confirmButton": "Auto-Fix anwenden",
+        "success": "Auto-Fix wurde erfolgreich angewendet.",
+        "previewError": "Die Auto-Fix-Vorschau konnte nicht geladen werden.",
+        "applyError": "Der Auto-Fix konnte nicht angewendet werden."
+      },
+      "autoFixAll": {
+        "openButton": "Auto-Fix für alle anwenden",
+        "modalTitle": "Auto-Fix für alle betroffenen Einträge anwenden",
+        "confirmButton": "Für alle anwenden",
+        "success": "Auto-Fix wurde für {count} Eintrag angewendet | Auto-Fix wurde für {count} Einträge angewendet",
+        "applyError": "Der Auto-Fix konnte nicht für alle Einträge angewendet werden.",
+        "whatWillChangeLabel": "Was wird geändert",
+        "whatWillChangeText": "Das System wendet unterstützte Korrekturen sicher auf alle betroffenen Einträge dieser Aufgabe an."
+      },
+      "dynamic": {
+        "addMetaTitles": "SEO-Metatitel für {count} Produkt hinzufügen | SEO-Metatitel für {count} Produkte hinzufügen",
+        "addMetaDescriptions": "SEO-Metabeschreibungen für {count} Produkt hinzufügen | SEO-Metabeschreibungen für {count} Produkte hinzufügen"
       }
     },
     "reports": {
