@@ -184,6 +184,11 @@ class AuditDashboardController extends AbstractController
 
         $salesInsights = $this->salesInsightService->getInsights($context);
 
+        $health = $this->calculateHealthScore(
+            $liveAudit['totals'],
+            $criticalIssues
+        );
+
         return new JsonResponse([
             'liveAudit' => $liveAudit,
             'latestScan' => $this->serializeScan($latestScan),
@@ -195,7 +200,8 @@ class AuditDashboardController extends AbstractController
                 'affectedProducts' => $affectedProductsCount,
                 'criticalIssues' => $criticalIssues,
             ],
-            'salesInsights' => $salesInsights
+            'salesInsights' => $salesInsights,
+            'health' => $health,
         ]);
     }
 
@@ -716,5 +722,53 @@ class AuditDashboardController extends AbstractController
         $weight = $weights[$taskCode] ?? 1.0;
 
         return (int) round($affectedCount * $weight);
+    }
+
+    private function calculateHealthScore(array $totals, int $criticalIssues): array
+    {
+        $rules = [
+            'outOfStockProducts' => ['weight' => 3, 'max' => 30],
+            'missingPrice' => ['weight' => 4, 'max' => 25],
+            'inactiveProducts' => ['weight' => 3, 'max' => 20],
+            'missingDescription' => ['weight' => 1, 'max' => 10],
+            'missingCoverImage' => ['weight' => 1, 'max' => 8],
+            'missingMetaTitle' => ['weight' => 1, 'max' => 7],
+            'missingCategory' => ['weight' => 2, 'max' => 12],
+            'missingManufacturer' => ['weight' => 1, 'max' => 8],
+            'missingTranslation' => ['weight' => 1, 'max' => 10],
+        ];
+
+        $score = 100;
+        $breakdown = [];
+
+        foreach ($rules as $key => $rule) {
+            $count = (int) ($totals[$key] ?? 0);
+            $penalty = min($count * $rule['weight'], $rule['max']);
+
+            $score -= $penalty;
+
+            $breakdown[] = [
+                'key' => $key,
+                'count' => $count,
+                'penalty' => $penalty,
+                'weight' => $rule['weight'],
+            ];
+        }
+
+        // critical issues penalty
+        $criticalPenalty = min($criticalIssues * 4, 20);
+        $score -= $criticalPenalty;
+
+        $breakdown[] = [
+            'key' => 'criticalIssues',
+            'count' => $criticalIssues,
+            'penalty' => $criticalPenalty,
+            'weight' => 4,
+        ];
+
+        return [
+            'score' => max(0, (int) round($score)),
+            'breakdown' => $breakdown,
+        ];
     }
 }

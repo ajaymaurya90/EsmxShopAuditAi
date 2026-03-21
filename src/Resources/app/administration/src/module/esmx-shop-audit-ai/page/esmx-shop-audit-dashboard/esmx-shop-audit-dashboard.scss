@@ -30,6 +30,81 @@
     color: #991b1b;
   }
 
+  .esmx-shop-audit__health-tooltip {
+    min-width: 220px;
+    max-width: 280px;
+    padding: 10px 12px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    font-size: 12px;
+    line-height: 1.4;
+    color: #374151;
+
+    strong {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+  }
+
+  .esmx-shop-audit__health-tooltip-row:hover {
+    background: #f9fafb;
+    border-radius: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .esmx-shop-audit__tooltip {
+    background: #ffffff !important;
+    color: #111827 !important;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+
+    padding: 8px 10px;
+  }
+
+  .esmx-shop-audit__health-tooltip {
+    background: transparent; // important
+  }
+
+  .esmx-shop-audit__health-tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 2px 0;
+
+    span:first-child {
+      color: #4b5563;
+    }
+
+    span:last-child {
+      font-weight: 600;
+      color: #ef4444; // red for penalty
+    }
+  }
+
+  .esmx-shop-audit__health-tooltip-total {
+    margin-top: 6px;
+    padding-top: 6px;
+
+    border-top: 1px solid #e5e7eb;
+
+    font-weight: 600;
+    font-size: 13px;
+    color: #111827;
+
+    display: flex;
+    justify-content: space-between;
+  }
+
   .esmx-shop-audit-dashboard__widget-header {
     display: flex;
     align-items: flex-start;

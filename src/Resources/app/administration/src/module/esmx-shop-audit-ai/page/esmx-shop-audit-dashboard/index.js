@@ -23,7 +23,6 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             activeImpactKey: null,
             activeWidgetTooltip: null,
             affectedProducts: 0,
-            criticalIssues: 0,
             animatedHealthScore: 0,
         };
     },
@@ -69,12 +68,12 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                 {
                     key: 'criticalIssues',
                     label: this.$tc('esmx-shop-audit-ai.dashboardInsights.criticalIssues'),
-                    value: this.criticalIssues,
+                    value: this.criticalIssuesCount
                 },
                 {
                     key: 'issueGroups',
                     label: this.$tc('esmx-shop-audit-ai.dashboard.issueGroups'),
-                    value: this.sortedSummaryCards.length,
+                    value: this.activeSummaryCards.length,
                 },
                 {
                     key: 'openTasks',
@@ -125,6 +124,10 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             }).format(new Date(scanDate));
         },
 
+        activeSummaryCards() {
+            return this.summaryCards.filter((card) => (card.count || 0) > 0);
+        },
+
         sortedSummaryCards() {
             const severityWeight = {
                 critical: 4,
@@ -133,7 +136,7 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                 low: 1,
             };
 
-            return [...this.summaryCards].sort((a, b) => {
+            return [...this.activeSummaryCards].sort((a, b) => {
                 const severityDiff = (severityWeight[b.severity] || 0) - (severityWeight[a.severity] || 0);
 
                 if (severityDiff !== 0) {
@@ -142,6 +145,12 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
 
                 return (b.count || 0) - (a.count || 0);
             });
+        },
+
+        criticalIssuesCount() {
+            return this.activeSummaryCards
+                .filter((card) => card.severity === 'critical')
+                .reduce((sum, card) => sum + (card.count || 0), 0);
         },
 
         dashboardHeadline() {
@@ -178,52 +187,40 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
         },
 
         nextBestAction() {
-            if ((this.totals.outOfStockProducts || 0) > 0) {
-                return {
-                    label: this.$tc('esmx-shop-audit-ai.dashboard.nextActionRestock'),
-                    code: 'outOfStockProducts',
-                };
+            if (!this.activeSummaryCards.length) {
+                return null;
             }
 
-            if ((this.totals.missingPrice || 0) > 0) {
-                return {
-                    label: this.$tc('esmx-shop-audit-ai.dashboard.nextActionPrice'),
-                    code: 'missingPrice',
-                };
+            const bestCard = [...this.activeSummaryCards]
+                .map((card) => ({
+                    ...card,
+                    priorityScore: this.getCardPriorityScore(card),
+                }))
+                .sort((a, b) => b.priorityScore - a.priorityScore)[0];
+
+            if (!bestCard) {
+                return null;
             }
 
-            if ((this.totals.missingDescription || 0) > 0) {
-                return {
-                    label: this.$tc('esmx-shop-audit-ai.dashboard.nextActionDescriptions'),
-                    code: 'missingDescription',
-                };
-            }
+            return {
+                label: this.getNextBestActionLabel(bestCard),
+                code: bestCard.key,
+            };
+        },
 
-            if ((this.totals.missingMetaTitle || 0) > 0) {
-                return {
-                    label: this.$tc('esmx-shop-audit-ai.dashboard.nextActionSeo'),
-                    code: 'missingMetaTitle',
-                };
-            }
+        getNextBestActionLabel(card) {
+            const map = {
+                outOfStockProducts: this.$tc('esmx-shop-audit-ai.dashboard.nextActionRestock'),
+                missingPrice: this.$tc('esmx-shop-audit-ai.dashboard.nextActionPrice'),
+                missingDescription: this.$tc('esmx-shop-audit-ai.dashboard.nextActionDescriptions'),
+                missingMetaTitle: this.$tc('esmx-shop-audit-ai.dashboard.nextActionSeo'),
+            };
 
-            return null;
+            return map[card.key] || card.label;
         },
 
         healthScore() {
-            let score = 100;
-
-            score -= Math.min((this.totals.outOfStockProducts || 0) * 3, 30);
-            score -= Math.min((this.totals.missingPrice || 0) * 4, 25);
-            score -= Math.min((this.totals.inactiveProducts || 0) * 3, 20);
-            score -= Math.min((this.totals.missingDescription || 0) * 1, 10);
-            score -= Math.min((this.totals.missingCoverImage || 0) * 1, 8);
-            score -= Math.min((this.totals.missingMetaTitle || 0) * 1, 7);
-            score -= Math.min((this.totals.missingCategory || 0) * 2, 12);
-            score -= Math.min((this.totals.missingManufacturer || 0) * 1, 8);
-            score -= Math.min((this.totals.missingTranslation || 0) * 1, 10);
-            score -= Math.min((this.criticalIssues || 0) * 4, 20);
-
-            return Math.max(0, Math.round(score));
+            return this.dashboard?.health?.score ?? 0;
         },
 
         healthStatus() {
@@ -306,7 +303,7 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                 .then((response) => {
                     this.dashboard = response;
                     this.affectedProducts = response?.insights?.affectedProducts || 0;
-                    this.criticalIssues = response?.insights?.criticalIssues || 0;
+                    //this.criticalIssues = response?.insights?.criticalIssues || 0;
 
                     this.$nextTick(() => {
                         this.animateHealthScore();
@@ -391,6 +388,19 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             return this.$tc(`esmx-shop-audit-ai.severity.${severity}`);
         },
 
+        getCardPriorityScore(card) {
+            const severityWeight = {
+                critical: 4,
+                high: 3,
+                medium: 2,
+                low: 1,
+            };
+
+            const weight = severityWeight[card.severity] || 1;
+
+            return (card.count || 0) * weight;
+        },
+
         handleNextBestAction() {
             if (!this.nextBestAction?.code) {
                 return;
@@ -466,6 +476,23 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             };
 
             window.requestAnimationFrame(animate);
+        },
+
+        getHealthLabel(key) {
+            const map = {
+                outOfStockProducts: this.$tc('esmx-shop-audit-ai.dashboard.outOfStockProducts'),
+                missingPrice: this.$tc('esmx-shop-audit-ai.dashboard.missingPrice'),
+                inactiveProducts: this.$tc('esmx-shop-audit-ai.dashboard.inactiveProducts'),
+                missingDescription: this.$tc('esmx-shop-audit-ai.dashboard.missingDescription'),
+                missingCoverImage: this.$tc('esmx-shop-audit-ai.dashboard.missingCoverImage'),
+                missingMetaTitle: this.$tc('esmx-shop-audit-ai.dashboard.missingMetaTitle'),
+                missingCategory: this.$tc('esmx-shop-audit-ai.dashboard.missingCategory'),
+                missingManufacturer: this.$tc('esmx-shop-audit-ai.dashboard.missingManufacturer'),
+                missingTranslation: this.$tc('esmx-shop-audit-ai.dashboard.missingTranslation'),
+                criticalIssues: this.$tc('esmx-shop-audit-ai.dashboardInsights.criticalIssues'),
+            };
+
+            return map[key] || key;
         },
     }
 });

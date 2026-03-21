@@ -20,9 +20,11 @@
       "runScanButton": "Run scan",
       "scanStatus": "Scan status",
       "highPriorityFindings": "High-priority findings",
+      "storeHealthFormulaTitle": "Score calculation",
+      "storeHealthFinalScore": "Final score",
 
       "scanResultsTitle": "Shop scan results",
-      "issueGroups": "Issue groups",
+      "issueGroups": "Active issue groups",
       "issueGroupsSubtitle": "Review grouped audit findings by severity and impact.",
       "viewAll": "View all",
       "viewAllFindings": "View all findings",

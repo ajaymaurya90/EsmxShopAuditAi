@@ -146,8 +146,23 @@
                                                 v-if="activeWidgetTooltip === 'storeHealth'"
                                                 class="esmx-shop-audit__tooltip"
                                         >
-                                            {{ $tc('esmx-shop-audit-ai.dashboard.storeHealthInfo') }}
-                                        </span>
+    <div class="esmx-shop-audit__health-tooltip">
+        <strong>{{ $tc('esmx-shop-audit-ai.dashboard.storeHealthFormulaTitle') }}</strong>
+
+        <div
+                v-for="rule in dashboard?.health?.breakdown || []"
+                :key="rule.key"
+                class="esmx-shop-audit__health-tooltip-row"
+        >
+            <span>{{ getHealthLabel(rule.key) }}</span>
+            <span>-{{ rule.penalty }}</span>
+        </div>
+
+        <div class="esmx-shop-audit__health-tooltip-total">
+            {{ $tc('esmx-shop-audit-ai.dashboard.storeHealthFinalScore') }}: {{ healthScore }} / 100
+        </div>
+    </div>
+</span>
                                     </span>
                                 </div>
 

@@ -22,7 +22,7 @@
       "highPriorityFindings": "Findings mit hoher Priorität",
 
       "scanResultsTitle": "Shop-Scan-Ergebnisse",
-      "issueGroups": "Problemgruppen",
+      "issueGroups": "Aktive Themengruppen",
       "issueGroupsSubtitle": "Prüfen Sie gruppierte Audit-Ergebnisse nach Schweregrad und Auswirkung.",
       "viewAll": "Alle anzeigen",
       "viewAllFindings": "Alle Findings anzeigen",
