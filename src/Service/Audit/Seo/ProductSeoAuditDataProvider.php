@@ -8,32 +8,44 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Psr\Log\LoggerInterface;
 
 class ProductSeoAuditDataProvider
 {
-    private const DEFAULT_PRODUCT_LIMIT = 100;
-    private const VARIANT_AUDIT_MODE_EFFECTIVE = 'effective';
-    private const VARIANT_AUDIT_MODE_RAW = 'raw';
+    private const int DEFAULT_PRODUCT_LIMIT = 100;
+    private const string VARIANT_AUDIT_MODE_EFFECTIVE = 'effective';
+    private const string VARIANT_AUDIT_MODE_RAW = 'raw';
 
     public function __construct(
         private readonly EntityRepository $productRepository,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
+        private readonly LoggerInterface $logger
     ) {
     }
 
+    // Loads products for SEO audit based on configured limit and variant audit mode.
     public function loadProducts(Context $context): ProductCollection
     {
+        $limit = $this->getAuditProductLimit();
+        $variantMode = $this->getVariantAuditMode();
+
         $criteria = new Criteria();
-        $criteria->setLimit($this->getAuditProductLimit());
+        $criteria->setLimit($limit);
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
 
         $searchContext = clone $context;
         $searchContext->setConsiderInheritance(
-            $this->getVariantAuditMode() === self::VARIANT_AUDIT_MODE_EFFECTIVE
+            $variantMode === self::VARIANT_AUDIT_MODE_EFFECTIVE
         );
 
         /** @var ProductCollection $products */
         $products = $this->productRepository->search($criteria, $searchContext)->getEntities();
+
+        $this->logger->info('EsmxShopAuditAi SEO product data loaded', [
+            'count' => $products->count(),
+            'limit' => $limit,
+            'variantMode' => $variantMode,
+        ]);
 
         return $products;
     }

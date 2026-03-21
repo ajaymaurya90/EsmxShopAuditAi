@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 
 class EsmxShopAuditAi extends Plugin
 {
@@ -24,7 +26,24 @@ class EsmxShopAuditAi extends Plugin
             return;
         }
 
-        // Remove or deactivate the data created by the plugin
+        $connection = $this->container->get(Connection::class);
+        $logger = $this->container->get(LoggerInterface::class);
+
+        try {
+            $connection->executeStatement(
+                'DELETE FROM `system_config` WHERE `configuration_key` LIKE :prefix',
+                ['prefix' => 'EsmxShopAuditAi.config.%']
+            );
+
+            $connection->executeStatement('DROP TABLE IF EXISTS `esmx_shop_audit_task`;');
+            $connection->executeStatement('DROP TABLE IF EXISTS `esmx_shop_audit_finding`;');
+            $connection->executeStatement('DROP TABLE IF EXISTS `esmx_shop_audit_scan`;');
+
+        } catch (\Throwable $e) {
+            $logger->error('EsmxShopAuditAi uninstall cleanup failed', [
+                'exception' => $e,
+            ]);
+        }
     }
 
     public function activate(ActivateContext $activateContext): void

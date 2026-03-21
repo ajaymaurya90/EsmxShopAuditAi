@@ -14,9 +14,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ProductAuditService
 {
-    private const DEFAULT_LIMIT = 100;
-    private const VARIANT_AUDIT_MODE_EFFECTIVE = 'effective';   // audit should evaluate the effective storefront data inherited from parent products
-    private const VARIANT_AUDIT_MODE_RAW = 'raw';               // strictly check the raw values stored on variant records
+    private const int DEFAULT_LIMIT = 100;
+    private const string VARIANT_AUDIT_MODE_EFFECTIVE = 'effective';   // audit should evaluate the effective storefront data inherited from parent products
+    private const string VARIANT_AUDIT_MODE_RAW = 'raw';               // strictly check the raw values stored on variant records
 
     public function __construct(
         private readonly EntityRepository $productRepository,
@@ -25,7 +25,7 @@ class ProductAuditService
     ) {
     }
 
-    public function buildDashboardSummary(Context $context): array
+    public function buildProductAuditSummary(Context $context): array
     {
         $limit = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.auditProductLimit') ?? self::DEFAULT_LIMIT);
 
@@ -155,20 +155,51 @@ class ProductAuditService
                 'missingManufacturer' => \count($issues['missingManufacturer']),
                 'missingPrice' => \count($issues['missingPrice']),
                 'missingTranslation' => \count($issues['missingTranslation']),
-                'totalIssues' => array_sum([
-                    \count($issues['missingDescription']),
-                    \count($issues['missingCoverImage']),
-                    \count($issues['inactiveProducts']),
-                    \count($issues['outOfStockProducts']),
-                    \count($issues['missingMetaTitle']),
-                    \count($issues['missingCategory']),
-                    \count($issues['missingManufacturer']),
-                    \count($issues['missingPrice']),
-                    \count($issues['missingTranslation']),
+                'totalIssues' => $this->calculateTotalIssues([
+                    'missingDescription' => \count($issues['missingDescription']),
+                    'missingCoverImage' => \count($issues['missingCoverImage']),
+                    'inactiveProducts' => \count($issues['inactiveProducts']),
+                    'outOfStockProducts' => \count($issues['outOfStockProducts']),
+                    'missingMetaTitle' => \count($issues['missingMetaTitle']),
+                    'missingCategory' => \count($issues['missingCategory']),
+                    'missingManufacturer' => \count($issues['missingManufacturer']),
+                    'missingPrice' => \count($issues['missingPrice']),
+                    'missingTranslation' => \count($issues['missingTranslation']),
                 ]),
             ],
             'issues' => $issues,
         ];
+    }
+
+    // Merges additional issue groups into an existing audit summary and recalculates total issues.
+    public function mergeIssuesIntoSummary(array $auditSummary, array $issues): array
+    {
+        foreach ($issues as $code => $definition) {
+            $items = $definition['items'] ?? [];
+
+            $auditSummary['issues'][$code] = $items;
+            $auditSummary['totals'][$code] = \count($items);
+        }
+
+        $auditSummary['totals']['totalIssues'] = $this->calculateTotalIssues($auditSummary['totals'] ?? []);
+
+        return $auditSummary;
+    }
+
+    // Recalculates the total number of issues across all active issue groups.
+    public function calculateTotalIssues(array $totals): int
+    {
+        $totalIssues = 0;
+
+        foreach ($totals as $key => $value) {
+            if ($key === 'totalIssues') {
+                continue;
+            }
+
+            $totalIssues += (int) $value;
+        }
+
+        return $totalIssues;
     }
 
     private function loadProducts(Context $context, int $limit, string $variantAuditMode): ProductCollection

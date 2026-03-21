@@ -37,12 +37,14 @@
             <argument type="service" id="esmx_shop_audit_scan.repository" />
             <argument type="service" id="esmx_shop_audit_finding.repository" />
             <argument type="service" id="esmx_shop_audit_task.repository" />
+            <argument type="service" id="logger" />
         </service>
 
         <service id="EsmxShopAuditAi\Service\Task\TaskAutoFixService" public="false">
             <argument type="service" id="esmx_shop_audit_task.repository"/>
             <argument type="service" id="esmx_shop_audit_finding.repository"/>
             <argument type="service" id="product.repository"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="EsmxShopAuditAi\Controller\Admin\AuditDashboardController" public="true">
@@ -60,10 +62,12 @@
         <service id="EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider">
             <argument type="service" id="product.repository" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="EsmxShopAuditAi\Service\Audit\Seo\SeoAuditService">
             <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider" />
+            <argument type="service" id="logger" />
             <argument type="tagged_iterator" tag="esmx_shop_audit_ai.seo_rule" />
         </service>
 

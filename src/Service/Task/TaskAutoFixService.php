@@ -4,13 +4,14 @@ namespace EsmxShopAuditAi\Service\Task;
 
 use EsmxShopAuditAi\Core\Content\Scan\Aggregate\Finding\FindingEntity;
 use EsmxShopAuditAi\Core\Content\Scan\Aggregate\Task\TaskEntity;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class TaskAutoFixService
 {
@@ -18,6 +19,7 @@ class TaskAutoFixService
         private readonly EntityRepository $taskRepository,
         private readonly EntityRepository $findingRepository,
         private readonly EntityRepository $productRepository,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -26,11 +28,21 @@ class TaskAutoFixService
         $task = $this->loadTask($taskId, $context);
         $item = $this->loadTaskItem($task, $itemId, $context);
 
-        return match ($task->getCode()) {
+        $preview = match ($task->getCode()) {
             'add_meta_titles' => $this->buildMetaTitlePreview($item, $context),
             'add_meta_descriptions' => $this->buildMetaDescriptionPreview($item, $context),
             default => throw new BadRequestHttpException('Auto fix is not supported for this task.'),
         };
+
+        $this->logger->info('EsmxShopAuditAi auto-fix preview generated', [
+            'taskId' => $taskId,
+            'itemId' => $itemId,
+            'taskCode' => $task->getCode(),
+            'field' => $preview['field'] ?? null,
+            'willChange' => $preview['willChange'] ?? null,
+        ]);
+
+        return $preview;
     }
 
     public function apply(string $taskId, string $itemId, Context $context): array
@@ -45,66 +57,98 @@ class TaskAutoFixService
         };
 
         if (!($result['changed'] ?? false)) {
+            $this->logger->warning('EsmxShopAuditAi auto-fix skipped because no change was needed', [
+                'taskId' => $taskId,
+                'itemId' => $itemId,
+                'taskCode' => $task->getCode(),
+                'message' => $result['message'] ?? null,
+            ]);
+
             return $result;
         }
 
         $remainingCount = $this->updateFindingAfterFix($task, $itemId, $context);
         $this->updateTaskAfterFix($task, $remainingCount, $context);
 
-        return [
+        $response = [
             ...$result,
             'remaining' => $remainingCount,
             'taskCompleted' => $remainingCount === 0,
         ];
+
+        $this->logger->info('EsmxShopAuditAi auto-fix applied', [
+            'taskId' => $taskId,
+            'itemId' => $itemId,
+            'taskCode' => $task->getCode(),
+            'field' => $result['field'] ?? null,
+            'remaining' => $remainingCount,
+            'taskCompleted' => $remainingCount === 0,
+        ]);
+
+        return $response;
     }
 
     public function applyAll(string $taskId, Context $context): array
     {
         $task = $this->loadTask($taskId, $context);
 
-        $taskPayload = $task->getPayloadJson() ?? [];
-        $findingCode = $taskPayload['findingCode'] ?? null;
+        $finding = $this->loadFindingForTask($task, $context);
 
-        if (!$findingCode) {
-            throw new BadRequestHttpException('Task does not reference a finding.');
-        }
+        $items = $this->extractFindingPayloadItems($finding->getPayloadJson() ?? []);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('scanId', $task->getScanId()));
-        $criteria->addFilter(new EqualsFilter('code', $findingCode));
-
-        /** @var ?FindingEntity $finding */
-        $finding = $this->findingRepository->search($criteria, $context)->first();
-
-        if (!$finding) {
-            throw new NotFoundHttpException('Finding not found.');
-        }
-
-        $payload = $finding->getPayloadJson() ?? [];
-        $items = $payload['items'] ?? [];
-
-        $processed = 0;
-        $changed = 0;
+        $processed = 0;     // for total items attempted with valid id
+        $changed = 0;       // for actual successful changes
+        $failed = 0;        // for failed attempts
 
         foreach ($items as $item) {
-            try {
-                $result = $this->apply($taskId, (string) ($item['id'] ?? ''), $context);
+            $itemId = (string) ($item['id'] ?? '');
 
+            if ($itemId === '') {
+                $failed++;
+
+                $this->logger->warning('EsmxShopAuditAi batch auto-fix item skipped because item id was missing', [
+                    'taskId' => $taskId,
+                    'taskCode' => $task->getCode(),
+                ]);
+
+                continue;
+            }
+
+            try {
+                $result = $this->apply($taskId, $itemId, $context);
                 $processed++;
 
                 if ($result['changed'] ?? false) {
                     $changed++;
                 }
-            } catch (\Throwable $e) {
-                // skip errors, continue batch
+            } catch (\Throwable $exception) {
+                $failed++;
+
+                $this->logger->warning('EsmxShopAuditAi batch auto-fix item failed', [
+                    'taskId' => $taskId,
+                    'itemId' => $itemId,
+                    'taskCode' => $task->getCode(),
+                    'exception' => $exception,
+                ]);
             }
         }
 
-        return [
+        $summary = [
             'success' => true,
             'processed' => $processed,
             'changed' => $changed,
+            'failed' => $failed,
         ];
+
+        $this->logger->info('EsmxShopAuditAi batch auto-fix completed', [
+            'taskId' => $taskId,
+            'taskCode' => $task->getCode(),
+            'processed' => $processed,
+            'changed' => $changed,
+            'failed' => $failed,
+        ]);
+
+        return $summary;
     }
 
     private function loadTask(string $taskId, Context $context): TaskEntity
@@ -123,32 +167,9 @@ class TaskAutoFixService
 
     private function loadTaskItem(TaskEntity $task, string $itemId, Context $context): array
     {
-        $taskPayload = $task->getPayloadJson() ?? [];
-        $findingCode = $taskPayload['findingCode'] ?? null;
+        $finding = $this->loadFindingForTask($task, $context);
 
-        if (!$findingCode) {
-            throw new BadRequestHttpException('Task does not reference a finding.');
-        }
-
-        $findingCriteria = new Criteria();
-        $findingCriteria->addFilter(new EqualsFilter('scanId', $task->getScanId()));
-        $findingCriteria->addFilter(new EqualsFilter('code', $findingCode));
-
-        /** @var ?FindingEntity $finding */
-        $finding = $this->findingRepository->search($findingCriteria, $context)->first();
-
-        if ($finding === null) {
-            throw new NotFoundHttpException('Related finding not found.');
-        }
-
-        $payload = $finding->getPayloadJson() ?? [];
-        $items = [];
-
-        if (isset($payload['items']) && \is_array($payload['items'])) {
-            $items = $payload['items'];
-        } elseif (array_is_list($payload)) {
-            $items = $payload;
-        }
+        $items = $this->extractFindingPayloadItems($finding->getPayloadJson() ?? []);
 
         foreach ($items as $item) {
             if (!\is_array($item)) {
@@ -161,6 +182,20 @@ class TaskAutoFixService
         }
 
         throw new NotFoundHttpException('Affected item not found.');
+    }
+
+    // Extracts normalized item arrays from finding payloads that may be wrapped or flat.
+    private function extractFindingPayloadItems(array $payload): array
+    {
+        if (isset($payload['items']) && \is_array($payload['items'])) {
+            return $payload['items'];
+        }
+
+        if (array_is_list($payload)) {
+            return $payload;
+        }
+
+        return [];
     }
 
     private function buildMetaTitlePreview(array $item, Context $context): array
@@ -240,6 +275,33 @@ class TaskAutoFixService
 
     private function updateFindingAfterFix(TaskEntity $task, string $itemId, Context $context): int
     {
+        $finding = $this->loadFindingForTask($task, $context);
+
+        $payload = $finding->getPayloadJson() ?? [];
+        $items = $this->extractFindingPayloadItems($payload);
+
+        $updatedItems = array_values(array_filter($items, function ($item) use ($itemId) {
+            return ($item['id'] ?? null) !== $itemId;
+        }));
+
+        $newPayload = $payload;
+        $newPayload['items'] = $updatedItems;
+
+        $updatedCount = \count($updatedItems);
+        $this->findingRepository->update([
+            [
+                'id' => $finding->getId(),
+                'payloadJson' => $newPayload,
+                'affectedCount' => $updatedCount,
+            ],
+        ], $context);
+
+        return $updatedCount;
+    }
+
+    // Loads the finding referenced by the task payload within the same scan.
+    private function loadFindingForTask(TaskEntity $task, Context $context): FindingEntity
+    {
         $taskPayload = $task->getPayloadJson() ?? [];
         $findingCode = $taskPayload['findingCode'] ?? null;
 
@@ -255,34 +317,10 @@ class TaskAutoFixService
         $finding = $this->findingRepository->search($criteria, $context)->first();
 
         if ($finding === null) {
-            throw new NotFoundHttpException('Finding not found.');
+            throw new NotFoundHttpException('Related finding not found.');
         }
 
-        $payload = $finding->getPayloadJson() ?? [];
-        $items = [];
-
-        if (isset($payload['items']) && \is_array($payload['items'])) {
-            $items = $payload['items'];
-        } elseif (array_is_list($payload)) {
-            $items = $payload;
-        }
-
-        $updatedItems = array_values(array_filter($items, function ($item) use ($itemId) {
-            return ($item['id'] ?? null) !== $itemId;
-        }));
-
-        $newPayload = $payload;
-        $newPayload['items'] = $updatedItems;
-
-        $this->findingRepository->update([
-            [
-                'id' => $finding->getId(),
-                'payloadJson' => $newPayload,
-                'affectedCount' => count($updatedItems),
-            ],
-        ], $context);
-
-        return count($updatedItems);
+        return $finding;
     }
 
     private function updateTaskAfterFix(TaskEntity $task, int $remainingCount, Context $context): void
@@ -361,6 +399,7 @@ class TaskAutoFixService
         ];
     }
 
+    // Builds a safe deterministic fallback meta description for auto-fix use.
     private function generateMetaDescription(string $productName): string
     {
         $text = sprintf('Discover %s in our store.', $productName);

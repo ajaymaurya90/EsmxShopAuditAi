@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use EsmxShopAuditAi\Service\Audit\Seo\SeoAuditService;
+use Psr\Log\LoggerInterface;
 
 class ManualScanRunner
 {
@@ -17,7 +18,8 @@ class ManualScanRunner
         private readonly TaskBuilder $taskBuilder,
         private readonly EntityRepository $scanRepository,
         private readonly EntityRepository $findingRepository,
-        private readonly EntityRepository $taskRepository
+        private readonly EntityRepository $taskRepository,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -39,27 +41,20 @@ class ManualScanRunner
             ],
         ], $context);
 
+        $this->logger->info('EsmxShopAuditAi scan started', [
+            'scanId' => $scanId,
+            'startedAt' => $startedAt->format(DATE_ATOM),
+        ]);
+
         try {
-            $auditSummary = $this->productAuditService->buildDashboardSummary($context);
+            $auditSummary = $this->productAuditService->buildProductAuditSummary($context);
             $seoIssues = $this->seoAuditService->run($context);
-            foreach ($seoIssues as $code => $definition) {
-                $auditSummary['issues'][$code] = $definition['items'];
-                $auditSummary['totals'][$code] = count($definition['items']);
-            }
-
-            //Recalculate total issues after merging SEO checks
-            $auditSummary['totals']['totalIssues'] = 0;
-
-            foreach ($auditSummary['totals'] as $key => $value) {
-                if ($key === 'totalIssues') {
-                    continue;
-                }
-
-                $auditSummary['totals']['totalIssues'] += (int) $value;
-            }
+            $auditSummary = $this->productAuditService->mergeIssuesIntoSummary($auditSummary, $seoIssues);
 
             $findings = $this->findingBuilder->build($scanId, $auditSummary);
             $tasks = $this->taskBuilder->build($scanId, $findings);
+            $highPriorityFindings = $this->countHighPriorityFindings($findings);
+            $finishedAt = new \DateTimeImmutable();
 
             if ($findings !== []) {
                 $this->findingRepository->create($findings, $context);
@@ -69,13 +64,11 @@ class ManualScanRunner
                 $this->taskRepository->create($tasks, $context);
             }
 
-            $highPriorityFindings = $this->countHighPriorityFindings($findings);
-
             $this->scanRepository->update([
                 [
                     'id' => $scanId,
                     'status' => 'completed',
-                    'finishedAt' => new \DateTimeImmutable(),
+                    'finishedAt' => $finishedAt,
                     'scannedProducts' => (int) ($auditSummary['meta']['scannedProducts'] ?? 0),
                     'totalFindings' => \count($findings),
                     'highPriorityFindings' => $highPriorityFindings,
@@ -88,13 +81,24 @@ class ManualScanRunner
                 ],
             ], $context);
 
+            $this->logger->info('EsmxShopAuditAi scan completed', [
+                'scanId' => $scanId,
+                'finishedAt' => $finishedAt->format(DATE_ATOM),
+                'scannedProducts' => (int) ($auditSummary['meta']['scannedProducts'] ?? 0),
+                'findingCount' => \count($findings),
+                'taskCount' => \count($tasks),
+                'highPriorityFindings' => $highPriorityFindings,
+            ]);
+
             return $scanId;
         } catch (\Throwable $exception) {
+            $finishedAt = new \DateTimeImmutable();
+
             $this->scanRepository->update([
                 [
                     'id' => $scanId,
                     'status' => 'failed',
-                    'finishedAt' => new \DateTimeImmutable(),
+                    'finishedAt' => $finishedAt,
                     'summaryJson' => [
                         'meta' => $auditSummary['meta'] ?? [],
                         'error' => $exception->getMessage(),
@@ -102,10 +106,18 @@ class ManualScanRunner
                 ],
             ], $context);
 
+            $this->logger->error('EsmxShopAuditAi scan failed', [
+                'scanId' => $scanId,
+                'finishedAt' => $finishedAt->format(DATE_ATOM),
+                'meta' => $auditSummary['meta'] ?? [],
+                'exception' => $exception,
+            ]);
+
             throw $exception;
         }
     }
 
+    // Counts high and critical findings for persisted scan summary reporting.
     private function countHighPriorityFindings(array $findings): int
     {
         $count = 0;

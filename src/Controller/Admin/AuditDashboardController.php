@@ -23,6 +23,46 @@ use EsmxShopAuditAi\Service\Task\TaskAutoFixService;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['api']])]
 class AuditDashboardController extends AbstractController
 {
+    private const PRODUCT_ISSUE_KEYS = [
+        'missingDescription',
+        'missingCoverImage',
+        'inactiveProducts',
+        'outOfStockProducts',
+        'missingMetaTitle',
+        'missingCategory',
+        'missingManufacturer',
+        'missingPrice',
+        'missingTranslation',
+        'product_missing_meta_description',
+        'product_weak_title',
+        'product_short_description',
+    ];
+
+    private const TASK_IMPACT_WEIGHTS = [
+        'add_meta_titles' => 2.0,
+        'add_meta_descriptions' => 2.0,
+        'add_product_descriptions' => 1.5,
+        'upload_product_images' => 1.0,
+        'review_inactive_products' => 1.5,
+        'review_out_of_stock_products' => 2.0,
+        'assign_product_categories' => 1.5,
+        'assign_product_manufacturers' => 1.0,
+        'add_product_prices' => 3.0,
+        'complete_product_translations' => 1.5,
+    ];
+
+    private const HEALTH_SCORE_RULES = [
+        'outOfStockProducts' => ['weight' => 3, 'max' => 30],
+        'missingPrice' => ['weight' => 4, 'max' => 25],
+        'inactiveProducts' => ['weight' => 3, 'max' => 20],
+        'missingDescription' => ['weight' => 1, 'max' => 10],
+        'missingCoverImage' => ['weight' => 1, 'max' => 8],
+        'missingMetaTitle' => ['weight' => 1, 'max' => 7],
+        'missingCategory' => ['weight' => 2, 'max' => 12],
+        'missingManufacturer' => ['weight' => 1, 'max' => 8],
+        'missingTranslation' => ['weight' => 1, 'max' => 10],
+    ];
+
     public function __construct(
         private readonly ProductAuditService $productAuditService,
         private readonly ManualScanRunner $manualScanRunner,
@@ -42,44 +82,14 @@ class AuditDashboardController extends AbstractController
     )]
     public function loadDashboard(Context $context): JsonResponse
     {
-        $liveAudit = $this->productAuditService->buildDashboardSummary($context);
-
+        $liveAudit = $this->productAuditService->buildProductAuditSummary($context);
         $seoIssues = $this->seoAuditService->run($context);
-
-        foreach ($seoIssues as $code => $definition) {
-            $liveAudit['issues'][$code] = $definition['items'];
-            $liveAudit['totals'][$code] = count($definition['items']);
-        }
-
-        $liveAudit['totals']['totalIssues'] = 0;
-
-        foreach ($liveAudit['totals'] as $key => $value) {
-            if ($key === 'totalIssues') {
-                continue;
-            }
-
-            $liveAudit['totals']['totalIssues'] += (int) $value;
-        }
-
-        $productIssueKeys = [
-            'missingDescription',
-            'missingCoverImage',
-            'inactiveProducts',
-            'outOfStockProducts',
-            'missingMetaTitle',
-            'missingCategory',
-            'missingManufacturer',
-            'missingPrice',
-            'missingTranslation',
-            'product_missing_meta_description',
-            'product_weak_title',
-            'product_short_description',
-        ];
+        $liveAudit = $this->productAuditService->mergeIssuesIntoSummary($liveAudit, $seoIssues);
 
         $affectedProducts = [];
 
         foreach ($liveAudit['issues'] as $issueCode => $issueItems) {
-            if (!in_array($issueCode, $productIssueKeys, true)) {
+            if (!in_array($issueCode, self::PRODUCT_ISSUE_KEYS, true)) {
                 continue;
             }
 
@@ -207,7 +217,6 @@ class AuditDashboardController extends AbstractController
 
     #[Route(
         path: '/api/_action/esmx-shop-audit-ai/run-scan',
-
         name: 'api.action.esmx-shop-audit-ai.run-scan',
         methods: ['POST']
     )]
@@ -266,32 +275,8 @@ class AuditDashboardController extends AbstractController
         $data = [];
 
         /** @var FindingEntity $finding */
-        $data = [];
-
-        /** @var FindingEntity $finding */
         foreach ($findings as $finding) {
-            $payload = $finding->getPayloadJson() ?? [];
-            $items = [];
-
-            if (\is_array($payload)) {
-                if (isset($payload['items']) && \is_array($payload['items'])) {
-                    $items = $payload['items'];
-                } elseif (array_is_list($payload)) {
-                    $items = $payload;
-                }
-            }
-
-            $data[] = [
-                'id' => $finding->getId(),
-                'scanId' => $finding->getScanId(),
-                'code' => $finding->getCode(),
-                'title' => $finding->getTitle(),
-                'severity' => $finding->getSeverity(),
-                'entity' => $finding->getEntity(),
-                'affectedCount' => $finding->getAffectedCount(),
-                'items' => $items,
-                'payloadJson' => $payload,
-            ];
+            $data[] = $this->serializeFinding($finding);
         }
 
         return new JsonResponse([
@@ -326,20 +311,7 @@ class AuditDashboardController extends AbstractController
 
         /** @var TaskEntity $task */
         foreach ($tasks as $task) {
-            $data[] = [
-                'id' => $task->getId(),
-                'scanId' => $task->getScanId(),
-                'code' => $task->getCode(),
-                'title' => $task->getTitle(),
-                'priority' => $task->getPriority(),
-                'affectedCount' => $task->getAffectedCount(),
-                'status' => $task->getStatus(),
-                'impactScore' => $this->calculateTaskImpactScore(
-                    (string) $task->getCode(),
-                    (int) $task->getAffectedCount()
-                ),
-                'payloadJson' => $task->getPayloadJson(),
-            ];
+            $data[] = $this->serializeTask($task);
         }
 
         return new JsonResponse([
@@ -400,37 +372,14 @@ class AuditDashboardController extends AbstractController
         if ($scan->getFindings() !== null) {
             /** @var FindingEntity $finding */
             foreach ($scan->getFindings() as $finding) {
-                $findings[] = [
-                    'id' => $finding->getId(),
-                    'scanId' => $finding->getScanId(),
-                    'code' => $finding->getCode(),
-                    'title' => $finding->getTitle(),
-                    'severity' => $finding->getSeverity(),
-                    'entity' => $finding->getEntity(),
-                    'affectedCount' => $finding->getAffectedCount(),
-                    'payloadJson' => $finding->getPayloadJson(),
-                ];
+                $findings[] = $this->serializeFinding($finding);
             }
         }
 
         if ($scan->getTasks() !== null) {
             /** @var TaskEntity $task */
             foreach ($scan->getTasks() as $task) {
-                $tasks[] = [
-                    'id' => $task->getId(),
-                    'scanId' => $task->getScanId(),
-                    'code' => $task->getCode(),
-                    'title' => $task->getTitle(),
-                    'priority' => $task->getPriority(),
-                    'affectedCount' => $task->getAffectedCount(),
-                    'status' => $task->getStatus(),
-                    'payloadJson' => $task->getPayloadJson(),
-                    'impactScore' => $this->calculateTaskImpactScore(
-                        (string) $task->getCode(),
-                        (int) $task->getAffectedCount()
-                    ),
-                    'autoFixSupported' => $this->isAutoFixSupported($task),
-                ];
+                $tasks[] = $this->serializeTask($task);
             }
         }
 
@@ -486,23 +435,10 @@ class AuditDashboardController extends AbstractController
         }
 
         $items = $this->normalizeTaskDetailItems($findingItems, $task);
+        $taskData = $this->serializeTask($task);
 
         return new JsonResponse([
-            'task' => [
-                'id' => $task->getId(),
-                'scanId' => $task->getScanId(),
-                'code' => $task->getCode(),
-                'title' => $task->getTitle(),
-                'priority' => $task->getPriority(),
-                'affectedCount' => $task->getAffectedCount(),
-                'status' => $task->getStatus(),
-                'impactScore' => $this->calculateTaskImpactScore(
-                    (string) $task->getCode(),
-                    (int) $task->getAffectedCount()
-                ),
-                'payloadJson' => $taskPayload,
-                'autoFixSupported' => $this->isAutoFixSupported($task),
-            ],
+            'task' => $taskData,
             'items' => $items,
         ]);
     }
@@ -542,6 +478,60 @@ class AuditDashboardController extends AbstractController
 
         return new JsonResponse($result);
     }
+
+
+    // Serializes a finding entity for dashboard/report/detail API responses.
+    private function serializeFinding(FindingEntity $finding): array
+    {
+        $payload = $finding->getPayloadJson() ?? [];
+
+        return [
+            'id' => $finding->getId(),
+            'scanId' => $finding->getScanId(),
+            'code' => $finding->getCode(),
+            'title' => $finding->getTitle(),
+            'severity' => $finding->getSeverity(),
+            'entity' => $finding->getEntity(),
+            'affectedCount' => $finding->getAffectedCount(),
+            'items' => $this->extractPayloadItems($payload),
+            'payloadJson' => $payload,
+        ];
+    }
+
+    // Extracts normalized item arrays from finding payloads that may be wrapped or flat.
+    private function extractPayloadItems(array $payload): array
+    {
+        if (isset($payload['items']) && \is_array($payload['items'])) {
+            return $payload['items'];
+        }
+
+        if (array_is_list($payload)) {
+            return $payload;
+        }
+
+        return [];
+    }
+
+    // Serializes a task entity with computed impact and auto-fix metadata.
+    private function serializeTask(TaskEntity $task): array
+    {
+        return [
+            'id' => $task->getId(),
+            'scanId' => $task->getScanId(),
+            'code' => $task->getCode(),
+            'title' => $task->getTitle(),
+            'priority' => $task->getPriority(),
+            'affectedCount' => $task->getAffectedCount(),
+            'status' => $task->getStatus(),
+            'impactScore' => $this->calculateTaskImpactScore(
+                (string) $task->getCode(),
+                (int) $task->getAffectedCount()
+            ),
+            'payloadJson' => $task->getPayloadJson(),
+            'autoFixSupported' => $this->isAutoFixSupported($task),
+        ];
+    }
+
     private function getLatestScanEntity(Context $context): ?ScanEntity
     {
         $criteria = new Criteria();
@@ -568,6 +558,7 @@ class AuditDashboardController extends AbstractController
         ];
     }
 
+    // Normalizes mixed finding payload items into a consistent task detail grid format.
     private function normalizeTaskDetailItems(array $rawItems, TaskEntity $task): array
     {
         $normalized = [];
@@ -704,44 +695,21 @@ class AuditDashboardController extends AbstractController
         };
     }
 
+    // Calculates a lightweight prioritization score used to sort tasks by expected business impact.
     private function calculateTaskImpactScore(string $taskCode, int $affectedCount): int
     {
-        $weights = [
-            'add_meta_titles' => 2.0,
-            'add_meta_descriptions' => 2.0,
-            'add_product_descriptions' => 1.5,
-            'upload_product_images' => 1.0,
-            'review_inactive_products' => 1.5,
-            'review_out_of_stock_products' => 2.0,
-            'assign_product_categories' => 1.5,
-            'assign_product_manufacturers' => 1.0,
-            'add_product_prices' => 3.0,
-            'complete_product_translations' => 1.5,
-        ];
-
-        $weight = $weights[$taskCode] ?? 1.0;
+        $weight = self::TASK_IMPACT_WEIGHTS[$taskCode] ?? 1.0;
 
         return (int) round($affectedCount * $weight);
     }
 
+    // Builds the Store Health score and penalty breakdown used by the dashboard health widget.
     private function calculateHealthScore(array $totals, int $criticalIssues): array
     {
-        $rules = [
-            'outOfStockProducts' => ['weight' => 3, 'max' => 30],
-            'missingPrice' => ['weight' => 4, 'max' => 25],
-            'inactiveProducts' => ['weight' => 3, 'max' => 20],
-            'missingDescription' => ['weight' => 1, 'max' => 10],
-            'missingCoverImage' => ['weight' => 1, 'max' => 8],
-            'missingMetaTitle' => ['weight' => 1, 'max' => 7],
-            'missingCategory' => ['weight' => 2, 'max' => 12],
-            'missingManufacturer' => ['weight' => 1, 'max' => 8],
-            'missingTranslation' => ['weight' => 1, 'max' => 10],
-        ];
-
         $score = 100;
         $breakdown = [];
 
-        foreach ($rules as $key => $rule) {
+        foreach (self::HEALTH_SCORE_RULES as $key => $rule) {
             $count = (int) ($totals[$key] ?? 0);
             $penalty = min($count * $rule['weight'], $rule['max']);
 
