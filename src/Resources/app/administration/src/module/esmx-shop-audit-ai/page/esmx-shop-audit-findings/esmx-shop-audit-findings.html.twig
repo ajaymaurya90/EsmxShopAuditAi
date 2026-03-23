@@ -66,6 +66,7 @@
                     </mt-banner>
                 </template>
 
+                {# -------------- Start - Overview Section -------------- #}
                 <mt-card class="esmx-shop-audit__overview-card">
                     <div class="esmx-shop-audit__section-header">
                         <div class="esmx-shop-audit__section-title">
@@ -133,7 +134,9 @@
                         </div>
                     </div>
                 </mt-card>
+                {# -------------- End - Overview Section  -------------- #}
 
+                {# -------------- Start - Issue group table section  -------------- #}
                 <mt-card class="esmx-shop-audit__table-card">
                     <template #headline>
                         {{ $tc('esmx-shop-audit-ai.findings.gridHeadline') }}
@@ -343,7 +346,9 @@
                         </p>
                     </div>
                 </mt-card>
+                {# -------------- End - Issue group table section  -------------- #}
 
+                {# -------------- Start - Issue Detail table section  -------------- #}
                 <div
                         v-for="finding in sortedFindings"
                         :key="`section-${finding.id}`"
@@ -373,20 +378,30 @@
                             <template v-if="finding.items?.length">
                                 <sw-data-grid
                                         :dataSource="getPaginatedFindingItems(finding)"
-                                        :columns="[
-                                        { property: 'name', label: $tc('esmx-shop-audit-ai.grid.productName'), primary: true },
-                                        { property: 'productNumber', label: $tc('esmx-shop-audit-ai.grid.productNumber') },
-                                        { property: 'stock', label: $tc('esmx-shop-audit-ai.grid.stock') }
-                                    ]"
+                                        :columns="getFindingColumns(finding)"
                                         :showSelection="false"
                                         :showActions="true"
                                 >
+                                    <template #column-overallSeoScore="{ item }">
+                                        <span>{{ item.overallSeoScore ?? '-' }}</span>
+                                    </template>
+
+                                    <template #column-reason="{ item }">
+                                        <span>{{ item.reason || '-' }}</span>
+                                    </template>
+
+                                    <template #column-stock="{ item }">
+                                        <span>{{ item.stock ?? '-' }}</span>
+                                    </template>
+
                                     <template #actions="{ item }">
                                         <sw-context-menu-item @click="openProductDetailInNewTab(item)">
                                             {{ $tc('esmx-shop-audit-ai.findings.viewDetail') }}
                                         </sw-context-menu-item>
                                     </template>
                                 </sw-data-grid>
+
+
 
                                 <div
                                         v-if="getDetailTotalPages(finding) > 1"
@@ -427,6 +442,7 @@
                         </div>
                     </mt-card>
                 </div>
+                {# -------------- End - Issue Detail table section  -------------- #}
             </sw-card-view>
         </template>
     </sw-page>

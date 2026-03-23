@@ -467,6 +467,35 @@
                         </mt-card>
                     </div>
 
+                    {# -----------Start - SEO KPI Card------------ #}
+                    <mt-card class="esmx-shop-audit-dashboard__seo-kpi-card">
+                        <div class="esmx-shop-audit-dashboard__section-header esmx-shop-audit-dashboard__seo-kpi-header">
+                            <h3>{{ $tc('esmx-shop-audit-ai.dashboard.seoKpiTitle') }}</h3>
+                            <p>{{ $tc('esmx-shop-audit-ai.dashboard.seoKpiSubtitle') }}</p>
+                        </div>
+
+                        <div class="esmx-shop-audit-dashboard__seo-kpi-grid">
+                            <div
+                                    v-for="card in seoKpiCards"
+                                    :key="card.key"
+                                    class="esmx-shop-audit-dashboard__seo-kpi-item"
+                            >
+                                <div class="esmx-shop-audit-dashboard__seo-kpi-label">
+                                    {{ card.label }}
+                                </div>
+
+                                <div class="esmx-shop-audit-dashboard__seo-kpi-value">
+                                    {{ card.value }}
+                                </div>
+
+                                <div class="esmx-shop-audit-dashboard__seo-kpi-hint">
+                                    {{ card.hint }}
+                                </div>
+                            </div>
+                        </div>
+                    </mt-card>
+                    {# -----------End - SEO KPI Card------------ #}
+
                     <div class="esmx-shop-audit-dashboard__summary">
                         <div class="esmx-shop-audit-dashboard__summary-meta">
                             <div class="esmx-shop-audit-dashboard__summary-header">

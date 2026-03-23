@@ -273,6 +273,41 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                 background: `conic-gradient(${color} 0deg ${angle}deg, #e5e7eb ${angle}deg 360deg)`,
             };
         },
+
+        seoMeta() {
+            return this.dashboard?.liveAudit?.meta?.seo || {
+                totalProducts: 0,
+                productsNeedingImprovement: 0,
+                averageOverallScore: 0,
+                improvementThreshold: 0,
+                improvementRate: 0,
+            };
+        },
+
+        seoKpiCards() {
+            return [
+                {
+                    key: 'averageOverallScore',
+                    label: this.$tc('esmx-shop-audit-ai.dashboard.seoAverageScore'),
+                    value: `${this.seoMeta.averageOverallScore || 0}/100`,
+                    hint: this.$tc('esmx-shop-audit-ai.dashboard.seoAverageScoreHint'),
+                },
+                {
+                    key: 'productsNeedingImprovement',
+                    label: this.$tc('esmx-shop-audit-ai.dashboard.seoNeedsImprovement'),
+                    value: `${this.seoMeta.productsNeedingImprovement || 0} / ${this.seoMeta.totalProducts || 0}`,
+                    hint: this.$tc('esmx-shop-audit-ai.dashboard.seoNeedsImprovementHint', 0, {
+                        threshold: this.seoMeta.improvementThreshold || 0,
+                    }),
+                },
+                {
+                    key: 'improvementRate',
+                    label: this.$tc('esmx-shop-audit-ai.dashboard.seoImprovementRate'),
+                    value: this.formatPercent(this.seoMeta.improvementRate),
+                    hint: this.$tc('esmx-shop-audit-ai.dashboard.seoImprovementRateHint'),
+                },
+            ];
+        },
     },
 
     created() {
@@ -483,16 +518,22 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                 outOfStockProducts: this.$tc('esmx-shop-audit-ai.dashboard.outOfStockProducts'),
                 missingPrice: this.$tc('esmx-shop-audit-ai.dashboard.missingPrice'),
                 inactiveProducts: this.$tc('esmx-shop-audit-ai.dashboard.inactiveProducts'),
-                missingDescription: this.$tc('esmx-shop-audit-ai.dashboard.missingDescription'),
                 missingCoverImage: this.$tc('esmx-shop-audit-ai.dashboard.missingCoverImage'),
-                missingMetaTitle: this.$tc('esmx-shop-audit-ai.dashboard.missingMetaTitle'),
                 missingCategory: this.$tc('esmx-shop-audit-ai.dashboard.missingCategory'),
                 missingManufacturer: this.$tc('esmx-shop-audit-ai.dashboard.missingManufacturer'),
                 missingTranslation: this.$tc('esmx-shop-audit-ai.dashboard.missingTranslation'),
-                criticalIssues: this.$tc('esmx-shop-audit-ai.dashboardInsights.criticalIssues'),
+                product_name: this.$tc('esmx-shop-audit-ai.dashboard.productName'),
+                product_description: this.$tc('esmx-shop-audit-ai.dashboard.productDescription'),
+                product_meta_title: this.$tc('esmx-shop-audit-ai.dashboard.productMetaTitle'),
+                product_meta_description: this.$tc('esmx-shop-audit-ai.dashboard.productMetaDescription'),
+                criticalIssues: this.$tc('esmx-shop-audit-ai.dashboard.criticalIssues'),
             };
 
             return map[key] || key;
+        },
+
+        formatPercent(value) {
+            return `${Number(value || 0).toFixed(2)}%`;
         },
     }
 });

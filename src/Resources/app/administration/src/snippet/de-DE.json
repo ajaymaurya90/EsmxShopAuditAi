@@ -91,11 +91,21 @@
       "missingPrice": "Produkte ohne Preis",
       "missingTranslation": "Produkte mit fehlenden Übersetzungen",
       "productMissingMetaDescription": "Produkte ohne SEO-Meta-Beschreibung",
-      "productWeakTitle": "Produkte mit schwachem Titel",
-      "productShortDescription": "Produkte mit kurzer Beschreibung",
+      "productName": "Produkte mit Namensproblemen",
+      "productMetaTitle": "Produkte mit Meta-Titel-Problemen",
+      "productDescription": "Produkte mit Beschreibungsproblemen",
       "categoryMissingMetaTitle": "Kategorien ohne SEO-Meta-Titel",
-      "categoryMissingMetaDescription": "Kategorien ohne SEO-Meta-Beschreibung",
-      "categoryMissingDescription": "Kategorien ohne Beschreibung"
+      "productMetaDescription": "Produkte mit Meta-Beschreibungsproblemen",
+      "categoryMissingDescription": "Kategorien ohne Beschreibung",
+      "criticalIssues": "Kritische Probleme",
+      "seoKpiTitle": "SEO-Qualitätsübersicht",
+      "seoKpiSubtitle": "Überblick über die aktuelle SEO-Qualität der geprüften Produkte.",
+      "seoAverageScore": "Durchschnittlicher SEO-Score",
+      "seoAverageScoreHint": "Gewichteter Score aus Meta-Titel, Meta-Beschreibung und Beschreibung.",
+      "seoNeedsImprovement": "Verbesserungsbedarf",
+      "seoNeedsImprovementHint": "Hier werden Produkte mit einem Score unter {threshold} gezählt.",
+      "seoImprovementRate": "Verbesserungsquote",
+      "seoImprovementRateHint": "Anteil der geprüften Produkte unterhalb des SEO-Schwellenwerts."
     },
     "dashboardInsights": {
       "scannedProducts": "Geprüfte Produkte",
@@ -115,9 +125,10 @@
       "missingManufacturer": "Unvollständige Produktdaten können Vertrauen und Filterqualität verringern.",
       "missingPrice": "Produkte ohne Preis können nicht korrekt gekauft werden.",
       "missingTranslation": "Kunden sehen möglicherweise eine Fallback-Sprache oder unvollständige Inhalte.",
-      "productMissingMetaDescription": "Kann die Klickrate in Suchmaschinen und die SEO-Qualität verringern.",
-      "productWeakTitle": "Schwache Titel können Auffindbarkeit und Produktklarheit verschlechtern.",
-      "productShortDescription": "Kurze Beschreibungen können Vertrauen und Conversion verringern.",
+      "productMetaTitle": "Meta-Titel fehlen, sind zu kurz, zu lang, identisch mit dem Produktnamen oder benötigen SEO-Optimierung.",
+      "productMetaDescription": "Meta-Beschreibungen fehlen, sind zu kurz, zu lang oder benötigen SEO-Optimierung.",
+      "productName": "Produktnamen fehlen oder sind zu kurz und können Klarheit sowie SEO-Qualität beeinträchtigen.",
+      "productDescription": "Beschreibungen fehlen oder sind zu kurz und können SEO-Qualität sowie Produktklarheit beeinträchtigen.",
       "categoryMissingMetaTitle": "Fehlende SEO-Meta-Titel bei Kategorien können die Kategoriesichtbarkeit schwächen.",
       "categoryMissingMetaDescription": "Fehlende Meta-Beschreibungen bei Kategorien können die SEO-Klickrate verringern.",
       "categoryMissingDescription": "Wenig Kategorieinhalt kann SEO und Nutzerführung verschlechtern."
@@ -184,7 +195,9 @@
       "stats": {
         "totalFindings": "Findings gesamt",
         "affectedItems": "Betroffene Einträge"
-      }
+      },
+      "reasonLabel": "Grund",
+      "overallScore": "SEO-Score"
     },
     "tasks": {
       "pageTitle": "Tasks",

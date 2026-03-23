@@ -2,6 +2,7 @@
 
 namespace EsmxShopAuditAi\Service\Audit;
 
+use EsmxShopAuditAi\Service\Audit\Seo\SeoAuditResult;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
@@ -15,8 +16,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class ProductAuditService
 {
     private const int DEFAULT_LIMIT = 100;
-    private const string VARIANT_AUDIT_MODE_EFFECTIVE = 'effective';   // audit should evaluate the effective storefront data inherited from parent products
-    private const string VARIANT_AUDIT_MODE_RAW = 'raw';               // strictly check the raw values stored on variant records
+    private const string VARIANT_AUDIT_MODE_EFFECTIVE = 'effective';
+    private const string VARIANT_AUDIT_MODE_RAW = 'raw';
 
     public function __construct(
         private readonly EntityRepository $productRepository,
@@ -38,7 +39,6 @@ class ProductAuditService
         $enableAudit = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.enableAudit') ?? true);
         $checkMissingManufacturer = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkMissingManufacturer') ?? true);
         $checkMissingTranslations = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkMissingTranslations') ?? true);
-        $checkSeoFields = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkSeoFields') ?? true);
 
         if ($enableAudit !== true) {
             return [
@@ -46,13 +46,12 @@ class ProductAuditService
                     'scannedProducts' => 0,
                     'productLimit' => $limit,
                     'variantAuditMode' => $variantAuditMode,
+                    'seo' => $this->buildDefaultSeoMeta(),
                 ],
                 'totals' => [
-                    'missingDescription' => 0,
                     'missingCoverImage' => 0,
                     'inactiveProducts' => 0,
                     'outOfStockProducts' => 0,
-                    'missingMetaTitle' => 0,
                     'missingCategory' => 0,
                     'missingManufacturer' => 0,
                     'missingPrice' => 0,
@@ -60,11 +59,9 @@ class ProductAuditService
                     'totalIssues' => 0,
                 ],
                 'issues' => [
-                    'missingDescription' => [],
                     'missingCoverImage' => [],
                     'inactiveProducts' => [],
                     'outOfStockProducts' => [],
-                    'missingMetaTitle' => [],
                     'missingCategory' => [],
                     'missingManufacturer' => [],
                     'missingPrice' => [],
@@ -74,15 +71,12 @@ class ProductAuditService
         }
 
         $products = $this->loadProducts($context, $limit, $variantAuditMode);
-
         $languages = $this->loadLanguages($context);
 
         $issues = [
-            'missingDescription' => [],
             'missingCoverImage' => [],
             'inactiveProducts' => [],
             'outOfStockProducts' => [],
-            'missingMetaTitle' => [],
             'missingCategory' => [],
             'missingManufacturer' => [],
             'missingPrice' => [],
@@ -91,14 +85,6 @@ class ProductAuditService
 
         /** @var ProductEntity $product */
         foreach ($products as $product) {
-            $translated = $product->getTranslated();
-
-            $description = trim((string) ($translated['description'] ?? ''));
-            $metaTitle = trim((string) ($translated['metaTitle'] ?? ''));
-
-            if ($description === '') {
-                $issues['missingDescription'][] = $this->buildProductPayload($product);
-            }
 
             if ($product->getCoverId() === null) {
                 $issues['missingCoverImage'][] = $this->buildProductPayload($product);
@@ -110,10 +96,6 @@ class ProductAuditService
 
             if (($product->getStock() ?? 0) <= 0) {
                 $issues['outOfStockProducts'][] = $this->buildProductPayload($product);
-            }
-
-            if ($checkSeoFields && $metaTitle === '') {
-                $issues['missingMetaTitle'][] = $this->buildProductPayload($product);
             }
 
             if ($product->getCategories() === null || $product->getCategories()->count() === 0) {
@@ -144,23 +126,20 @@ class ProductAuditService
                 'scannedProducts' => $products->count(),
                 'productLimit' => $limit,
                 'variantAuditMode' => $variantAuditMode,
+                'seo' => $this->buildDefaultSeoMeta(),
             ],
             'totals' => [
-                'missingDescription' => \count($issues['missingDescription']),
                 'missingCoverImage' => \count($issues['missingCoverImage']),
                 'inactiveProducts' => \count($issues['inactiveProducts']),
                 'outOfStockProducts' => \count($issues['outOfStockProducts']),
-                'missingMetaTitle' => \count($issues['missingMetaTitle']),
                 'missingCategory' => \count($issues['missingCategory']),
                 'missingManufacturer' => \count($issues['missingManufacturer']),
                 'missingPrice' => \count($issues['missingPrice']),
                 'missingTranslation' => \count($issues['missingTranslation']),
                 'totalIssues' => $this->calculateTotalIssues([
-                    'missingDescription' => \count($issues['missingDescription']),
                     'missingCoverImage' => \count($issues['missingCoverImage']),
                     'inactiveProducts' => \count($issues['inactiveProducts']),
                     'outOfStockProducts' => \count($issues['outOfStockProducts']),
-                    'missingMetaTitle' => \count($issues['missingMetaTitle']),
                     'missingCategory' => \count($issues['missingCategory']),
                     'missingManufacturer' => \count($issues['missingManufacturer']),
                     'missingPrice' => \count($issues['missingPrice']),
@@ -171,14 +150,32 @@ class ProductAuditService
         ];
     }
 
-    // Merges additional issue groups into an existing audit summary and recalculates total issues.
+    /**
+     * Merges SEO audit issues and KPI data into the product audit summary.
+     */
+    public function mergeSeoAuditResultIntoSummary(array $auditSummary, SeoAuditResult $seoAuditResult): array
+    {
+        $auditSummary = $this->mergeIssuesIntoSummary($auditSummary, $seoAuditResult->getIssues());
+        $auditSummary = $this->mergeSeoKpiIntoSummary($auditSummary, $seoAuditResult);
+
+        return $auditSummary;
+    }
+
+    /**
+     * Merges additional issue groups into an existing audit summary and recalculates total issues.
+     *
+     * @param array<string, mixed> $auditSummary
+     * @param array<string, array<string, mixed>> $issues
+     *
+     * @return array<string, mixed>
+     */
     public function mergeIssuesIntoSummary(array $auditSummary, array $issues): array
     {
         foreach ($issues as $code => $definition) {
             $items = $definition['items'] ?? [];
 
-            $auditSummary['issues'][$code] = $items;
-            $auditSummary['totals'][$code] = \count($items);
+            $auditSummary['issues'][$code] = \is_array($items) ? $items : [];
+            $auditSummary['totals'][$code] = \is_array($items) ? \count($items) : 0;
         }
 
         $auditSummary['totals']['totalIssues'] = $this->calculateTotalIssues($auditSummary['totals'] ?? []);
@@ -186,7 +183,19 @@ class ProductAuditService
         return $auditSummary;
     }
 
-    // Recalculates the total number of issues across all active issue groups.
+    /**
+     * Adds SEO KPI values to the audit summary meta block.
+     */
+    public function mergeSeoKpiIntoSummary(array $auditSummary, SeoAuditResult $seoAuditResult): array
+    {
+        $auditSummary['meta']['seo'] = $seoAuditResult->getKpi()->toArray();
+
+        return $auditSummary;
+    }
+
+    /**
+     * Recalculates the total number of issues across all active issue groups.
+     */
     public function calculateTotalIssues(array $totals): int
     {
         $totalIssues = 0;
@@ -200,6 +209,20 @@ class ProductAuditService
         }
 
         return $totalIssues;
+    }
+
+    /**
+     * @return array<string, int|float>
+     */
+    private function buildDefaultSeoMeta(): array
+    {
+        return [
+            'totalProducts' => 0,
+            'productsNeedingImprovement' => 0,
+            'averageOverallScore' => 0,
+            'improvementThreshold' => 0,
+            'improvementRate' => 0.0,
+        ];
     }
 
     private function loadProducts(Context $context, int $limit, string $variantAuditMode): ProductCollection
@@ -245,10 +268,7 @@ class ProductAuditService
         }
 
         foreach ($prices as $price) {
-            $gross = $price->getGross();
-            $net = $price->getNet();
-
-            if ($gross !== null && $gross > 0 && $net !== null && $net > 0) {
+            if ($price->getGross() > 0 || $price->getNet() > 0) {
                 return false;
             }
         }
@@ -256,69 +276,60 @@ class ProductAuditService
         return true;
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function getMissingTranslationLanguages(
         ProductEntity $product,
         LanguageCollection $languages,
         string $variantAuditMode
     ): array {
-        $missingLanguages = [];
-
-        if ($variantAuditMode === self::VARIANT_AUDIT_MODE_EFFECTIVE) {
-            $translated = $product->getTranslated();
-
-            $effectiveName = trim((string) ($translated['name'] ?? ''));
-            $effectiveDescription = trim((string) ($translated['description'] ?? ''));
-
-            foreach ($languages as $language) {
-                $locale = $language->getTranslationCode();
-                $languageLabel = $locale?->getCode() ?? $language->getId();
-
-                if ($effectiveName === '' || $effectiveDescription === '') {
-                    $missingLanguages[] = $languageLabel;
-                }
-            }
-
-            return $missingLanguages;
-        }
-
         $translations = $product->getTranslations();
+        $missingLanguages = [];
 
         foreach ($languages as $language) {
             $languageId = $language->getId();
-            $locale = $language->getTranslationCode();
-            $languageLabel = $locale?->getCode() ?? $languageId;
+
+            if ($languageId === null) {
+                continue;
+            }
 
             $translation = $translations?->get($languageId);
 
             if ($translation === null) {
-                $missingLanguages[] = $languageLabel;
+                $missingLanguages[] = $this->buildLanguageLabel($language);
                 continue;
             }
 
-            $name = trim((string) $translation->getName());
-            $description = trim((string) $translation->getDescription());
+            $translatedName = trim((string) ($translation->getName() ?? ''));
 
-            if ($name === '' || $description === '') {
-                $missingLanguages[] = $languageLabel;
+            if ($translatedName === '' && $variantAuditMode === self::VARIANT_AUDIT_MODE_RAW) {
+                $missingLanguages[] = $this->buildLanguageLabel($language);
             }
         }
 
         return $missingLanguages;
     }
 
-    private function buildProductPayload(ProductEntity $product, array $extra = []): array
+    private function buildLanguageLabel($language): string
     {
-        $translated = $product->getTranslated();
-        $name = (string) ($translated['name'] ?? $product->getProductNumber() ?? $product->getId());
+        $translationCode = $language->getTranslationCode();
+        $name = $translationCode?->getName();
+        $code = $translationCode?->getCode();
 
-        return array_merge([
-            'id' => $product->getId(),
-            'parentId' => $product->getParentId(),
-            'name' => $name,
-            'productNumber' => $product->getProductNumber(),
-            'active' => $product->getActive(),
-            'stock' => $product->getStock(),
-        ], $extra);
+        if ($name !== null && $code !== null) {
+            return sprintf('%s (%s)', $name, $code);
+        }
+
+        if ($name !== null) {
+            return $name;
+        }
+
+        if ($code !== null) {
+            return $code;
+        }
+
+        return (string) $language->getId();
     }
 
     private function getVariantAuditMode(): string
@@ -331,5 +342,19 @@ class ProductAuditService
         }
 
         return $mode;
+    }
+
+    private function buildProductPayload(ProductEntity $product, array $extra = []): array
+    {
+        $translated = $product->getTranslated();
+        $name = (string) ($translated['name'] ?? $product->getProductNumber() ?? $product->getId());
+
+        return array_merge([
+            'id' => $product->getId(),
+            'parentId' => $product->getParentId(),
+            'name' => $name,
+            'productNumber' => $product->getProductNumber(),
+            'stock' => $product->getStock(),
+        ], $extra);
     }
 }

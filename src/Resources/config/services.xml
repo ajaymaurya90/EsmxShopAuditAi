@@ -65,11 +65,18 @@
             <argument type="service" id="logger"/>
         </service>
 
+        <service id="EsmxShopAuditAi\Service\Audit\Seo\SeoScoringService">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+        </service>
+
         <service id="EsmxShopAuditAi\Service\Audit\Seo\SeoAuditService">
             <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\SeoScoringService" />
             <argument type="service" id="logger" />
             <argument type="tagged_iterator" tag="esmx_shop_audit_ai.seo_rule" />
         </service>
+
+        <service id="EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService" />
 
         <service id="EsmxShopAuditAi\Service\Insights\Sales\SalesInsightService">
             <argument type="service" id="order.repository"/>
@@ -77,18 +84,29 @@
             <argument type="service" id="product.repository"/>
         </service>
 
-        <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductMissingMetaDescriptionRule">
+
+
+        <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductNameRule">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService" />
             <tag name="esmx_shop_audit_ai.seo_rule" />
         </service>
 
-        <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductWeakTitleRule">
+        <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductDescriptionRule">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService" />
             <tag name="esmx_shop_audit_ai.seo_rule" />
         </service>
 
-        <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductShortDescriptionRule">
+        <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductMetaTitleRule">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService" />
+            <tag name="esmx_shop_audit_ai.seo_rule" />
+        </service>
+
+        <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductMetaDescriptionRule">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService" />
             <tag name="esmx_shop_audit_ai.seo_rule" />
         </service>
 
@@ -109,7 +127,6 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <tag name="esmx_shop_audit_ai.seo_rule" />
         </service>
-
 
     </services>
 </container>

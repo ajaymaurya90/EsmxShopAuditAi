@@ -9,12 +9,6 @@ class FindingBuilder
         $issues = $auditSummary['issues'] ?? [];
 
         $map = [
-            'missingDescription' => [
-                'code' => 'missing_description',
-                'title' => 'Products without description',
-                'severity' => 'medium',
-                'entity' => 'product',
-            ],
             'missingCoverImage' => [
                 'code' => 'missing_cover_image',
                 'title' => 'Products without cover image',
@@ -31,12 +25,6 @@ class FindingBuilder
                 'code' => 'out_of_stock_products',
                 'title' => 'Out of stock products',
                 'severity' => 'critical',
-                'entity' => 'product',
-            ],
-            'missingMetaTitle' => [
-                'code' => 'missing_meta_title',
-                'title' => 'Products without SEO meta title',
-                'severity' => 'low',
                 'entity' => 'product',
             ],
             'missingCategory' => [
@@ -63,21 +51,27 @@ class FindingBuilder
                 'severity' => 'medium',
                 'entity' => 'product',
             ],
-            'product_missing_meta_description' => [
-                'code' => 'product_missing_meta_description',
-                'title' => 'Products without SEO meta description',
-                'severity' => 'medium',
-                'entity' => 'product',
-            ],
-            'product_weak_title' => [
-                'code' => 'product_weak_title',
-                'title' => 'Products with weak title',
+            'product_name' => [
+                'code' => 'product_name',
+                'title' => 'Products with name issues',
                 'severity' => 'low',
                 'entity' => 'product',
             ],
-            'product_short_description' => [
-                'code' => 'product_short_description',
-                'title' => 'Products with short description',
+            'product_description' => [
+                'code' => 'product_description',
+                'title' => 'Products with description issues',
+                'severity' => 'medium',
+                'entity' => 'product',
+            ],
+            'product_meta_title' => [
+                'code' => 'product_meta_title',
+                'title' => 'Products with meta title issues',
+                'severity' => 'medium',
+                'entity' => 'product',
+            ],
+            'product_meta_description' => [
+                'code' => 'product_meta_description',
+                'title' => 'Products with meta description issues',
                 'severity' => 'medium',
                 'entity' => 'product',
             ],

@@ -449,5 +449,56 @@ Shopware.Component.register('esmx-shop-audit-findings', {
                 window.open(resolved.href, '_blank');
             }
         },
+
+        isSeoFieldFinding(finding) {
+            const code = finding?.code || '';
+
+            return [
+                'product_name',
+                'product_description',
+                'product_meta_title',
+                'product_meta_description',
+            ].includes(code);
+        },
+
+        getFindingColumns(finding) {
+            if (this.isSeoFieldFinding(finding)) {
+                return [
+                    {
+                        property: 'name',
+                        label: this.$tc('esmx-shop-audit-ai.grid.productName'),
+                        primary: true,
+                    },
+                    {
+                        property: 'productNumber',
+                        label: this.$tc('esmx-shop-audit-ai.grid.productNumber'),
+                    },
+                    {
+                        property: 'overallSeoScore',
+                        label: this.$tc('esmx-shop-audit-ai.findings.overallScore'),
+                    },
+                    {
+                        property: 'reason',
+                        label: this.$tc('esmx-shop-audit-ai.findings.reasonLabel'),
+                    },
+                ];
+            }
+
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('esmx-shop-audit-ai.grid.productName'),
+                    primary: true,
+                },
+                {
+                    property: 'productNumber',
+                    label: this.$tc('esmx-shop-audit-ai.grid.productNumber'),
+                },
+                {
+                    property: 'stock',
+                    label: this.$tc('esmx-shop-audit-ai.grid.stock'),
+                },
+            ];
+        },
     }
 });

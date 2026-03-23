@@ -92,12 +92,22 @@
       "missingManufacturer": "Products without manufacturer",
       "missingPrice": "Products without price",
       "missingTranslation": "Products with missing translations",
-      "productMissingMetaDescription": "Products without SEO meta description",
-      "productWeakTitle": "Products with weak title",
-      "productShortDescription": "Products with short description",
+      "productName": "Products with name issues",
+      "productMetaTitle": "Products with meta title issues",
+      "productMetaDescription": "Products with meta description issues",
+      "productDescription": "Products with description issues",
       "categoryMissingMetaTitle": "Categories without SEO meta title",
       "categoryMissingMetaDescription": "Categories without SEO meta description",
-      "categoryMissingDescription": "Categories without description"
+      "categoryMissingDescription": "Categories without description",
+      "criticalIssues": "Critical issues",
+      "seoKpiTitle": "SEO Quality Overview",
+      "seoKpiSubtitle": "Track the current SEO quality of audited products.",
+      "seoAverageScore": "Average SEO Score",
+      "seoAverageScoreHint": "Weighted score across meta title, meta description, and description.",
+      "seoNeedsImprovement": "Needs Improvement",
+      "seoNeedsImprovementHint": "Products scoring below {threshold} are counted here.",
+      "seoImprovementRate": "Improvement Rate",
+      "seoImprovementRateHint": "Share of audited products below the SEO threshold."
     },
     "dashboardInsights": {
       "scannedProducts": "Scanned products",
@@ -117,9 +127,10 @@
       "missingManufacturer": "Incomplete product data can reduce trust and filter quality.",
       "missingPrice": "Products without price cannot be purchased properly.",
       "missingTranslation": "Customers may see fallback language or incomplete content.",
-      "productMissingMetaDescription": "May reduce search click-through rate and SEO quality.",
-      "productWeakTitle": "Weak titles can reduce discoverability and product clarity.",
-      "productShortDescription": "Short descriptions may reduce trust and conversion.",
+      "productMetaTitle": "Meta titles are missing, too short, too long, identical to product names, or need SEO improvement.",
+      "productMetaDescription": "Meta descriptions are missing, too short, too long, or need SEO improvement.",
+      "productName": "Product names are missing or too short and may reduce clarity and SEO quality.",
+      "productDescription": "Descriptions are missing or too short and may reduce SEO quality and product clarity.",
       "categoryMissingMetaTitle": "Missing category SEO meta titles can weaken category visibility.",
       "categoryMissingMetaDescription": "Missing category meta descriptions may reduce SEO click-through rate.",
       "categoryMissingDescription": "Thin category content may weaken SEO and user guidance."
@@ -187,7 +198,9 @@
       "stats": {
         "totalFindings": "Total Findings",
         "affectedItems": "Affected Items"
-      }
+      },
+      "reasonLabel": "Reason",
+      "overallScore": "SEO score"
     },
     "tasks": {
       "pageTitle": "Tasks",

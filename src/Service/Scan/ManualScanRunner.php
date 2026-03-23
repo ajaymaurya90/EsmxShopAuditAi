@@ -48,8 +48,8 @@ class ManualScanRunner
 
         try {
             $auditSummary = $this->productAuditService->buildProductAuditSummary($context);
-            $seoIssues = $this->seoAuditService->run($context);
-            $auditSummary = $this->productAuditService->mergeIssuesIntoSummary($auditSummary, $seoIssues);
+            $seoAuditResult = $this->seoAuditService->run($context);
+            $auditSummary = $this->productAuditService->mergeSeoAuditResultIntoSummary($auditSummary, $seoAuditResult);
 
             $findings = $this->findingBuilder->build($scanId, $auditSummary);
             $tasks = $this->taskBuilder->build($scanId, $findings);

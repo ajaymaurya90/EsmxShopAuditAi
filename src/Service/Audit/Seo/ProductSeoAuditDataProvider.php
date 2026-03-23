@@ -32,6 +32,8 @@ class ProductSeoAuditDataProvider
         $criteria = new Criteria();
         $criteria->setLimit($limit);
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
+        $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('categories');
 
         $searchContext = clone $context;
         $searchContext->setConsiderInheritance(

@@ -570,6 +570,45 @@
     border-color: #111827 transparent transparent transparent;
   }
 
+  // Css for SEO Kpi section
+  .esmx-shop-audit-dashboard__seo-kpi-card {
+    margin-top: 24px;
+  }
+
+  .esmx-shop-audit-dashboard__seo-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .esmx-shop-audit-dashboard__seo-kpi-item {
+    padding: 16px;
+    border: 1px solid #dfe3e8;
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  .esmx-shop-audit-dashboard__seo-kpi-label {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 8px;
+  }
+
+  .esmx-shop-audit-dashboard__seo-kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #111827;
+    margin-bottom: 6px;
+  }
+
+  .esmx-shop-audit-dashboard__seo-kpi-hint {
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.4;
+  }
+  // End Css for SEO Kpi section
+
   @media (max-width: 1200px) {
     .esmx-shop-audit-dashboard__audit-overview-content {
       grid-template-columns: 1fr;

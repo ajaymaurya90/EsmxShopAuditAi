@@ -23,22 +23,21 @@ use EsmxShopAuditAi\Service\Task\TaskAutoFixService;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['api']])]
 class AuditDashboardController extends AbstractController
 {
-    private const PRODUCT_ISSUE_KEYS = [
-        'missingDescription',
+    private const array PRODUCT_ISSUE_KEYS = [
         'missingCoverImage',
         'inactiveProducts',
         'outOfStockProducts',
-        'missingMetaTitle',
         'missingCategory',
         'missingManufacturer',
         'missingPrice',
         'missingTranslation',
-        'product_missing_meta_description',
-        'product_weak_title',
-        'product_short_description',
+        'product_name',
+        'product_description',
+        'product_meta_title',
+        'product_meta_description',
     ];
 
-    private const TASK_IMPACT_WEIGHTS = [
+    private const array TASK_IMPACT_WEIGHTS = [
         'add_meta_titles' => 2.0,
         'add_meta_descriptions' => 2.0,
         'add_product_descriptions' => 1.5,
@@ -51,16 +50,18 @@ class AuditDashboardController extends AbstractController
         'complete_product_translations' => 1.5,
     ];
 
-    private const HEALTH_SCORE_RULES = [
+    private const array HEALTH_SCORE_RULES = [
         'outOfStockProducts' => ['weight' => 3, 'max' => 30],
         'missingPrice' => ['weight' => 4, 'max' => 25],
         'inactiveProducts' => ['weight' => 3, 'max' => 20],
-        'missingDescription' => ['weight' => 1, 'max' => 10],
         'missingCoverImage' => ['weight' => 1, 'max' => 8],
-        'missingMetaTitle' => ['weight' => 1, 'max' => 7],
         'missingCategory' => ['weight' => 2, 'max' => 12],
         'missingManufacturer' => ['weight' => 1, 'max' => 8],
         'missingTranslation' => ['weight' => 1, 'max' => 10],
+        'product_name' => ['weight' => 1, 'max' => 10],
+        'product_description' => ['weight' => 1, 'max' => 10],
+        'product_meta_title' => ['weight' => 1, 'max' => 10],
+        'product_meta_description' => ['weight' => 1, 'max' => 10],
     ];
 
     public function __construct(
@@ -83,8 +84,8 @@ class AuditDashboardController extends AbstractController
     public function loadDashboard(Context $context): JsonResponse
     {
         $liveAudit = $this->productAuditService->buildProductAuditSummary($context);
-        $seoIssues = $this->seoAuditService->run($context);
-        $liveAudit = $this->productAuditService->mergeIssuesIntoSummary($liveAudit, $seoIssues);
+        $seoAuditResult = $this->seoAuditService->run($context);
+        $liveAudit = $this->productAuditService->mergeSeoAuditResultIntoSummary($liveAudit, $seoAuditResult);
 
         $affectedProducts = [];
 
