@@ -535,5 +535,45 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
         formatPercent(value) {
             return `${Number(value || 0).toFixed(2)}%`;
         },
+
+        getFindingTitleByCode(code, fallbackTitle = '') {
+            if (!code) {
+                return fallbackTitle || '-';
+            }
+
+            const key = `esmx-shop-audit-ai.findingTitles.${code}`;
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : (fallbackTitle || code);
+        },
+
+        getDynamicTaskTitle(task) {
+            if (!task) {
+                return '';
+            }
+
+            const key = `esmx-shop-audit-ai.taskTitles.${task.code}`;
+            const translated = this.$tc(key, task.affectedCount, { count: task.affectedCount });
+
+            if (translated !== key) {
+                return translated;
+            }
+
+            return task.title;
+        },
+
+        getPriorityLabel(priority) {
+            const key = `esmx-shop-audit-ai.taskPriority.${priority}`;
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : priority;
+        },
+
+        getStatusLabel(status) {
+            const key = `esmx-shop-audit-ai.status.${status}`;
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : status;
+        },
     }
 });

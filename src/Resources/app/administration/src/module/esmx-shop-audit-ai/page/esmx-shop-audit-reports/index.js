@@ -7,6 +7,10 @@ Shopware.Component.register('esmx-shop-audit-reports', {
 
     inject: ['esmxShopAuditApiService'],
 
+    mixins: [
+        Shopware.Mixin.getByName('notification'),
+    ],
+
     data() {
         return {
             isLoading: false,
@@ -23,6 +27,9 @@ Shopware.Component.register('esmx-shop-audit-reports', {
             selectedFindingsPage: 1,
             selectedTasksPage: 1,
             selectedDetailPageSize: 8,
+            selectedReportIds: [],
+            isDeletingReports: false,
+            showDeleteConfirmModal: false,
         };
     },
 
@@ -118,13 +125,17 @@ Shopware.Component.register('esmx-shop-audit-reports', {
 
         historySummaryText() {
             if (!this.reports.length) {
-                return 'Showing 0 reports';
+                return this.$tc('esmx-shop-audit-ai.reports.historySummaryEmpty');
             }
 
             const start = (this.historyPage - 1) * this.historyPageSize + 1;
             const end = Math.min(start + this.historyPageSize - 1, this.reports.length);
 
-            return `Showing ${start}-${end} of ${this.reports.length} reports`;
+            return this.$tc('esmx-shop-audit-ai.reports.historySummary', 0, {
+                start,
+                end,
+                total: this.reports.length,
+            });
         },
 
         selectedFindingsTotalPages() {
@@ -187,7 +198,51 @@ Shopware.Component.register('esmx-shop-audit-reports', {
                     label: this.$tc('esmx-shop-audit-ai.tasks.columns.status')
                 }
             ];
-        }
+        },
+
+        hasSelectedReports() {
+            return this.selectedReportIds.length > 0;
+        },
+
+        allVisibleReportsSelected() {
+            if (!this.paginatedReports.length) {
+                return false;
+            }
+
+            return this.paginatedReports.every((report) => this.selectedReportIds.includes(report.id));
+        },
+
+        selectedReports() {
+            return this.reports.filter((report) => this.selectedReportIds.includes(report.id));
+        },
+
+        selectedReportsCount() {
+            return this.selectedReports.length;
+        },
+
+        selectedReportsDateRangeLabel() {
+            if (!this.selectedReports.length) {
+                return '';
+            }
+
+            const sortedDates = this.selectedReports
+                .map((report) => report.finishedAt || report.startedAt)
+                .filter(Boolean)
+                .sort();
+
+            if (!sortedDates.length) {
+                return '';
+            }
+
+            const first = this.formatDate(sortedDates[0]);
+            const last = this.formatDate(sortedDates[sortedDates.length - 1]);
+
+            if (first === last) {
+                return first;
+            }
+
+            return `${first} – ${last}`;
+        },
     },
 
     created() {
@@ -427,6 +482,143 @@ Shopware.Component.register('esmx-shop-audit-reports', {
 
         goToSettings() {
             this.$router.push({ name: 'esmx.shop.audit.ai.settings' });
+        },
+
+        getFindingTitleByCode(code, fallbackTitle = '') {
+            if (!code) {
+                return fallbackTitle || '-';
+            }
+
+            const key = `esmx-shop-audit-ai.findingTitles.${code}`;
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : (fallbackTitle || code);
+        },
+
+        getDynamicTaskTitle(task) {
+            if (!task) {
+                return '';
+            }
+
+            const key = `esmx-shop-audit-ai.taskTitles.${task.code}`;
+            const translated = this.$tc(key, task.affectedCount || 0, {
+                count: task.affectedCount || 0,
+            });
+
+            if (translated !== key) {
+                return translated;
+            }
+
+            return task.title || task.code || '-';
+        },
+
+        getPriorityLabel(priority) {
+            const key = `esmx-shop-audit-ai.taskPriority.${priority}`;
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : (priority || '-');
+        },
+
+        getStatusLabel(status) {
+            const key = `esmx-shop-audit-ai.status.${status}`;
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : (status || '-');
+        },
+
+        getFindingSeverityLabel(severity) {
+            const key = `esmx-shop-audit-ai.severity.${severity}`;
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : (severity || '-');
+        },
+
+        isReportSelected(reportId) {
+            return this.selectedReportIds.includes(reportId);
+        },
+
+        toggleReportSelection(reportId) {
+            if (!reportId) {
+                return;
+            }
+
+            if (this.selectedReportIds.includes(reportId)) {
+                this.selectedReportIds = this.selectedReportIds.filter((id) => id !== reportId);
+                return;
+            }
+
+            this.selectedReportIds = [...this.selectedReportIds, reportId];
+        },
+
+        toggleSelectAllVisibleReports() {
+            const visibleIds = this.paginatedReports.map((report) => report.id);
+
+            if (!visibleIds.length) {
+                return;
+            }
+
+            if (this.allVisibleReportsSelected) {
+                this.selectedReportIds = this.selectedReportIds.filter((id) => !visibleIds.includes(id));
+                return;
+            }
+
+            this.selectedReportIds = [...new Set([...this.selectedReportIds, ...visibleIds])];
+        },
+
+        openDeleteReportsModal() {
+            console.log('openDeleteReportsModal called', this.selectedReports.length);
+
+            if (!this.selectedReports.length) {
+                return;
+            }
+
+            this.showDeleteConfirmModal = true;
+        },
+
+        closeDeleteReportsModal() {
+            this.showDeleteConfirmModal = false;
+        },
+
+        confirmDeleteReports() {
+            if (!this.selectedReportIds.length) {
+                return;
+            }
+
+            this.isDeletingReports = true;
+
+            this.esmxShopAuditApiService.deleteReports(this.selectedReportIds)
+                .then((response) => {
+                    const deletedCount = response.deletedCount ?? this.selectedReportIds.length;
+
+                    this.createNotificationSuccess({
+                        message: this.$tc('esmx-shop-audit-ai.reports.delete.success', deletedCount, {
+                            count: deletedCount,
+                        }),
+                    });
+
+                    const deletedIds = [...this.selectedReportIds];
+
+                    this.selectedReportIds = [];
+                    this.showDeleteConfirmModal = false;
+
+                    if (this.selectedReport?.id && deletedIds.includes(this.selectedReport.id)) {
+                        this.selectedReport = null;
+                        this.selectedFindings = [];
+                        this.selectedTasks = [];
+                    }
+
+                    return this.loadReports();
+                })
+                .catch((error) => {
+                    console.error('EsmxShopAuditAi delete reports error:', error);
+
+                    this.createNotificationError({
+                        message: this.$tc('esmx-shop-audit-ai.reports.delete.error'),
+                    });
+                })
+                .finally(() => {
+                    this.isDeletingReports = false;
+                });
         },
     }
 });

@@ -25,14 +25,14 @@
                 {{ $tc('esmx-shop-audit-ai.navigation.settings') }}
             </mt-button>
 
-            <mt-button
+            {#  <mt-button
                     variant="primary"
                     size="default"
                     :disabled="isLoading || isRunningScan"
                     @click="loadPageData"
             >
                 {{ $tc('esmx-shop-audit-ai.general.refresh') }}
-            </mt-button>
+            </mt-button>#}
 
             <div class="esmx-shop-audit-dashboard__actions">
                 <mt-button
@@ -243,9 +243,9 @@
                             <strong>{{ activePriorityFilter }}</strong>
                         </p>
 
-                        <p v-if="activeCodeFilter">
-                            {{ $tc('esmx-shop-audit-ai.general.code') }}:
-                            <strong>{{ activeCodeFilter }}</strong>
+                        <p v-if="activePriorityFilter">
+                            {{ $tc('esmx-shop-audit-ai.tasks.columns.priority') }}:
+                            <strong>{{ getPriorityLabel(activePriorityFilter) }}</strong>
                         </p>
                     </div>
 
@@ -282,7 +282,7 @@
                                         @click="onTaskClick(item)"
                                 >
                                     <mt-badge :variant="getPriorityVariant(item.priority)">
-                                        {{ item.priority }}
+                                        {{ getPriorityLabel(item.priority) }}
                                     </mt-badge>
                                 </div>
                             </template>
@@ -316,7 +316,7 @@
                                         @click="onTaskClick(item)"
                                 >
                                     <mt-badge :variant="getStatusVariant(item.status)">
-                                        {{ item.status }}
+                                        {{ getStatusLabel(item.status) }}
                                     </mt-badge>
                                 </div>
                             </template>
@@ -351,7 +351,7 @@
                                     {{ $tc('esmx-shop-audit-ai.tasks.columns.priority') }}
                                 </span>
                                 <mt-badge :variant="getPriorityVariant(selectedTask.priority)">
-                                    {{ selectedTask.priority }}
+                                    {{ getPriorityLabel(selectedTask.priority) }}
                                 </mt-badge>
                             </div>
 
@@ -360,7 +360,7 @@
                                     {{ $tc('esmx-shop-audit-ai.tasks.columns.status') }}
                                 </span>
                                 <mt-badge :variant="getStatusVariant(selectedTask.status)">
-                                    {{ selectedTask.status }}
+                                    {{ getStatusLabel(selectedTask.status) }}
                                 </mt-badge>
                             </div>
 
@@ -404,10 +404,13 @@
 
                         <template v-else-if="detailItems.length">
                             <div
-                                    v-if="selectedTaskDetails?.task?.payloadJson?.findingTitle"
+                                    v-if="selectedTaskDetails?.task?.payloadJson?.findingCode || selectedTaskDetails?.task?.payloadJson?.findingTitle"
                                     class="esmx-shop-audit__detail-issue-banner"
                             >
-                                {{ selectedTaskDetails.task.payloadJson.findingTitle }}
+                                {{ getFindingTitleByCode(
+                                    selectedTaskDetails?.task?.payloadJson?.findingCode,
+                                    selectedTaskDetails?.task?.payloadJson?.findingTitle
+                                ) }}
                             </div>
 
                             <sw-data-grid

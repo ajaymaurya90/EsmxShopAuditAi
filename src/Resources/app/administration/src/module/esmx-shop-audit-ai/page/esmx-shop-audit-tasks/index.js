@@ -83,7 +83,7 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
 
             return allKeys.map((key) => ({
                 key,
-                label: key,
+                label: this.getPriorityLabel(key),
                 count: this.tasks.filter((task) => task.priority === key).length,
                 disabled: this.tasks.filter((task) => task.priority === key).length === 0,
             }));
@@ -94,7 +94,7 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
 
             return statusKeys.map((key) => ({
                 key,
-                label: key,
+                label: this.getStatusLabel(key),
                 count: this.tasks.filter((task) => task.status === key).length,
                 disabled: this.tasks.filter((task) => task.status === key).length === 0,
             }));
@@ -389,25 +389,32 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
         },
 
         getDynamicTaskTitle(task) {
-            if (!task) return '';
-
-            if (task.code === 'review_product_names') {
-                return `Review product names for ${task.affectedCount} products`;
+            if (!task) {
+                return '';
             }
 
-            if (task.code === 'review_product_descriptions') {
-                return `Review product descriptions for ${task.affectedCount} products`;
-            }
+            const key = `esmx-shop-audit-ai.taskTitles.${task.code}`;
+            const translated = this.$tc(key, task.affectedCount, { count: task.affectedCount });
 
-            if (task.code === 'review_product_meta_titles') {
-                return `Review SEO meta titles for ${task.affectedCount} products`;
-            }
-
-            if (task.code === 'review_product_meta_descriptions') {
-                return `Review SEO meta descriptions for ${task.affectedCount} products`;
+            if (translated !== key) {
+                return translated;
             }
 
             return task.title;
+        },
+
+        getPriorityLabel(priority) {
+            const key = `esmx-shop-audit-ai.taskPriority.${priority}`;
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : priority;
+        },
+
+        getStatusLabel(status) {
+            const key = `esmx-shop-audit-ai.status.${status}`;
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : status;
         },
 
         onSortColumn(column) {
@@ -550,8 +557,40 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
         },
 
         getReasonLabel(item) {
+            const reason = item?.reason || item?.issue || '';
+
+            const reasonMap = {
+                'Meta title is missing': 'esmx-shop-audit-ai.seoReasons.metaTitleMissing',
+                'Meta title is identical to the product name': 'esmx-shop-audit-ai.seoReasons.metaTitleIdenticalToProductName',
+                'Meta title is too short': 'esmx-shop-audit-ai.seoReasons.metaTitleTooShort',
+                'Meta title is too long': 'esmx-shop-audit-ai.seoReasons.metaTitleTooLong',
+                'Meta title needs SEO improvement': 'esmx-shop-audit-ai.seoReasons.metaTitleNeedsImprovement',
+
+                'Meta description is missing': 'esmx-shop-audit-ai.seoReasons.metaDescriptionMissing',
+                'Meta description is too short': 'esmx-shop-audit-ai.seoReasons.metaDescriptionTooShort',
+                'Meta description is too long': 'esmx-shop-audit-ai.seoReasons.metaDescriptionTooLong',
+                'Meta description needs SEO improvement': 'esmx-shop-audit-ai.seoReasons.metaDescriptionNeedsImprovement',
+
+                'Product name is missing': 'esmx-shop-audit-ai.seoReasons.productNameMissing',
+                'Description is missing': 'esmx-shop-audit-ai.seoReasons.descriptionMissing',
+            };
+
+            const key = reasonMap[reason];
+
+            if (!key) {
+                return reason || '-';
+            }
+
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : reason;
+        },
+        /*
+        getReasonLabel(item) {
             return item?.reason || item?.issue || '-';
         },
+
+         */
 
         openManualFix(item) {
             this.closeAllActionMenus();
@@ -726,6 +765,36 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
 
             if (value >= 85) {
                 return {
+                    label: this.$tc('esmx-shop-audit-ai.seoSeverity.minorOpportunity'),
+                    className: 'is-minor',
+                };
+            }
+
+            if (value >= 70) {
+                return {
+                    label: this.$tc('esmx-shop-audit-ai.seoSeverity.optimization'),
+                    className: 'is-optimization',
+                };
+            }
+
+            if (value >= 40) {
+                return {
+                    label: this.$tc('esmx-shop-audit-ai.seoSeverity.needsImprovement'),
+                    className: 'is-improvement',
+                };
+            }
+
+            return {
+                label: this.$tc('esmx-shop-audit-ai.seoSeverity.critical'),
+                className: 'is-critical',
+            };
+        },
+        /*
+        getSeoSeverity(score) {
+            const value = Number(score) || 0;
+
+            if (value >= 85) {
+                return {
                     label: 'Minor opportunity',
                     className: 'is-minor',
                 };
@@ -750,6 +819,7 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
                 className: 'is-critical',
             };
         },
+        */
 
         getSeoSeverityLabel(score) {
             return this.getSeoSeverity(score).label;
@@ -757,6 +827,17 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
 
         getSeoSeverityClass(score) {
             return this.getSeoSeverity(score).className;
+        },
+
+        getFindingTitleByCode(code, fallbackTitle = '') {
+            if (!code) {
+                return fallbackTitle || '-';
+            }
+
+            const key = `esmx-shop-audit-ai.findingTitles.${code}`;
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : (fallbackTitle || code);
         },
 
     },

@@ -124,4 +124,14 @@ export default class EsmxShopAuditApiService extends ApiService {
             .post(apiRoute, {}, { headers: this.getBasicHeaders() })
             .then((response) => ApiService.handleResponse(response));
     }
+
+    deleteReports(reportIds) {
+        const apiRoute = `${this.getApiBasePath()}/reports/delete`;
+
+        return this.httpClient
+            .post(apiRoute, { reportIds }, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
 }

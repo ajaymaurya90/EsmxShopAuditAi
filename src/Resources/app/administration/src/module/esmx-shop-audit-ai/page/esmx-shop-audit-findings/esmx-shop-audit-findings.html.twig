@@ -25,14 +25,14 @@
                 {{ $tc('esmx-shop-audit-ai.navigation.settings') }}
             </mt-button>
 
-            <mt-button
+            {#<mt-button
                     variant="primary"
                     size="default"
                     :disabled="isLoading || isRunningScan"
                     @click="loadPageData"
             >
                 {{ $tc('esmx-shop-audit-ai.general.refresh') }}
-            </mt-button>
+            </mt-button>  #}
 
             <div class="esmx-shop-audit-dashboard__actions">
                 <mt-button
@@ -269,7 +269,7 @@
                                         {{ $tc('esmx-shop-audit-ai.findings.columns.title') }}
                                     </div>
                                     <div class="esmx-shop-audit-findings__cell-title">
-                                        {{ finding.title }}
+                                        {{ getFindingTitleByCode(finding.code, finding.title) }}
                                     </div>
                                 </div>
 
@@ -359,10 +359,10 @@
                         <div class="esmx-shop-audit-findings__detail-header">
                             <div class="esmx-shop-audit-findings__detail-header-main">
                                 <div class="esmx-shop-audit-findings__detail-title">
-                                    {{ finding.title }}
+                                    {{ getFindingTitleByCode(finding.code, finding.title) }}
                                 </div>
                                 <div class="esmx-shop-audit-findings__detail-meta">
-                                    {{ finding.entity }} · {{ finding.affectedCount }} {{ $tc('esmx-shop-audit-ai.findings.affectedItems') }}
+                                    {{ getCategoryLabel(finding.entity) }} · {{ finding.affectedCount }} {{ $tc('esmx-shop-audit-ai.findings.affectedItems') }}
                                 </div>
                             </div>
 
@@ -387,7 +387,7 @@
                                     </template>
 
                                     <template #column-reason="{ item }">
-                                        <span>{{ item.reason || '-' }}</span>
+                                        <span>{{ getReasonLabel(item.reason) }}</span>
                                     </template>
 
                                     <template #column-stock="{ item }">

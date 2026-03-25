@@ -16,6 +16,20 @@
       "suggestedValue": "Vorgeschlagener Wert",
       "cancel": "Abbrechen"
     },
+    "findingTitles": {
+      "inactive_products": "Inaktive Produkte",
+      "missing_translation": "Produkte mit fehlenden Übersetzungen",
+      "product_meta_title": "Produkte mit Meta-Titel-Problemen",
+      "product_meta_description": "Produkte mit Meta-Beschreibungsproblemen",
+      "missing_category": "Produkte ohne Kategorie",
+      "missing_manufacturer": "Produkte ohne Hersteller",
+      "product_description": "Produkte mit Beschreibungsproblemen",
+      "product_name": "Produkte mit Namensproblemen",
+      "missing_cover_image": "Produkte ohne Titelbild",
+      "category_missing_meta_title": "Kategorien ohne SEO-Meta-Titel",
+      "category_missing_meta_description": "Kategorien ohne SEO-Meta-Beschreibung",
+      "category_missing_description": "Kategorien ohne Beschreibung"
+    },
     "dashboard": {
       "runScanButton": "Scan starten",
       "scanStatus": "Scan-Status",
@@ -112,7 +126,7 @@
       "affectedProducts": "Betroffene Produkte",
       "criticalIssues": "Kritische Probleme",
       "openTasks": "Offene Tasks",
-      "topTasksHeadline": "Top-Tasks",
+      "topTasksHeadline": "Wichtigste Aufgaben",
       "emptyTasks": "Keine Tasks verfügbar."
     },
     "dashboardImpact": {
@@ -147,8 +161,8 @@
     },
     "navigation": {
       "dashboard": "Dashboard",
-      "findings": "Findings",
-      "tasks": "Tasks",
+      "findings": "Auffälligkeiten",
+      "tasks": "Aufgaben",
       "reports": "Berichte",
       "settings": "Einstellungen"
     },
@@ -200,7 +214,7 @@
       "overallScore": "SEO-Score"
     },
     "tasks": {
-      "pageTitle": "Tasks",
+      "pageTitle": "Aufgaben",
       "latestScanHeadline": "Kontext des letzten Scans",
       "gridHeadline": "Generierte Tasks aus dem letzten Scan",
       "totalTasks": "Gesamtzahl der Tasks",
@@ -266,10 +280,6 @@
         "applyError": "Der Auto-Fix konnte nicht für alle Einträge angewendet werden.",
         "whatWillChangeLabel": "Was wird geändert",
         "whatWillChangeText": "Das System wendet unterstützte Korrekturen sicher auf alle betroffenen Einträge dieser Aufgabe an."
-      },
-      "dynamic": {
-        "addMetaTitles": "SEO-Metatitel für {count} Produkt hinzufügen | SEO-Metatitel für {count} Produkte hinzufügen",
-        "addMetaDescriptions": "SEO-Metabeschreibungen für {count} Produkt hinzufügen | SEO-Metabeschreibungen für {count} Produkte hinzufügen"
       }
     },
     "reports": {
@@ -294,6 +304,7 @@
       "selectedFindingsTitle": "Ausgewählte Findings",
       "selectedTasksTitle": "Ausgewählte Aufgaben",
       "table": {
+        "select": "Auswahl",
         "date": "Datum",
         "status": "Status",
         "products": "Produkte",
@@ -307,16 +318,77 @@
         "completed": "Abgeschlossen",
         "latestFindings": "Neueste Findings",
         "latestHighPriority": "Neueste hohe Priorität",
-        "findingsVsPrevious": "Findings vs. vorheriger Scan",
-        "avgFindingsPerScan": "Ø Findings / Scan",
+        "findingsVsPrevious": "Probleme vs. vorheriger Scan",
+        "avgFindingsPerScan": "Ø Probleme / Scan",
         "findingGroups": "Finding-Gruppen",
         "tasks": "Aufgaben"
+      },
+      "historySummaryEmpty": "Es werden 0 Berichte angezeigt",
+      "historySummary": "Es werden {start}-{end} von {total} Berichten angezeigt",
+      "delete": {
+        "button": "Ausgewählte Berichte löschen",
+        "selectAllVisible": "Alle sichtbaren auswählen",
+        "buttonWithCount": "{count} Bericht löschen | {count} Berichte löschen",
+        "selectedCount": "{count} Bericht ausgewählt | {count} Berichte ausgewählt",
+        "modalTitle": "Berichte löschen",
+        "confirmText": "{count} ausgewähltes Scan-Ergebnis löschen? | {count} ausgewählte Scan-Ergebnisse löschen?",
+        "warning": "Die ausgewählten Scan-Daten inklusive zugehöriger Findings und Aufgaben werden dauerhaft gelöscht.",
+        "confirmButton": "Jetzt löschen",
+        "success": "{count} Bericht wurde erfolgreich gelöscht. | {count} Berichte wurden erfolgreich gelöscht.",
+        "error": "Die ausgewählten Berichte konnten nicht gelöscht werden."
       }
     },
     "settings": {
       "pageTitle": "Einstellungen",
       "headline": "Shop Audit AI Konfiguration",
       "variantAuditSectionTitle": "Modus für Variantenprüfung"
+    },
+    "status": {
+      "open": "Offen",
+      "done": "Erledigt",
+      "resolved": "Gelöst"
+    },
+    "taskPriority": {
+      "low": "Niedrig",
+      "medium": "Mittel",
+      "high": "Hoch"
+    },
+    "taskTitles": {
+      "complete_product_translations": "Übersetzungen für {count} Produkt vervollständigen | Übersetzungen für {count} Produkte vervollständigen",
+      "review_product_meta_titles": "SEO-Meta-Titel für {count} Produkt prüfen | SEO-Meta-Titel für {count} Produkte prüfen",
+      "review_product_meta_descriptions": "SEO-Meta-Beschreibungen für {count} Produkt prüfen | SEO-Meta-Beschreibungen für {count} Produkte prüfen",
+      "review_product_names": "Produktnamen für {count} Produkt prüfen | Produktnamen für {count} Produkte prüfen",
+      "assign_product_categories": "Kategorien für {count} Produkt zuweisen | Kategorien für {count} Produkte zuweisen",
+      "review_product_descriptions": "Produktbeschreibungen für {count} Produkt prüfen | Produktbeschreibungen für {count} Produkte prüfen",
+      "upload_product_images": "Titelbilder für {count} Produkt hochladen | Titelbilder für {count} Produkte hochladen",
+      "assign_product_manufacturers": "Hersteller für {count} Produkt zuweisen | Hersteller für {count} Produkte zuweisen",
+      "review_inactive_products": "{count} inaktives Produkt prüfen | {count} inaktive Produkte prüfen",
+      "review_out_of_stock_products": "{count} nicht verfügbares Produkt prüfen | {count} nicht verfügbare Produkte prüfen",
+      "add_product_prices": "Preise für {count} Produkt hinzufügen | Preise für {count} Produkte hinzufügen"
+    },
+    "seoSeverity": {
+      "critical": "Kritisch",
+      "needsImprovement": "Verbesserungsbedarf",
+      "optimization": "Optimierung",
+      "minorOpportunity": "Kleine Chance"
+    },
+    "seoReasons": {
+      "metaTitleMissing": "Meta-Titel fehlt",
+      "metaTitleIdenticalToProductName": "Meta-Titel ist identisch mit dem Produktnamen",
+      "metaTitleTooShort": "Meta-Titel ist zu kurz",
+      "metaTitleTooLong": "Meta-Titel ist zu lang",
+      "metaTitleNeedsImprovement": "Meta-Titel benötigt SEO-Optimierung",
+
+      "metaDescriptionMissing": "Meta-Beschreibung fehlt",
+      "metaDescriptionTooShort": "Meta-Beschreibung ist zu kurz",
+      "metaDescriptionTooLong": "Meta-Beschreibung ist zu lang",
+      "metaDescriptionNeedsImprovement": "Meta-Beschreibung benötigt SEO-Optimierung",
+
+      "productNameMissing": "Produktname fehlt",
+      "productNameTooShort": "Produktname ist zu kurz",
+
+      "descriptionMissing": "Beschreibung fehlt",
+      "descriptionTooShort": "Beschreibung ist zu kurz"
     },
     "delete": {
       "dashboard": {
@@ -347,6 +419,12 @@
       },
       "findings": {
         "resultsSummary": "{items} betroffene Einträge in {groups} Problemgruppen gefunden"
+      },
+      "task": {
+        "dynamic": {
+          "addMetaTitles": "SEO-Metatitel für {count} Produkt hinzufügen | SEO-Metatitel für {count} Produkte hinzufügen",
+          "addMetaDescriptions": "SEO-Metabeschreibungen für {count} Produkt hinzufügen | SEO-Metabeschreibungen für {count} Produkte hinzufügen"
+        }
       }
     }
   }

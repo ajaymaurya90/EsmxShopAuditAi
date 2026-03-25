@@ -16,6 +16,20 @@
       "suggestedValue": "Suggested value",
       "cancel": "Cancel"
     },
+    "findingTitles": {
+      "inactive_products": "Inactive products",
+      "missing_translation": "Products with missing translations",
+      "product_meta_title": "Products with meta title issues",
+      "product_meta_description": "Products with meta description issues",
+      "missing_category": "Products without category",
+      "missing_manufacturer": "Products without manufacturer",
+      "product_description": "Products with description issues",
+      "product_name": "Products with name issues",
+      "missing_cover_image": "Products without cover image",
+      "category_missing_meta_title": "Categories without SEO meta title",
+      "category_missing_meta_description": "Categories without SEO meta description",
+      "category_missing_description": "Categories without description"
+    },
     "dashboard": {
       "runScanButton": "Run scan",
       "scanStatus": "Scan status",
@@ -297,6 +311,7 @@
       "selectedFindingsTitle": "Selected findings",
       "selectedTasksTitle": "Selected tasks",
       "table": {
+        "select": "Select",
         "date": "Date",
         "status": "Status",
         "products": "Products",
@@ -314,12 +329,73 @@
         "avgFindingsPerScan": "Avg Findings / Scan",
         "findingGroups": "Finding Groups",
         "tasks": "Tasks"
+      },
+      "historySummaryEmpty": "Showing 0 reports",
+      "historySummary": "Showing {start}-{end} of {total} reports",
+      "delete": {
+        "button": "Delete selected",
+        "selectAllVisible": "Select all visible",
+        "buttonWithCount": "Delete {count} report | Delete {count} reports",
+        "selectedCount": "{count} report selected | {count} reports selected",
+        "modalTitle": "Delete reports",
+        "confirmText": "Delete {count} selected scan result? | Delete {count} selected scan results?",
+        "warning": "This will permanently delete the selected scan data including related findings and tasks.",
+        "confirmButton": "Delete reports",
+        "success": "{count} report deleted successfully. | {count} reports deleted successfully.",
+        "error": "The selected reports could not be deleted."
       }
     },
     "settings": {
       "pageTitle": "Settings",
       "headline": "Shop Audit AI configuration",
       "variantAuditSectionTitle": "Variant audit mode"
+    },
+    "status": {
+      "open": "Open",
+      "done": "Done",
+      "resolved": "Resolved"
+    },
+    "taskPriority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "taskTitles": {
+      "complete_product_translations": "Complete translations for {count} product | Complete translations for {count} products",
+      "review_product_meta_titles": "Review SEO meta titles for {count} product | Review SEO meta titles for {count} products",
+      "review_product_meta_descriptions": "Review SEO meta descriptions for {count} product | Review SEO meta descriptions for {count} products",
+      "review_product_names": "Review product names for {count} product | Review product names for {count} products",
+      "assign_product_categories": "Assign categories to {count} product | Assign categories to {count} products",
+      "review_product_descriptions": "Review product descriptions for {count} product | Review product descriptions for {count} products",
+      "upload_product_images": "Upload cover images for {count} product | Upload cover images for {count} products",
+      "assign_product_manufacturers": "Assign manufacturers to {count} product | Assign manufacturers to {count} products",
+      "review_inactive_products": "Review {count} inactive product | Review {count} inactive products",
+      "review_out_of_stock_products": "Review {count} out-of-stock product | Review {count} out-of-stock products",
+      "add_product_prices": "Add prices to {count} product | Add prices to {count} products"
+    },
+    "seoSeverity": {
+      "critical": "Critical",
+      "needsImprovement": "Needs improvement",
+      "optimization": "Optimization",
+      "minorOpportunity": "Minor opportunity"
+    },
+    "seoReasons": {
+      "metaTitleMissing": "Meta title is missing",
+      "metaTitleIdenticalToProductName": "Meta title is identical to the product name",
+      "metaTitleTooShort": "Meta title is too short",
+      "metaTitleTooLong": "Meta title is too long",
+      "metaTitleNeedsImprovement": "Meta title needs SEO improvement",
+
+      "metaDescriptionMissing": "Meta description is missing",
+      "metaDescriptionTooShort": "Meta description is too short",
+      "metaDescriptionTooLong": "Meta description is too long",
+      "metaDescriptionNeedsImprovement": "Meta description needs SEO improvement",
+
+      "productNameMissing": "Product name is missing",
+      "productNameTooShort": "Product name is too short",
+
+      "descriptionMissing": "Description is missing",
+      "descriptionTooShort": "Description is too short"
     },
     "delete": {
       "dashboard": {
@@ -347,6 +423,12 @@
         "emptySummary": "No summary available yet.",
         "latestSummaryText": "The latest scan reviewed {scannedProducts} products, produced {totalFindings} grouped findings, and generated {taskCount} tasks.",
         "auditOverviewHeadline": "Audit overview"
+      },
+      "task": {
+        "dynamic": {
+          "addMetaTitles": "Add SEO meta titles to {count} product | Add SEO meta titles to {count} products",
+          "addMetaDescriptions": "Add SEO meta descriptions to {count} product | Add SEO meta descriptions to {count} products"
+        }
       }
     }
   }

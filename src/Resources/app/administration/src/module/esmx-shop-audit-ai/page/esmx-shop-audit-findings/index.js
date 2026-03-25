@@ -119,7 +119,9 @@ Shopware.Component.register('esmx-shop-audit-findings', {
 
                 switch (this.sortBy) {
                     case 'title':
-                        result = String(a.title || '').localeCompare(String(b.title || ''));
+                        result = this.getFindingTitleByCode(a.code, a.title).localeCompare(
+                            this.getFindingTitleByCode(b.code, b.title)
+                        );
                         break;
 
                     case 'category':
@@ -499,6 +501,48 @@ Shopware.Component.register('esmx-shop-audit-findings', {
                     label: this.$tc('esmx-shop-audit-ai.grid.stock'),
                 },
             ];
+        },
+
+        getFindingTitleByCode(code, fallbackTitle = '') {
+            if (!code) {
+                return fallbackTitle || '-';
+            }
+
+            const key = `esmx-shop-audit-ai.findingTitles.${code}`;
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : (fallbackTitle || code);
+        },
+
+        getReasonLabel(reason) {
+            const reasonMap = {
+                'Meta title is missing': 'esmx-shop-audit-ai.seoReasons.metaTitleMissing',
+                'Meta title is identical to the product name': 'esmx-shop-audit-ai.seoReasons.metaTitleIdenticalToProductName',
+                'Meta title is too short': 'esmx-shop-audit-ai.seoReasons.metaTitleTooShort',
+                'Meta title is too long': 'esmx-shop-audit-ai.seoReasons.metaTitleTooLong',
+                'Meta title needs SEO improvement': 'esmx-shop-audit-ai.seoReasons.metaTitleNeedsImprovement',
+
+                'Meta description is missing': 'esmx-shop-audit-ai.seoReasons.metaDescriptionMissing',
+                'Meta description is too short': 'esmx-shop-audit-ai.seoReasons.metaDescriptionTooShort',
+                'Meta description is too long': 'esmx-shop-audit-ai.seoReasons.metaDescriptionTooLong',
+                'Meta description needs SEO improvement': 'esmx-shop-audit-ai.seoReasons.metaDescriptionNeedsImprovement',
+
+                'Product name is missing': 'esmx-shop-audit-ai.seoReasons.productNameMissing',
+                'Product name is too short': 'esmx-shop-audit-ai.seoReasons.productNameTooShort',
+
+                'Description is missing': 'esmx-shop-audit-ai.seoReasons.descriptionMissing',
+                'Description is too short': 'esmx-shop-audit-ai.seoReasons.descriptionTooShort',
+            };
+
+            const key = reasonMap[reason];
+
+            if (!key) {
+                return reason || '-';
+            }
+
+            const translated = this.$tc(key);
+
+            return translated !== key ? translated : reason;
         },
     }
 });

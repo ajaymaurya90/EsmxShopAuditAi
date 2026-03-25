@@ -25,14 +25,14 @@
                 {{ $tc('esmx-shop-audit-ai.navigation.settings') }}
             </mt-button>
 
-            <mt-button
+            {#<mt-button
                     variant="primary"
                     size="default"
                     :disabled="isLoading || isRunningScan"
                     @click="loadReports"
             >
                 {{ $tc('esmx-shop-audit-ai.general.refresh') }}
-            </mt-button>
+            </mt-button>#}
 
             <div class="esmx-shop-audit-dashboard__actions">
                 <mt-button
@@ -148,11 +148,36 @@
                         <div class="esmx-shop-audit__table-meta">
                             {{ historySummaryText }}
                         </div>
+
+                        <div class="esmx-shop-audit-reports__bulk-actions">
+                            <mt-checkbox
+                                    :checked="allVisibleReportsSelected"
+                                    @change="toggleSelectAllVisibleReports"
+                            />
+
+                            <span class="esmx-shop-audit-reports__bulk-label">
+            {{ $tc('esmx-shop-audit-ai.reports.delete.selectAllVisible') }}
+        </span>
+
+                            <mt-button
+                                    v-if="hasSelectedReports"
+                                    variant="critical"
+                                    size="small"
+                                    :loading="isDeletingReports"
+                                    :disabled="isDeletingReports"
+                                    @click="openDeleteReportsModal"
+                            >
+                                {{ $tc('esmx-shop-audit-ai.reports.delete.buttonWithCount', selectedReportsCount, {
+                                    count: selectedReportsCount
+                                }) }}
+                            </mt-button>
+                        </div>
                     </div>
 
                     <template v-if="paginatedReports.length">
                         <div class="esmx-shop-audit-reports__history-list">
                             <div class="esmx-shop-audit-reports__history-header">
+                                <div>{{ $tc('esmx-shop-audit-ai.reports.table.select') }}</div>
                                 <div>{{ $tc('esmx-shop-audit-ai.reports.table.date') }}</div>
                                 <div>{{ $tc('esmx-shop-audit-ai.reports.table.status') }}</div>
                                 <div>{{ $tc('esmx-shop-audit-ai.reports.table.products') }}</div>
@@ -168,6 +193,17 @@
                                     :class="{ 'is-selected': isSelectedReport(report) }"
                                     @click="onClickReportRow(report)"
                             >
+                                <div @click.stop>
+                                    <div class="esmx-shop-audit-reports__row-label">
+                                        {{ $tc('esmx-shop-audit-ai.reports.table.select') }}
+                                    </div>
+
+                                    <mt-checkbox
+                                            :checked="isReportSelected(report.id)"
+                                            @change="toggleReportSelection(report.id)"
+                                    />
+                                </div>
+
                                 <div>
                                     <div class="esmx-shop-audit-reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.date') }}</div>
                                     <strong>{{ formatDate(report.finishedAt || report.startedAt) }}</strong>
@@ -176,7 +212,7 @@
                                 <div>
                                     <div class="esmx-shop-audit-reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.status') }}</div>
                                     <mt-badge :variant="getStatusVariant(report.status)">
-                                        {{ report.status }}
+                                        {{ getStatusLabel(report.status) }}
                                     </mt-badge>
                                 </div>
 
@@ -195,7 +231,7 @@
                                     <strong>{{ report.highPriorityFindings }}</strong>
                                 </div>
 
-                                <div>
+                                <div @click.stop>
                                     <div class="esmx-shop-audit-reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.action') }}</div>
                                     <mt-button
                                             size="small"
@@ -271,7 +307,7 @@
                         <div class="esmx-shop-audit__stat-item">
                             <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.table.status') }}</div>
                             <div class="esmx-shop-audit__stat-value esmx-shop-audit-reports__small-stat">
-                                {{ selectedReport.status }}
+                                {{ getStatusLabel(selectedReport.status) }}
                             </div>
                         </div>
 
@@ -312,7 +348,15 @@
                                 :allow-column-edit="false"
                                 :allow-inline-edit="false"
                                 :show-selection="false"
-                        />
+                        >
+                            <template #column-title="{ item }">
+                                {{ getFindingTitleByCode(item.code, item.title) }}
+                            </template>
+
+                            <template #column-severity="{ item }">
+                                {{ getFindingSeverityLabel(item.severity) }}
+                            </template>
+                        </sw-data-grid>
 
                         <div
                                 v-if="selectedFindingsTotalPages > 1"
@@ -358,7 +402,19 @@
                                 :allow-column-edit="false"
                                 :allow-inline-edit="false"
                                 :show-selection="false"
-                        />
+                        >
+                            <template #column-title="{ item }">
+                                {{ getDynamicTaskTitle(item) }}
+                            </template>
+
+                            <template #column-priority="{ item }">
+                                {{ getPriorityLabel(item.priority) }}
+                            </template>
+
+                            <template #column-status="{ item }">
+                                {{ getStatusLabel(item.status) }}
+                            </template>
+                        </sw-data-grid>
 
                         <div
                                 v-if="selectedTasksTotalPages > 1"
@@ -393,7 +449,51 @@
                         </div>
                     </div>
                 </mt-card>
+
+                <sw-modal
+                        v-if="showDeleteConfirmModal"
+                        :title="$tc('esmx-shop-audit-ai.reports.delete.modalTitle')"
+                        @modal-close="closeDeleteReportsModal"
+                >
+                    <div class="esmx-shop-audit-reports__delete-modal-content">
+                        <p>
+                            {{ $tc('esmx-shop-audit-ai.reports.delete.confirmText', selectedReportsCount, {
+                                count: selectedReportsCount
+                            }) }}
+                        </p>
+
+                        <p v-if="selectedReportsDateRangeLabel">
+                            <strong>{{ selectedReportsDateRangeLabel }}</strong>
+                        </p>
+
+                        <p class="esmx-shop-audit-reports__delete-modal-warning">
+                            {{ $tc('esmx-shop-audit-ai.reports.delete.warning') }}
+                        </p>
+                    </div>
+
+                    <template #modal-footer>
+                        <mt-button
+                                size="small"
+                                variant="secondary"
+                                @click="closeDeleteReportsModal"
+                        >
+                            {{ $tc('esmx-shop-audit-ai.general.cancel') }}
+                        </mt-button>
+
+                        <mt-button
+                                size="small"
+                                variant="critical"
+                                :loading="isDeletingReports"
+                                :disabled="isDeletingReports"
+                                @click="confirmDeleteReports"
+                        >
+                            {{ $tc('esmx-shop-audit-ai.reports.delete.confirmButton') }}
+                        </mt-button>
+                    </template>
+                </sw-modal>
             </sw-card-view>
         </template>
+
+
     </sw-page>
 {% endblock %}

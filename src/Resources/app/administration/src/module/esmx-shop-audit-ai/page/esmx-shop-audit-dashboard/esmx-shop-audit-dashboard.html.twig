@@ -26,14 +26,14 @@
                 {{ $tc('esmx-shop-audit-ai.navigation.settings') }}
             </mt-button>
 
-            <mt-button
+            {#<mt-button
                     variant="primary"
                     size="default"
                     :disabled="isLoading || isRunningScan"
                     @click="initializeDashboard"
             >
                 <span>{{ $tc('esmx-shop-audit-ai.general.refresh') }}</span>
-            </mt-button>
+            </mt-button>#}
 
             <div class="esmx-shop-audit-dashboard__actions">
                 <mt-button
@@ -289,10 +289,10 @@
                                         >
                                             <div>
                                                 <div class="esmx-shop-audit-dashboard__insight-title">
-                                                    {{ task.title }}
+                                                    {{ getDynamicTaskTitle(task) }}
                                                 </div>
                                                 <div class="esmx-shop-audit-dashboard__insight-meta">
-                                                    {{ task.priority }} · {{ task.status }}
+                                                    {{ getPriorityLabel(task.priority) }} · {{ getStatusLabel(task.status) }}
                                                 </div>
                                             </div>
                                             <strong>{{ task.affectedCount }}</strong>

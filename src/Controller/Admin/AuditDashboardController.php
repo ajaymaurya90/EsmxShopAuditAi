@@ -19,6 +19,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use EsmxShopAuditAi\Service\Task\TaskAutoFixService;
+use Symfony\Component\HttpFoundation\Request;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['api']])]
 class AuditDashboardController extends AbstractController
@@ -392,6 +394,99 @@ class AuditDashboardController extends AbstractController
         ]);
     }
 
+    #[Route(
+        path: '/api/_action/esmx-shop-audit-ai/reports/delete',
+        name: 'api.action.esmx-shop-audit-ai.reports.delete',
+        methods: ['POST']
+    )]
+    public function deleteReports(Request $request, Context $context): JsonResponse
+    {
+        $payload = json_decode((string) $request->getContent(), true);
+
+        if (!\is_array($payload)) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Invalid request payload.',
+            ], 400);
+        }
+
+        $reportIds = $payload['reportIds'] ?? [];
+
+        if (!\is_array($reportIds) || $reportIds === []) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No report ids provided.',
+            ], 400);
+        }
+
+        $reportIds = array_values(array_unique(array_filter(array_map(
+            static fn ($id) => \is_string($id) ? trim($id) : '',
+            $reportIds
+        ))));
+
+        if ($reportIds === []) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No valid report ids provided.',
+            ], 400);
+        }
+
+        $scanCriteria = new Criteria($reportIds);
+
+        /** @var ScanEntity[] $scans */
+        $scans = $this->scanRepository->search($scanCriteria, $context)->getEntities()->getElements();
+
+        if ($scans === []) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No matching reports found.',
+            ], 404);
+        }
+
+        $scanIds = [];
+        foreach ($scans as $scan) {
+            $scanId = $scan->getId();
+
+            if ($scanId) {
+                $scanIds[] = $scanId;
+            }
+        }
+
+        if ($scanIds === []) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No matching report ids found.',
+            ], 404);
+        }
+
+        $findingIds = $this->collectEntityIdsByScanIds($this->findingRepository, $scanIds, $context);
+        $taskIds = $this->collectEntityIdsByScanIds($this->taskRepository, $scanIds, $context);
+
+        if ($findingIds !== []) {
+            $this->findingRepository->delete(
+                array_map(static fn (string $id) => ['id' => $id], $findingIds),
+                $context
+            );
+        }
+
+        if ($taskIds !== []) {
+            $this->taskRepository->delete(
+                array_map(static fn (string $id) => ['id' => $id], $taskIds),
+                $context
+            );
+        }
+
+        $this->scanRepository->delete(
+            array_map(static fn (string $id) => ['id' => $id], $scanIds),
+            $context
+        );
+
+        return new JsonResponse([
+            'success' => true,
+            'deletedCount' => \count($scanIds),
+            'deletedScanIds' => $scanIds,
+        ]);
+    }
 
     #[Route(
         path: '/api/_action/esmx-shop-audit-ai/task-detail/{taskId}',
@@ -805,5 +900,32 @@ class AuditDashboardController extends AbstractController
         }
 
         return 0;
+    }
+
+    private function collectEntityIdsByScanIds(
+        EntityRepository $repository,
+        array $scanIds,
+        Context $context
+    ): array {
+        if ($scanIds === []) {
+            return [];
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('scanId', $scanIds));
+
+        $entities = $repository->search($criteria, $context)->getEntities();
+
+        $ids = [];
+
+        foreach ($entities as $entity) {
+            $id = $entity->getUniqueIdentifier();
+
+            if (\is_string($id) && $id !== '') {
+                $ids[] = $id;
+            }
+        }
+
+        return array_values(array_unique($ids));
     }
 }
