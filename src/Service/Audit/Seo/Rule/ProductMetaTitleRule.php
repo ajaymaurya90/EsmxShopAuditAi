@@ -2,6 +2,7 @@
 
 namespace EsmxShopAuditAi\Service\Audit\Seo\Rule;
 
+use EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider;
 use EsmxShopAuditAi\Service\Audit\Seo\ProductSeoScoreResult;
 use EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -16,9 +17,10 @@ class ProductMetaTitleRule extends AbstractScoredProductSeoAuditRule
 
     public function __construct(
         SystemConfigService $systemConfigService,
+        ProductSeoAuditDataProvider $productSeoAuditDataProvider,
         private readonly SeoSuggestionService $seoSuggestionService
     ) {
-        parent::__construct($systemConfigService);
+        parent::__construct($systemConfigService, $productSeoAuditDataProvider);
     }
 
     public function getCode(): string
@@ -61,21 +63,22 @@ class ProductMetaTitleRule extends AbstractScoredProductSeoAuditRule
     public function auditProductsWithScores(ProductCollection $products, array $scoreResults): array
     {
         $result = [];
+        $seen = [];
         $minLength = $this->getMinLength();
         $maxLength = $this->getMaxLength();
 
         /** @var ProductEntity $product */
         foreach ($products as $product) {
-            $translated = $product->getTranslated();
-            $metaTitle = trim((string) ($translated['metaTitle'] ?? ''));
-            $productName = trim((string) ($translated['name'] ?? ''));
-            $metaDescription = trim((string) ($translated['metaDescription'] ?? ''));
-
             $scoreResult = $this->getScoreResult($product, $scoreResults);
 
             if ($scoreResult === null) {
                 continue;
             }
+
+            $translated = $product->getTranslated();
+            $metaTitle = trim((string) ($translated['metaTitle'] ?? ''));
+            $productName = trim((string) ($translated['name'] ?? ''));
+            $metaDescription = trim((string) ($translated['metaDescription'] ?? ''));
 
             $reason = $this->resolveReason(
                 $metaTitle,
@@ -89,9 +92,13 @@ class ProductMetaTitleRule extends AbstractScoredProductSeoAuditRule
                 continue;
             }
 
+            if ($this->shouldSkipInEffectiveMode($product, 'metaTitle', $seen)) {
+                continue;
+            }
+
             $suggestion = $this->seoSuggestionService->suggestForWeakMetaTitle($product, $scoreResult);
 
-            $result[] = $this->buildProductPayload($product, [
+            $result[] = $this->buildSeoIssuePayload($product, 'metaTitle', $scoreResult->getMetaTitleScore(), [
                 'metaTitle' => $metaTitle,
                 'metaTitleLength' => mb_strlen($metaTitle),
                 'metaDescription' => $metaDescription,

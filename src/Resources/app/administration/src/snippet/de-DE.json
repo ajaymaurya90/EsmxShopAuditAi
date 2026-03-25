@@ -242,7 +242,10 @@
           "identifier": "Kennung",
           "issue": "Problem",
           "currentValue": "Aktueller Wert",
-          "actions": "Aktionen"
+          "actions": "Aktionen",
+          "seoScore": "SEO Wert",
+          "reason": "Grund",
+          "severity": "Schweregrad"
         },
         "manualFix": "Manuell bearbeiten",
         "autoFix": "Automatisch beheben",

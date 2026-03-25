@@ -21,7 +21,7 @@ class TaskBuilder
 
     private function buildTaskFromFinding(string $scanId, array $finding): ?array
     {
-        $code = $finding['code'] ?? '';
+        $code = (string) ($finding['code'] ?? '');
         $affectedCount = (int) ($finding['affectedCount'] ?? 0);
 
         if ($affectedCount <= 0) {
@@ -29,9 +29,19 @@ class TaskBuilder
         }
 
         $taskMap = [
+            'product_name' => [
+                'code' => 'review_product_names',
+                'title' => sprintf('Review product names for %d products', $affectedCount),
+                'priority' => 'medium',
+            ],
             'missing_description' => [
-                'code' => 'add_product_descriptions',
-                'title' => sprintf('Add descriptions to %d products', $affectedCount),
+                'code' => 'review_product_descriptions',
+                'title' => sprintf('Review product descriptions for %d products', $affectedCount),
+                'priority' => 'medium',
+            ],
+            'product_description' => [
+                'code' => 'review_product_descriptions',
+                'title' => sprintf('Review product descriptions for %d products', $affectedCount),
                 'priority' => 'medium',
             ],
             'missing_cover_image' => [
@@ -50,13 +60,28 @@ class TaskBuilder
                 'priority' => 'high',
             ],
             'missing_meta_title' => [
-                'code' => 'add_meta_titles',
-                'title' => sprintf('Add SEO meta titles to %d products', $affectedCount),
+                'code' => 'review_product_meta_titles',
+                'title' => sprintf('Review SEO meta titles for %d products', $affectedCount),
+                'priority' => 'low',
+            ],
+            'product_meta_title' => [
+                'code' => 'review_product_meta_titles',
+                'title' => sprintf('Review SEO meta titles for %d products', $affectedCount),
                 'priority' => 'low',
             ],
             'product_missing_meta_description' => [
-                'code' => 'add_meta_descriptions',
-                'title' => sprintf('Add SEO meta descriptions to %d products', $affectedCount),
+                'code' => 'review_product_meta_descriptions',
+                'title' => sprintf('Review SEO meta descriptions for %d products', $affectedCount),
+                'priority' => 'low',
+            ],
+            'missing_meta_description' => [
+                'code' => 'review_product_meta_descriptions',
+                'title' => sprintf('Review SEO meta descriptions for %d products', $affectedCount),
+                'priority' => 'low',
+            ],
+            'product_meta_description' => [
+                'code' => 'review_product_meta_descriptions',
+                'title' => sprintf('Review SEO meta descriptions for %d products', $affectedCount),
                 'priority' => 'low',
             ],
             'missing_category' => [
@@ -95,7 +120,19 @@ class TaskBuilder
             'payloadJson' => [
                 'findingCode' => $code,
                 'findingTitle' => $finding['title'] ?? '',
+                'fieldType' => $this->resolveFieldTypeForFinding($code),
             ],
         ];
+    }
+
+    private function resolveFieldTypeForFinding(string $findingCode): ?string
+    {
+        return match ($findingCode) {
+            'product_name' => 'name',
+            'missing_description', 'product_description' => 'description',
+            'missing_meta_title', 'product_meta_title' => 'metaTitle',
+            'missing_meta_description', 'product_missing_meta_description', 'product_meta_description' => 'metaDescription',
+            default => null,
+        };
     }
 }

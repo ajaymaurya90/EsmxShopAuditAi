@@ -24,13 +24,13 @@ class SeoAuditService
         $this->rules = is_array($rules) ? $rules : iterator_to_array($rules);
     }
 
-    // Runs all enabled SEO audit rules and reuses a shared product collection for product-based rules.
     public function run(Context $context): SeoAuditResult
     {
         $issues = [];
         $sharedProducts = null;
         $scoreResults = null;
         $executedRules = 0;
+        $variantMode = $this->productSeoAuditDataProvider->getVariantAuditMode();
 
         foreach ($this->rules as $rule) {
             if (!$rule->isEnabled()) {
@@ -76,6 +76,7 @@ class SeoAuditService
         );
 
         $this->logger->info('EsmxShopAuditAi SEO audit completed', [
+            'variantMode' => $variantMode,
             'executedRules' => $executedRules,
             'issueGroups' => $result->getIssueGroupCount(),
             'affectedItems' => $result->getAffectedItemCount(),

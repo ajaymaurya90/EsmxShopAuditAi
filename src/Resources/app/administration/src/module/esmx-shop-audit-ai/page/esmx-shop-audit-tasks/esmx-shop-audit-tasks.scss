@@ -210,6 +210,96 @@
     color: #374151;
   }
 
+  .esmx-shop-audit__reason-cell {
+    color: #374151;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .esmx-shop-audit__seo-score-cell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    font-weight: 700;
+  }
+
+  .esmx-shop-audit__task-detail-toolbar {
+    justify-content: flex-end;
+  }
+
+  .esmx-shop-audit__task-details-summary {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .esmx-shop-audit__seo-score-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  .esmx-shop-audit__seo-score-badge.is-good {
+    background: #ecfdf5;
+    color: #059669;
+  }
+
+  .esmx-shop-audit__seo-score-badge.is-average {
+    background: #fffbeb;
+    color: #d97706;
+  }
+
+  .esmx-shop-audit__seo-score-badge.is-bad {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  .esmx-shop-audit__reason-pill {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    font-size: 12px;
+    color: #374151;
+  }
+
+  .esmx-shop-audit__severity-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .esmx-shop-audit__severity-badge.is-critical {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  .esmx-shop-audit__severity-badge.is-improvement {
+    background: #fff7ed;
+    color: #ea580c;
+  }
+
+  .esmx-shop-audit__severity-badge.is-optimization {
+    background: #eff6ff;
+    color: #2563eb;
+  }
+
+  .esmx-shop-audit__severity-badge.is-minor {
+    background: #ecfdf5;
+    color: #059669;
+  }
+
   // End Auto fix CSS
 
   @media (max-width: 900px) {

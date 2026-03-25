@@ -245,7 +245,10 @@
           "identifier": "Identifier",
           "issue": "Issue",
           "currentValue": "Current value",
-          "actions": "Actions"
+          "actions": "Actions",
+          "seoScore": "SEO score",
+          "reason": "Reason",
+          "severity": "Severity"
         },
         "manualFix": "Manual fix",
         "autoFix": "Auto fix",

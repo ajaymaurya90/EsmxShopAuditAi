@@ -2,6 +2,7 @@
 
 namespace EsmxShopAuditAi\Service\Audit\Seo\Rule;
 
+use EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider;
 use EsmxShopAuditAi\Service\Audit\Seo\ProductSeoScoreResult;
 use EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -14,9 +15,10 @@ class ProductDescriptionRule extends AbstractScoredProductSeoAuditRule
 
     public function __construct(
         SystemConfigService $systemConfigService,
+        ProductSeoAuditDataProvider $productSeoAuditDataProvider,
         private readonly SeoSuggestionService $seoSuggestionService
     ) {
-        parent::__construct($systemConfigService);
+        parent::__construct($systemConfigService, $productSeoAuditDataProvider);
     }
 
     public function getCode(): string
@@ -59,24 +61,29 @@ class ProductDescriptionRule extends AbstractScoredProductSeoAuditRule
     public function auditProductsWithScores(ProductCollection $products, array $scoreResults): array
     {
         $result = [];
+        $seen = [];
         $minLength = $this->getMinLength();
 
         /** @var ProductEntity $product */
         foreach ($products as $product) {
-            $translated = $product->getTranslated();
-            $description = trim(strip_tags((string) ($translated['description'] ?? '')));
-            $metaTitle = trim((string) ($translated['metaTitle'] ?? ''));
-            $metaDescription = trim((string) ($translated['metaDescription'] ?? ''));
-
             $scoreResult = $this->getScoreResult($product, $scoreResults);
 
             if ($scoreResult === null) {
                 continue;
             }
 
+            $translated = $product->getTranslated();
+            $description = trim(strip_tags((string) ($translated['description'] ?? '')));
+            $metaTitle = trim((string) ($translated['metaTitle'] ?? ''));
+            $metaDescription = trim((string) ($translated['metaDescription'] ?? ''));
+
             $reason = $this->resolveReason($description, $minLength);
 
             if ($reason === null) {
+                continue;
+            }
+
+            if ($this->shouldSkipInEffectiveMode($product, 'description', $seen)) {
                 continue;
             }
 
@@ -90,7 +97,7 @@ class ProductDescriptionRule extends AbstractScoredProductSeoAuditRule
                 $reason
             );
 
-            $result[] = $this->buildProductPayload($product, [
+            $result[] = $this->buildSeoIssuePayload($product, 'description', $scoreResult->getDescriptionScore(), [
                 'descriptionExcerpt' => $this->truncateText($description, 180),
                 'descriptionLength' => mb_strlen($description),
                 'minDescriptionLength' => $minLength,
@@ -146,6 +153,7 @@ class ProductDescriptionRule extends AbstractScoredProductSeoAuditRule
             'currentMetaTitle' => $metaTitle,
             'currentMetaDescription' => $metaDescription,
             'minDescriptionLength' => $minLength,
+            'seoScore' => $scoreResult->getDescriptionScore(),
             'descriptionScore' => $scoreResult->getDescriptionScore(),
             'overallSeoScore' => $scoreResult->getOverallScore(),
             'qualityLevel' => $scoreResult->getQualityLevel(),

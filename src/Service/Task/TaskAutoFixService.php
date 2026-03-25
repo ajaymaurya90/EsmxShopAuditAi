@@ -29,8 +29,10 @@ class TaskAutoFixService
         $item = $this->loadTaskItem($task, $itemId, $context);
 
         $preview = match ($task->getCode()) {
-            'add_meta_titles' => $this->buildMetaTitlePreview($item, $context),
-            'add_meta_descriptions' => $this->buildMetaDescriptionPreview($item, $context),
+            'review_product_names' => $this->buildProductNamePreview($item, $context),
+            'review_product_descriptions' => $this->buildProductDescriptionPreview($item, $context),
+            'review_product_meta_titles' => $this->buildMetaTitlePreview($item, $context),
+            'review_product_meta_descriptions' => $this->buildMetaDescriptionPreview($item, $context),
             default => throw new BadRequestHttpException('Auto fix is not supported for this task.'),
         };
 
@@ -51,8 +53,10 @@ class TaskAutoFixService
         $item = $this->loadTaskItem($task, $itemId, $context);
 
         $result = match ($task->getCode()) {
-            'add_meta_titles' => $this->applyMetaTitleFix($item, $context),
-            'add_meta_descriptions' => $this->applyMetaDescriptionFix($item, $context),
+            'review_product_names' => $this->applyProductNameFix($item, $context),
+            'review_product_descriptions' => $this->applyProductDescriptionFix($item, $context),
+            'review_product_meta_titles' => $this->applyMetaTitleFix($item, $context),
+            'review_product_meta_descriptions' => $this->applyMetaDescriptionFix($item, $context),
             default => throw new BadRequestHttpException('Auto fix is not supported for this task.'),
         };
 
@@ -93,12 +97,11 @@ class TaskAutoFixService
         $task = $this->loadTask($taskId, $context);
 
         $finding = $this->loadFindingForTask($task, $context);
-
         $items = $this->extractFindingPayloadItems($finding->getPayloadJson() ?? []);
 
-        $processed = 0;     // for total items attempted with valid id
-        $changed = 0;       // for actual successful changes
-        $failed = 0;        // for failed attempts
+        $processed = 0;
+        $changed = 0;
+        $failed = 0;
 
         foreach ($items as $item) {
             $itemId = (string) ($item['id'] ?? '');
@@ -168,7 +171,6 @@ class TaskAutoFixService
     private function loadTaskItem(TaskEntity $task, string $itemId, Context $context): array
     {
         $finding = $this->loadFindingForTask($task, $context);
-
         $items = $this->extractFindingPayloadItems($finding->getPayloadJson() ?? []);
 
         foreach ($items as $item) {
@@ -184,7 +186,6 @@ class TaskAutoFixService
         throw new NotFoundHttpException('Affected item not found.');
     }
 
-    // Extracts normalized item arrays from finding payloads that may be wrapped or flat.
     private function extractFindingPayloadItems(array $payload): array
     {
         if (isset($payload['items']) && \is_array($payload['items'])) {
@@ -198,6 +199,120 @@ class TaskAutoFixService
         return [];
     }
 
+    private function buildProductNamePreview(array $item, Context $context): array
+    {
+        $product = $this->loadProduct((string) $item['id'], $context);
+
+        $translated = $product->getTranslated();
+        $currentName = trim((string) ($translated['name'] ?? ''));
+        $reason = trim((string) ($item['issue'] ?? $item['reason'] ?? ''));
+        $suggestedValue = $this->generateProductNameSuggestion($product, $currentName, $reason);
+
+        return [
+            'supported' => true,
+            'type' => 'product_name',
+            'entityId' => $product->getId(),
+            'itemName' => $currentName !== '' ? $currentName : 'Unnamed product',
+            'field' => 'name',
+            'fieldLabel' => 'Product name',
+            'reason' => $reason,
+            'currentValue' => $currentName !== '' ? $currentName : null,
+            'suggestedValue' => $suggestedValue,
+            'willChange' => $currentName !== $suggestedValue,
+        ];
+    }
+
+    private function applyProductNameFix(array $item, Context $context): array
+    {
+        $product = $this->loadProduct((string) $item['id'], $context);
+
+        $translated = $product->getTranslated();
+        $currentName = trim((string) ($translated['name'] ?? ''));
+        $reason = trim((string) ($item['issue'] ?? $item['reason'] ?? ''));
+        $suggestedValue = $this->generateProductNameSuggestion($product, $currentName, $reason);
+
+        if ($currentName === $suggestedValue) {
+            return [
+                'success' => true,
+                'changed' => false,
+                'message' => 'Product name already matches the suggested value.',
+            ];
+        }
+
+        $this->productRepository->update([
+            [
+                'id' => $product->getId(),
+                'name' => $suggestedValue,
+            ],
+        ], $context);
+
+        return [
+            'success' => true,
+            'changed' => true,
+            'entityId' => $product->getId(),
+            'field' => 'name',
+            'newValue' => $suggestedValue,
+        ];
+    }
+
+    private function buildProductDescriptionPreview(array $item, Context $context): array
+    {
+        $product = $this->loadProduct((string) $item['id'], $context);
+
+        $translated = $product->getTranslated();
+        $productName = trim((string) ($translated['name'] ?? ''));
+        $currentDescription = trim((string) ($translated['description'] ?? ''));
+        $reason = trim((string) ($item['issue'] ?? $item['reason'] ?? ''));
+        $suggestedValue = $this->generateProductDescriptionSuggestion($productName, $currentDescription, $reason);
+
+        return [
+            'supported' => true,
+            'type' => 'product_description',
+            'entityId' => $product->getId(),
+            'itemName' => $productName !== '' ? $productName : 'Unnamed product',
+            'field' => 'description',
+            'fieldLabel' => 'Product description',
+            'reason' => $reason,
+            'currentValue' => $currentDescription !== '' ? $currentDescription : null,
+            'suggestedValue' => $suggestedValue,
+            'willChange' => $currentDescription !== $suggestedValue,
+        ];
+    }
+
+    private function applyProductDescriptionFix(array $item, Context $context): array
+    {
+        $product = $this->loadProduct((string) $item['id'], $context);
+
+        $translated = $product->getTranslated();
+        $productName = trim((string) ($translated['name'] ?? ''));
+        $currentDescription = trim((string) ($translated['description'] ?? ''));
+        $reason = trim((string) ($item['issue'] ?? $item['reason'] ?? ''));
+        $suggestedValue = $this->generateProductDescriptionSuggestion($productName, $currentDescription, $reason);
+
+        if ($currentDescription === $suggestedValue) {
+            return [
+                'success' => true,
+                'changed' => false,
+                'message' => 'Product description already matches the suggested value.',
+            ];
+        }
+
+        $this->productRepository->update([
+            [
+                'id' => $product->getId(),
+                'description' => $suggestedValue,
+            ],
+        ], $context);
+
+        return [
+            'success' => true,
+            'changed' => true,
+            'entityId' => $product->getId(),
+            'field' => 'description',
+            'newValue' => $suggestedValue,
+        ];
+    }
+
     private function buildMetaTitlePreview(array $item, Context $context): array
     {
         $product = $this->loadProduct((string) $item['id'], $context);
@@ -205,10 +320,13 @@ class TaskAutoFixService
         $translated = $product->getTranslated();
         $productName = trim((string) ($translated['name'] ?? ''));
         $currentMetaTitle = trim((string) ($translated['metaTitle'] ?? ''));
+        $reason = trim((string) ($item['issue'] ?? $item['reason'] ?? ''));
 
         if ($productName === '') {
             throw new BadRequestHttpException('Product name is empty, cannot generate meta title.');
         }
+
+        $suggestedValue = $this->generateMetaTitleSuggestion($productName, $currentMetaTitle, $reason);
 
         return [
             'supported' => true,
@@ -217,9 +335,10 @@ class TaskAutoFixService
             'itemName' => $productName,
             'field' => 'metaTitle',
             'fieldLabel' => 'SEO meta title',
+            'reason' => $reason,
             'currentValue' => $currentMetaTitle !== '' ? $currentMetaTitle : null,
-            'suggestedValue' => $productName,
-            'willChange' => $currentMetaTitle === '',
+            'suggestedValue' => $suggestedValue,
+            'willChange' => $currentMetaTitle !== $suggestedValue,
         ];
     }
 
@@ -230,23 +349,26 @@ class TaskAutoFixService
         $translated = $product->getTranslated();
         $productName = trim((string) ($translated['name'] ?? ''));
         $currentMetaTitle = trim((string) ($translated['metaTitle'] ?? ''));
+        $reason = trim((string) ($item['issue'] ?? $item['reason'] ?? ''));
 
         if ($productName === '') {
             throw new BadRequestHttpException('Product name is empty, cannot generate meta title.');
         }
 
-        if ($currentMetaTitle !== '') {
+        $suggestedValue = $this->generateMetaTitleSuggestion($productName, $currentMetaTitle, $reason);
+
+        if ($currentMetaTitle === $suggestedValue) {
             return [
                 'success' => true,
                 'changed' => false,
-                'message' => 'Meta title already exists.',
+                'message' => 'Meta title already matches the suggested value.',
             ];
         }
 
         $this->productRepository->update([
             [
                 'id' => $product->getId(),
-                'metaTitle' => $productName,
+                'metaTitle' => $suggestedValue,
             ],
         ], $context);
 
@@ -255,7 +377,75 @@ class TaskAutoFixService
             'changed' => true,
             'entityId' => $product->getId(),
             'field' => 'metaTitle',
-            'newValue' => $productName,
+            'newValue' => $suggestedValue,
+        ];
+    }
+
+    private function buildMetaDescriptionPreview(array $item, Context $context): array
+    {
+        $product = $this->loadProduct((string) $item['id'], $context);
+
+        $translated = $product->getTranslated();
+        $productName = trim((string) ($translated['name'] ?? ''));
+        $currentMetaDescription = trim((string) ($translated['metaDescription'] ?? ''));
+        $reason = trim((string) ($item['issue'] ?? $item['reason'] ?? ''));
+
+        if ($productName === '') {
+            throw new BadRequestHttpException('Product name is empty, cannot generate meta description.');
+        }
+
+        $suggestedValue = $this->generateMetaDescriptionSuggestion($productName, $currentMetaDescription, $reason);
+
+        return [
+            'supported' => true,
+            'type' => 'product_meta_description',
+            'entityId' => $product->getId(),
+            'itemName' => $productName,
+            'field' => 'metaDescription',
+            'fieldLabel' => 'SEO meta description',
+            'reason' => $reason,
+            'currentValue' => $currentMetaDescription !== '' ? $currentMetaDescription : null,
+            'suggestedValue' => $suggestedValue,
+            'willChange' => $currentMetaDescription !== $suggestedValue,
+        ];
+    }
+
+    private function applyMetaDescriptionFix(array $item, Context $context): array
+    {
+        $product = $this->loadProduct((string) $item['id'], $context);
+
+        $translated = $product->getTranslated();
+        $productName = trim((string) ($translated['name'] ?? ''));
+        $currentMetaDescription = trim((string) ($translated['metaDescription'] ?? ''));
+        $reason = trim((string) ($item['issue'] ?? $item['reason'] ?? ''));
+
+        if ($productName === '') {
+            throw new BadRequestHttpException('Product name is empty, cannot generate meta description.');
+        }
+
+        $suggestedValue = $this->generateMetaDescriptionSuggestion($productName, $currentMetaDescription, $reason);
+
+        if ($currentMetaDescription === $suggestedValue) {
+            return [
+                'success' => true,
+                'changed' => false,
+                'message' => 'Meta description already matches the suggested value.',
+            ];
+        }
+
+        $this->productRepository->update([
+            [
+                'id' => $product->getId(),
+                'metaDescription' => $suggestedValue,
+            ],
+        ], $context);
+
+        return [
+            'success' => true,
+            'changed' => true,
+            'entityId' => $product->getId(),
+            'field' => 'metaDescription',
+            'newValue' => $suggestedValue,
         ];
     }
 
@@ -288,6 +478,7 @@ class TaskAutoFixService
         $newPayload['items'] = $updatedItems;
 
         $updatedCount = \count($updatedItems);
+
         $this->findingRepository->update([
             [
                 'id' => $finding->getId(),
@@ -299,7 +490,6 @@ class TaskAutoFixService
         return $updatedCount;
     }
 
-    // Loads the finding referenced by the task payload within the same scan.
     private function loadFindingForTask(TaskEntity $task, Context $context): FindingEntity
     {
         $taskPayload = $task->getPayloadJson() ?? [];
@@ -334,81 +524,221 @@ class TaskAutoFixService
         ], $context);
     }
 
-    private function buildMetaDescriptionPreview(array $item, Context $context): array
+    private function generateProductName(string $currentName): string
     {
-        $product = $this->loadProduct((string) $item['id'], $context);
+        $value = trim($currentName);
 
-        $translated = $product->getTranslated();
-        $productName = trim((string) ($translated['name'] ?? ''));
-        $currentMetaDescription = trim((string) ($translated['metaDescription'] ?? ''));
-
-        if ($productName === '') {
-            throw new BadRequestHttpException('Product name is empty, cannot generate meta description.');
+        if ($value === '') {
+            return 'New product';
         }
 
-        $suggestedValue = $this->generateMetaDescription($productName);
-
-        return [
-            'supported' => true,
-            'type' => 'product_meta_description',
-            'entityId' => $product->getId(),
-            'itemName' => $productName,
-            'field' => 'metaDescription',
-            'fieldLabel' => 'SEO meta description',
-            'currentValue' => $currentMetaDescription !== '' ? $currentMetaDescription : null,
-            'suggestedValue' => $suggestedValue,
-            'willChange' => $currentMetaDescription === '',
-        ];
+        return $value;
     }
 
-    private function applyMetaDescriptionFix(array $item, Context $context): array
+    private function generateProductDescription(string $productName, string $currentDescription): string
     {
-        $product = $this->loadProduct((string) $item['id'], $context);
+        $currentDescription = trim($currentDescription);
 
-        $translated = $product->getTranslated();
-        $productName = trim((string) ($translated['name'] ?? ''));
-        $currentMetaDescription = trim((string) ($translated['metaDescription'] ?? ''));
-
-        if ($productName === '') {
-            throw new BadRequestHttpException('Product name is empty, cannot generate meta description.');
+        if ($currentDescription !== '') {
+            return $currentDescription;
         }
+
+        $name = trim($productName) !== '' ? trim($productName) : 'this product';
+
+        $text = sprintf(
+            '%s is available in our store. Discover the key features and benefits of %s.',
+            $name,
+            $name
+        );
+
+        return $this->truncateText($text, 500);
+    }
+
+    private function generateMetaTitle(string $productName, string $currentMetaTitle): string
+    {
+        $currentMetaTitle = trim($currentMetaTitle);
+
+        if ($currentMetaTitle !== '') {
+            return $currentMetaTitle;
+        }
+
+        return $this->truncateText($productName, 70);
+    }
+
+    private function generateMetaDescription(string $productName, string $currentMetaDescription): string
+    {
+        $currentMetaDescription = trim($currentMetaDescription);
 
         if ($currentMetaDescription !== '') {
-            return [
-                'success' => true,
-                'changed' => false,
-                'message' => 'Meta description already exists.',
-            ];
+            return $currentMetaDescription;
         }
 
-        $suggestedValue = $this->generateMetaDescription($productName);
+        $text = sprintf('Discover %s in our store.', $productName);
 
-        $this->productRepository->update([
-            [
-                'id' => $product->getId(),
-                'metaDescription' => $suggestedValue,
-            ],
-        ], $context);
-
-        return [
-            'success' => true,
-            'changed' => true,
-            'entityId' => $product->getId(),
-            'field' => 'metaDescription',
-            'newValue' => $suggestedValue,
-        ];
+        return $this->truncateText($text, 160);
     }
 
-    // Builds a safe deterministic fallback meta description for auto-fix use.
-    private function generateMetaDescription(string $productName): string
+    private function truncateText(string $text, int $maxLength): string
     {
-        $text = sprintf('Discover %s in our store.', $productName);
         $text = trim($text);
 
-        if (mb_strlen($text) <= 160) {
+        if (mb_strlen($text) <= $maxLength) {
             return $text;
         }
 
-        return rtrim(mb_substr($text, 0, 157)) . '...';
+        return rtrim(mb_substr($text, 0, $maxLength - 3)) . '...';
+    }
+
+    private function generateProductNameSuggestion(ProductEntity $product, string $currentName, string $reason): string
+    {
+        $currentName = trim($currentName);
+        $productNumber = trim((string) $product->getProductNumber());
+
+        if ($currentName === '') {
+            return $productNumber !== '' ? sprintf('Product %s', $productNumber) : 'New product';
+        }
+
+        if ($this->containsText($reason, ['too short', 'short'])) {
+            return $this->truncateText($currentName . ' - Premium Quality', 120);
+        }
+
+        if ($this->containsText($reason, ['too long'])) {
+            return $this->truncateText($currentName, 120);
+        }
+
+        if ($this->containsText($reason, ['needs improvement', 'weak', 'generic', 'low quality'])) {
+            return $this->truncateText($currentName . ' - Best Choice', 120);
+        }
+
+        return $this->truncateText($currentName . ' - Best Choice', 120);
+    }
+
+    private function generateProductDescriptionSuggestion(string $productName, string $currentDescription, string $reason): string
+    {
+        $productName = trim($productName);
+        $currentDescription = trim(strip_tags($currentDescription));
+
+        if ($currentDescription === '') {
+            $text = sprintf(
+                '%s is designed to deliver reliable quality and everyday usability. Explore the key features, benefits, and essential details before making your purchase.',
+                $productName !== '' ? $productName : 'This product'
+            );
+
+            return $this->truncateText($text, 500);
+        }
+
+        if ($this->containsText($reason, ['too short', 'short'])) {
+            $text = sprintf(
+                '%s %s Discover the important features, practical benefits, and product details that help customers make a confident buying decision.',
+                rtrim($currentDescription, '. ') . '.',
+                $productName !== '' ? $productName . ' is built for quality and usability.' : 'This product is built for quality and usability.'
+            );
+
+            return $this->truncateText($text, 500);
+        }
+
+        if ($this->containsText($reason, ['too long'])) {
+            return $this->truncateText($currentDescription, 500);
+        }
+
+        if ($this->containsText($reason, ['needs improvement', 'weak', 'generic', 'low quality'])) {
+            $text = sprintf(
+                '%s %s Learn more about its features, value, and everyday benefits.',
+                rtrim($currentDescription, '. ') . '.',
+                $productName !== '' ? $productName . ' offers a practical solution for your needs.' : 'This product offers a practical solution for your needs.'
+            );
+
+            return $this->truncateText($text, 500);
+        }
+
+        $text = sprintf(
+            '%s %s',
+            rtrim($currentDescription, '. ') . '.',
+            'Explore its features, benefits, and practical use cases.'
+        );
+
+        return $this->truncateText($text, 500);
+    }
+
+    private function generateMetaTitleSuggestion(string $productName, string $currentMetaTitle, string $reason): string
+    {
+        $productName = trim($productName);
+        $currentMetaTitle = trim($currentMetaTitle);
+
+        if ($currentMetaTitle === '') {
+            return $this->truncateText($productName . ' | Buy Online', 70);
+        }
+
+        if ($this->containsText($reason, ['too short', 'short'])) {
+            return $this->truncateText($currentMetaTitle . ' | Buy Online', 70);
+        }
+
+        if ($this->containsText($reason, ['too long'])) {
+            return $this->truncateText($currentMetaTitle, 70);
+        }
+
+        if ($this->containsText($reason, ['needs improvement', 'weak', 'generic', 'low quality'])) {
+            return $this->truncateText($productName . ' | Best Price Online', 70);
+        }
+
+        return $this->truncateText($productName . ' | Best Price Online', 70);
+    }
+
+    private function generateMetaDescriptionSuggestion(string $productName, string $currentMetaDescription, string $reason): string
+    {
+        $productName = trim($productName);
+        $currentMetaDescription = trim(strip_tags($currentMetaDescription));
+
+        if ($currentMetaDescription === '') {
+            $text = sprintf(
+                'Discover %s in our store. Explore features, benefits, pricing, and important product details before you buy.',
+                $productName !== '' ? $productName : 'this product'
+            );
+
+            return $this->truncateText($text, 160);
+        }
+
+        if ($this->containsText($reason, ['too short', 'short'])) {
+            $text = sprintf(
+                '%s Explore features, benefits, and important product details for %s.',
+                rtrim($currentMetaDescription, '. ') . '.',
+                $productName !== '' ? $productName : 'this product'
+            );
+
+            return $this->truncateText($text, 160);
+        }
+
+        if ($this->containsText($reason, ['too long'])) {
+            return $this->truncateText($currentMetaDescription, 160);
+        }
+
+        if ($this->containsText($reason, ['needs improvement', 'weak', 'generic', 'low quality'])) {
+            $text = sprintf(
+                'Buy %s online. Discover features, benefits, pricing, and key product details in our store.',
+                $productName !== '' ? $productName : 'this product'
+            );
+
+            return $this->truncateText($text, 160);
+        }
+
+        $text = sprintf(
+            'Shop %s today. Discover features, benefits, pricing, and important details before purchase.',
+            $productName !== '' ? $productName : 'this product'
+        );
+
+        return $this->truncateText($text, 160);
+    }
+
+    private function containsText(string $haystack, array $needles): bool
+    {
+        $haystack = mb_strtolower(trim($haystack));
+
+        foreach ($needles as $needle) {
+            if ($needle !== '' && str_contains($haystack, mb_strtolower($needle))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace EsmxShopAuditAi\Service\Audit\Seo\Rule;
 
+use EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider;
 use EsmxShopAuditAi\Service\Audit\Seo\ProductSeoScoreResult;
 use EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -14,9 +15,10 @@ class ProductNameRule extends AbstractScoredProductSeoAuditRule
 
     public function __construct(
         SystemConfigService $systemConfigService,
+        ProductSeoAuditDataProvider $productSeoAuditDataProvider,
         private readonly SeoSuggestionService $seoSuggestionService
     ) {
-        parent::__construct($systemConfigService);
+        parent::__construct($systemConfigService, $productSeoAuditDataProvider);
     }
 
     public function getCode(): string
@@ -59,6 +61,7 @@ class ProductNameRule extends AbstractScoredProductSeoAuditRule
     public function auditProductsWithScores(ProductCollection $products, array $scoreResults): array
     {
         $result = [];
+        $seen = [];
         $minLength = $this->getMinLength();
 
         /** @var ProductEntity $product */
@@ -81,6 +84,10 @@ class ProductNameRule extends AbstractScoredProductSeoAuditRule
                 continue;
             }
 
+            if ($this->shouldSkipInEffectiveMode($product, 'name', $seen)) {
+                continue;
+            }
+
             $suggestion = $this->buildNameSuggestion(
                 $product,
                 $scoreResult,
@@ -92,7 +99,7 @@ class ProductNameRule extends AbstractScoredProductSeoAuditRule
                 $reason
             );
 
-            $result[] = $this->buildProductPayload($product, [
+            $result[] = $this->buildSeoIssuePayload($product, 'name', $scoreResult->getOverallScore(), [
                 'productNameLength' => mb_strlen($productName),
                 'minProductNameLength' => $minLength,
                 'metaTitle' => $metaTitle,
@@ -146,6 +153,7 @@ class ProductNameRule extends AbstractScoredProductSeoAuditRule
             'currentMetaDescription' => $metaDescription,
             'currentDescriptionExcerpt' => $this->truncateText($description, 180),
             'minProductNameLength' => $minLength,
+            'seoScore' => $scoreResult->getOverallScore(),
             'overallSeoScore' => $scoreResult->getOverallScore(),
             'qualityLevel' => $scoreResult->getQualityLevel(),
             'suggestedMetaTitle' => $suggestedMetaTitle,

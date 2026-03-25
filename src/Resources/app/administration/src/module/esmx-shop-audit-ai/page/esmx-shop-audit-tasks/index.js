@@ -203,7 +203,58 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             ];
         },
 
+        seoTaskCodes() {
+            return [
+                'review_product_names',
+                'review_product_descriptions',
+                'review_product_meta_titles',
+                'review_product_meta_descriptions',
+            ];
+        },
+
+        isSeoFieldTask() {
+            return !!this.selectedTask && this.seoTaskCodes.includes(this.selectedTask.code);
+        },
+
         detailColumns() {
+            if (this.isSeoFieldTask) {
+                return [
+                    {
+                        property: 'name',
+                        label: this.$tc('esmx-shop-audit-ai.tasks.detailGrid.columns.name'),
+                        primary: true,
+                        width: '28%',
+                    },
+                    {
+                        property: 'identifier',
+                        label: this.$tc('esmx-shop-audit-ai.tasks.detailGrid.columns.identifier'),
+                        width: '16%',
+                    },
+                    {
+                        property: 'seoScore',
+                        label: this.$tc('esmx-shop-audit-ai.tasks.detailGrid.columns.seoScore'),
+                        align: 'right',
+                        width: '10%',
+                    },
+                    {
+                        property: 'severity',
+                        label: this.$tc('esmx-shop-audit-ai.tasks.detailGrid.columns.severity'),
+                        width: '16%',
+                    },
+                    {
+                        property: 'reason',
+                        label: this.$tc('esmx-shop-audit-ai.tasks.detailGrid.columns.reason'),
+                        width: '24%',
+                    },
+                    {
+                        property: 'actions',
+                        label: '',
+                        width: '72px',
+                        align: 'center',
+                    },
+                ];
+            }
+
             return [
                 {
                     property: 'name',
@@ -232,6 +283,7 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
 
         canApplyAutoFixAll() {
             return !!this.selectedTask
+                && !!this.detailItems.length
                 && this.detailItems.some((item) => item.autoFixSupported);
         },
 
@@ -339,20 +391,20 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
         getDynamicTaskTitle(task) {
             if (!task) return '';
 
-            if (task.code === 'add_meta_titles') {
-                return this.$tc(
-                    'esmx-shop-audit-ai.tasks.dynamic.addMetaTitles',
-                    task.affectedCount,
-                    { count: task.affectedCount }
-                );
+            if (task.code === 'review_product_names') {
+                return `Review product names for ${task.affectedCount} products`;
             }
 
-            if (task.code === 'add_meta_descriptions') {
-                return this.$tc(
-                    'esmx-shop-audit-ai.tasks.dynamic.addMetaDescriptions',
-                    task.affectedCount,
-                    { count: task.affectedCount }
-                );
+            if (task.code === 'review_product_descriptions') {
+                return `Review product descriptions for ${task.affectedCount} products`;
+            }
+
+            if (task.code === 'review_product_meta_titles') {
+                return `Review SEO meta titles for ${task.affectedCount} products`;
+            }
+
+            if (task.code === 'review_product_meta_descriptions') {
+                return `Review SEO meta descriptions for ${task.affectedCount} products`;
             }
 
             return task.title;
@@ -481,6 +533,24 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
 
         isTaskSelected(task) {
             return !!task?.id && task.id === this.selectedTaskId;
+        },
+
+        formatSeoScore(value) {
+            if (value === null || value === undefined || value === '') {
+                return '-';
+            }
+
+            const numericValue = Number(value);
+
+            if (Number.isNaN(numericValue)) {
+                return '-';
+            }
+
+            return Math.max(0, Math.min(100, Math.round(numericValue)));
+        },
+
+        getReasonLabel(item) {
+            return item?.reason || item?.issue || '-';
         },
 
         openManualFix(item) {
@@ -643,6 +713,51 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             this.activeDetailActionMenuId = null;
         },
 
+        getSeoScoreClass(score) {
+            const value = Number(score) || 0;
+
+            if (value >= 80) return 'is-good';
+            if (value >= 50) return 'is-average';
+            return 'is-bad';
+        },
+
+        getSeoSeverity(score) {
+            const value = Number(score) || 0;
+
+            if (value >= 85) {
+                return {
+                    label: 'Minor opportunity',
+                    className: 'is-minor',
+                };
+            }
+
+            if (value >= 70) {
+                return {
+                    label: 'Optimization',
+                    className: 'is-optimization',
+                };
+            }
+
+            if (value >= 40) {
+                return {
+                    label: 'Needs improvement',
+                    className: 'is-improvement',
+                };
+            }
+
+            return {
+                label: 'Critical',
+                className: 'is-critical',
+            };
+        },
+
+        getSeoSeverityLabel(score) {
+            return this.getSeoSeverity(score).label;
+        },
+
+        getSeoSeverityClass(score) {
+            return this.getSeoSeverity(score).className;
+        },
 
     },
 });

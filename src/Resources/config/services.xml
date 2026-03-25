@@ -41,10 +41,10 @@
         </service>
 
         <service id="EsmxShopAuditAi\Service\Task\TaskAutoFixService" public="false">
-            <argument type="service" id="esmx_shop_audit_task.repository"/>
-            <argument type="service" id="esmx_shop_audit_finding.repository"/>
-            <argument type="service" id="product.repository"/>
-            <argument type="service" id="logger"/>
+            <argument type="service" id="esmx_shop_audit_task.repository" />
+            <argument type="service" id="esmx_shop_audit_finding.repository" />
+            <argument type="service" id="product.repository" />
+            <argument type="service" id="logger" />
         </service>
 
         <service id="EsmxShopAuditAi\Controller\Admin\AuditDashboardController" public="true">
@@ -62,7 +62,7 @@
         <service id="EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider">
             <argument type="service" id="product.repository" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
-            <argument type="service" id="logger"/>
+            <argument type="service" id="logger" />
         </service>
 
         <service id="EsmxShopAuditAi\Service\Audit\Seo\SeoScoringService">
@@ -79,33 +79,35 @@
         <service id="EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService" />
 
         <service id="EsmxShopAuditAi\Service\Insights\Sales\SalesInsightService">
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="order_line_item.repository"/>
-            <argument type="service" id="product.repository"/>
+            <argument type="service" id="order.repository" />
+            <argument type="service" id="order_line_item.repository" />
+            <argument type="service" id="product.repository" />
         </service>
-
-
 
         <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductNameRule">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider" />
             <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService" />
             <tag name="esmx_shop_audit_ai.seo_rule" />
         </service>
 
         <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductDescriptionRule">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider" />
             <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService" />
             <tag name="esmx_shop_audit_ai.seo_rule" />
         </service>
 
         <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductMetaTitleRule">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider" />
             <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService" />
             <tag name="esmx_shop_audit_ai.seo_rule" />
         </service>
 
         <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductMetaDescriptionRule">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider" />
             <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\SeoSuggestionService" />
             <tag name="esmx_shop_audit_ai.seo_rule" />
         </service>

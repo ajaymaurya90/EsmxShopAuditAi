@@ -2,19 +2,20 @@
 
 namespace EsmxShopAuditAi\Service\Audit\Seo;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Psr\Log\LoggerInterface;
 
 class ProductSeoAuditDataProvider
 {
     private const int DEFAULT_PRODUCT_LIMIT = 100;
-    private const string VARIANT_AUDIT_MODE_EFFECTIVE = 'effective';
-    private const string VARIANT_AUDIT_MODE_RAW = 'raw';
+    public const string VARIANT_AUDIT_MODE_EFFECTIVE = 'effective';
+    public const string VARIANT_AUDIT_MODE_RAW = 'raw';
 
     public function __construct(
         private readonly EntityRepository $productRepository,
@@ -23,7 +24,6 @@ class ProductSeoAuditDataProvider
     ) {
     }
 
-    // Loads products for SEO audit based on configured limit and variant audit mode.
     public function loadProducts(Context $context): ProductCollection
     {
         $limit = $this->getAuditProductLimit();
@@ -52,6 +52,46 @@ class ProductSeoAuditDataProvider
         return $products;
     }
 
+    public function getVariantAuditMode(): string
+    {
+        $mode = (string) ($this->systemConfigService->get('EsmxShopAuditAi.config.variantAuditMode')
+            ?? self::VARIANT_AUDIT_MODE_EFFECTIVE);
+
+        if (!\in_array($mode, [self::VARIANT_AUDIT_MODE_EFFECTIVE, self::VARIANT_AUDIT_MODE_RAW], true)) {
+            return self::VARIANT_AUDIT_MODE_EFFECTIVE;
+        }
+
+        return $mode;
+    }
+
+    public function isEffectiveMode(): bool
+    {
+        return $this->getVariantAuditMode() === self::VARIANT_AUDIT_MODE_EFFECTIVE;
+    }
+
+    public function getEffectiveAuditKey(ProductEntity $product, string $fieldName): string
+    {
+        return $this->getEffectiveProductId($product) . ':' . $fieldName;
+    }
+
+    public function getEffectiveProductId(ProductEntity $product): string
+    {
+        if ($this->getVariantAuditMode() === self::VARIANT_AUDIT_MODE_RAW) {
+            return (string) $product->getId();
+        }
+
+        return (string) ($product->getParentId() ?: $product->getId());
+    }
+
+    public function isInheritedEffectiveValue(ProductEntity $product): bool
+    {
+        if ($this->getVariantAuditMode() === self::VARIANT_AUDIT_MODE_RAW) {
+            return false;
+        }
+
+        return $product->getParentId() !== null;
+    }
+
     private function getAuditProductLimit(): int
     {
         $limit = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.auditProductLimit')
@@ -62,17 +102,5 @@ class ProductSeoAuditDataProvider
         }
 
         return $limit;
-    }
-
-    private function getVariantAuditMode(): string
-    {
-        $mode = (string) ($this->systemConfigService->get('EsmxShopAuditAi.config.variantAuditMode')
-            ?? self::VARIANT_AUDIT_MODE_EFFECTIVE);
-
-        if (!\in_array($mode, [self::VARIANT_AUDIT_MODE_EFFECTIVE, self::VARIANT_AUDIT_MODE_RAW], true)) {
-            return self::VARIANT_AUDIT_MODE_EFFECTIVE;
-        }
-
-        return $mode;
     }
 }

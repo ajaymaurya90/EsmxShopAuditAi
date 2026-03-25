@@ -38,9 +38,10 @@ class AuditDashboardController extends AbstractController
     ];
 
     private const array TASK_IMPACT_WEIGHTS = [
-        'add_meta_titles' => 2.0,
-        'add_meta_descriptions' => 2.0,
-        'add_product_descriptions' => 1.5,
+        'review_product_names' => 2.0,
+        'review_product_descriptions' => 2.0,
+        'review_product_meta_titles' => 2.0,
+        'review_product_meta_descriptions' => 2.0,
         'upload_product_images' => 1.0,
         'review_inactive_products' => 1.5,
         'review_out_of_stock_products' => 2.0,
@@ -575,8 +576,11 @@ class AuditDashboardController extends AbstractController
                 'entityType' => $this->resolveTaskEntityType($task, $item),
                 'name' => $this->resolveTaskItemName($item),
                 'identifier' => $this->resolveTaskItemIdentifier($item),
+                'fieldType' => $this->resolveTaskFieldType($task),
                 'issue' => $this->resolveTaskItemIssue($item, $task),
-                'currentValue' => $this->resolveTaskItemCurrentValue($item),
+                'reason' => $this->resolveTaskItemIssue($item, $task),
+                'currentValue' => $this->resolveTaskItemCurrentValue($item, $task),
+                'seoScore' => $this->resolveTaskItemSeoScore($item),
                 'raw' => $item,
                 'autoFixSupported' => $this->isAutoFixSupported($task),
             ];
@@ -655,18 +659,51 @@ class AuditDashboardController extends AbstractController
             }
         }
 
-        return (string) ($task->getTitle() ?? 'Issue detected');
+        return match ((string) $task->getCode()) {
+            'review_product_names' => 'Needs improvement',
+            'review_product_descriptions' => 'Needs improvement',
+            'review_product_meta_titles' => 'Needs improvement',
+            'review_product_meta_descriptions' => 'Needs improvement',
+            default => (string) ($task->getTitle() ?? 'Issue detected'),
+        };
     }
 
-    private function resolveTaskItemCurrentValue(array $item): string
+    private function resolveTaskItemCurrentValue(array $item, TaskEntity $task): string
     {
-        $candidates = [
-            'currentValue',
-            'metaTitle',
-            'metaDescription',
-            'description',
-            'value',
-        ];
+        $taskCode = (string) $task->getCode();
+
+        $candidates = match ($taskCode) {
+            'review_product_names' => [
+                'currentValue',
+                'name',
+                'productName',
+                'value',
+            ],
+            'review_product_descriptions' => [
+                'currentValue',
+                'description',
+                'productDescription',
+                'value',
+            ],
+            'review_product_meta_titles' => [
+                'currentValue',
+                'metaTitle',
+                'value',
+            ],
+            'review_product_meta_descriptions' => [
+                'currentValue',
+                'metaDescription',
+                'value',
+            ],
+            default => [
+                'currentValue',
+                'metaTitle',
+                'metaDescription',
+                'description',
+                'name',
+                'value',
+            ],
+        };
 
         foreach ($candidates as $key) {
             if (array_key_exists($key, $item)) {
@@ -689,9 +726,11 @@ class AuditDashboardController extends AbstractController
 
     private function isAutoFixSupported(TaskEntity $task): bool
     {
-        return match ($task->getCode()) {
-            'add_meta_titles',
-            'add_meta_descriptions' => true,
+        return match ((string) $task->getCode()) {
+            'review_product_names',
+            'review_product_descriptions',
+            'review_product_meta_titles',
+            'review_product_meta_descriptions' => true,
             default => false,
         };
     }
@@ -739,5 +778,32 @@ class AuditDashboardController extends AbstractController
             'score' => max(0, (int) round($score)),
             'breakdown' => $breakdown,
         ];
+    }
+
+    private function resolveTaskFieldType(TaskEntity $task): string
+    {
+        return match ((string) $task->getCode()) {
+            'review_product_names' => 'name',
+            'review_product_descriptions' => 'description',
+            'review_product_meta_titles' => 'metaTitle',
+            'review_product_meta_descriptions' => 'metaDescription',
+            default => 'generic',
+        };
+    }
+
+    private function resolveTaskItemSeoScore(array $item): int
+    {
+        $candidates = [
+            'seoScore',
+            'score',
+        ];
+
+        foreach ($candidates as $key) {
+            if (isset($item[$key]) && is_numeric($item[$key])) {
+                return (int) round((float) $item[$key]);
+            }
+        }
+
+        return 0;
     }
 }

@@ -387,15 +387,8 @@
                         </div>
 
                         <div class="esmx-shop-audit__task-detail-toolbar">
-                            <mt-button size="small" variant="secondary">
-                                {{ $tc('esmx-shop-audit-ai.tasks.detailSection.openListing') }}
-                            </mt-button>
-
-                            <mt-button size="small" variant="primary">
-                                {{ $tc('esmx-shop-audit-ai.tasks.detailSection.previewAndFix') }}
-                            </mt-button>
-
                             <mt-button
+                                    v-if="canApplyAutoFixAll"
                                     size="small"
                                     variant="primary"
                                     :disabled="!canApplyAutoFixAll || isApplyingAutoFix"
@@ -428,6 +421,40 @@
                                 <template #column-name="{ item }">
                                     <div class="esmx-shop-audit__affected-name">
                                         {{ item.name }}
+                                    </div>
+                                </template>
+
+                                <template #column-identifier="{ item }">
+                                    <div class="esmx-shop-audit__current-value-cell">
+                                        {{ item.identifier || '-' }}
+                                    </div>
+                                </template>
+
+                                <template #column-seoScore="{ item }">
+                                    <div class="esmx-shop-audit__task-number-cell">
+                                        <div
+                                                class="esmx-shop-audit__seo-score-badge"
+                                                :class="getSeoScoreClass(item.seoScore)"
+                                        >
+                                            {{ formatSeoScore(item.seoScore) }}
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <template #column-severity="{ item }">
+                                    <div
+                                            class="esmx-shop-audit__severity-badge"
+                                            :class="getSeoSeverityClass(item.seoScore)"
+                                    >
+                                        {{ getSeoSeverityLabel(item.seoScore) }}
+                                    </div>
+                                </template>
+
+                                <template #column-reason="{ item }">
+                                    <div class="esmx-shop-audit__current-value-cell">
+                                        <div class="esmx-shop-audit__reason-pill">
+                                            {{ getReasonLabel(item) }}
+                                        </div>
                                     </div>
                                 </template>
 
