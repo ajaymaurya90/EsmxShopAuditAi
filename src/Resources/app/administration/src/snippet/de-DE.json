@@ -51,7 +51,7 @@
       "runScanSuccess": "Scan erfolgreich abgeschlossen und Dashboard aktualisiert.",
       "runScanError": "Der Scan konnte nicht abgeschlossen werden.",
       "loadError": "Das Audit-Dashboard konnte nicht geladen werden.",
-      "emptyState": "Noch keine Audit-Daten geladen.",
+      "emptyState": "Es wurden noch keine Audit-Daten geladen. Bitte führen Sie Ihren ersten Scan durch.",
 
       "storeHealthTitle": "Shop-Gesundheit",
       "storeHealthInfo": "Die Shop-Gesundheit ist ein Gesamtqualitätswert von 0 bis 100. Sie wird auf Basis wichtiger Audit-Probleme berechnet, zum Beispiel nicht verfügbare Produkte, fehlende Preise, inaktive Produkte, fehlende Beschreibungen, fehlende Bilder, SEO-bezogene Lücken und kritische Probleme. Schwerwiegende und häufige Probleme verringern den Wert stärker. Um den Wert zu verbessern, sollten zuerst kritische Probleme und danach Inhalts- und SEO-Lücken behoben werden.",
@@ -161,13 +161,13 @@
     },
     "navigation": {
       "dashboard": "Dashboard",
-      "findings": "Auffälligkeiten",
+      "findings": "Probleme",
       "tasks": "Aufgaben",
       "reports": "Berichte",
       "settings": "Einstellungen"
     },
     "findings": {
-      "pageTitle": "Findings",
+      "pageTitle": "Probleme",
       "filterHeadline": "Nach Priorität filtern",
       "filterSeverity": "Priorität",
       "resultsSummaryPrefix": "Gefunden:",
@@ -204,10 +204,10 @@
       "ofLabel": "von",
       "previousPage": "Zurück",
       "nextPage": "Weiter",
-      "overviewTitle": "Findings-Übersicht",
+      "overviewTitle": "Probleme-Übersicht",
       "overviewTooltip": "Übersicht der neuesten Audit-Findings nach Schweregrad und betroffenen Einträgen.",
       "stats": {
-        "totalFindings": "Findings gesamt",
+        "totalFindings": "Probleme gesamt",
         "affectedItems": "Betroffene Einträge"
       },
       "reasonLabel": "Grund",
@@ -340,8 +340,63 @@
     },
     "settings": {
       "pageTitle": "Einstellungen",
-      "headline": "Shop Audit AI Konfiguration",
-      "variantAuditSectionTitle": "Modus für Variantenprüfung"
+      "headline": "Plugin-Einstellungen",
+      "description": "Verwalten Sie die Audit-Konfiguration für Esmx Shop Audit AI direkt in diesem Modul.",
+      "loading": "Einstellungen werden geladen...",
+      "saveButton": "Einstellungen speichern",
+      "saveSuccess": "Einstellungen wurden erfolgreich gespeichert.",
+      "saveError": "Einstellungen konnten nicht gespeichert werden.",
+      "loadError": "Einstellungen konnten nicht geladen werden.",
+      "scanDisabledHint": "Scan kann nur im Dashboard gestartet werden",
+      "sections": {
+        "general": "Allgemeine Einstellungen",
+        "scanOptions": "Scan-Optionen"
+      },
+      "fields": {
+        "enableAudit": {
+          "label": "Audit-Prüfungen aktivieren",
+          "helpText": "Audit-Prüfungen für das Plugin aktivieren oder deaktivieren."
+        },
+        "auditProductLimit": {
+          "label": "Produktlimit pro Audit-Lauf",
+          "helpText": "Maximale Anzahl von Produkten pro Scan."
+        },
+        "variantAuditMode": {
+          "label": "Modus für Variantenprüfung",
+          "helpText": "Wählen Sie, ob effektive Storefront-Daten oder rohe Varianten-Datensätze geprüft werden sollen.",
+          "options": {
+            "effective": "Effektive Storefront-Daten prüfen",
+            "raw": "Rohe Varianten-Datensätze prüfen"
+          }
+        },
+        "checkMissingManufacturer": {
+          "label": "Fehlenden Hersteller prüfen"
+        },
+        "checkMissingTranslations": {
+          "label": "Fehlende Übersetzungen prüfen"
+        },
+        "checkSeoFields": {
+          "label": "SEO-Felder prüfen"
+        },
+        "checkProductMetaDescription": {
+          "label": "Fehlende Produkt-Meta-Description prüfen"
+        },
+        "checkWeakProductTitle": {
+          "label": "Schwachen Produkttitel prüfen"
+        },
+        "minProductTitleLength": {
+          "label": "Minimale Länge des Produkttitels"
+        },
+        "checkShortProductDescription": {
+          "label": "Kurze Produktbeschreibung prüfen"
+        },
+        "minProductDescriptionLength": {
+          "label": "Minimale Länge der Produktbeschreibung"
+        },
+        "checkCategorySeo": {
+          "label": "Kategorie-SEO-Felder prüfen"
+        }
+      }
     },
     "status": {
       "open": "Offen",
@@ -389,43 +444,6 @@
 
       "descriptionMissing": "Beschreibung fehlt",
       "descriptionTooShort": "Beschreibung ist zu kurz"
-    },
-    "delete": {
-      "dashboard": {
-        "cardTitle": "Audit-Dashboard",
-        "refresh": "Aktualisieren",
-        "refreshButton": "Audit aktualisieren",
-        "noEntries": "Keine passenden Produkte gefunden.",
-        "loadingButton": "Lädt...",
-
-        "runningScanButton": "Scan läuft...",
-        "latestScanHeadline": "Letzter Scan",
-
-        "groupedFindings": "Gruppierte Findings",
-
-        "affectedProductsLabel": "Betroffene Produkte",
-        "criticalIssuesLabel": "Kritische Probleme"
-      },
-      "dashboardInsights": {
-        "kpiHeadline": "Kennzahlen",
-        "groupedFindings": "Gruppierte Findings",
-        "highPriorityFindings": "Findings mit hoher Priorität",
-        "topFindingsHeadline": "Top-Findings",
-        "latestSummaryHeadline": "Letzte Zusammenfassung",
-        "emptyFindings": "Keine Findings mit hoher Priorität verfügbar.",
-        "emptySummary": "Noch keine Zusammenfassung verfügbar.",
-        "latestSummaryText": "Der letzte Scan hat {scannedProducts} Produkte geprüft, {totalFindings} gruppierte Findings erzeugt und {taskCount} Tasks generiert.",
-        "auditOverviewHeadline": "Audit-Überblick"
-      },
-      "findings": {
-        "resultsSummary": "{items} betroffene Einträge in {groups} Problemgruppen gefunden"
-      },
-      "task": {
-        "dynamic": {
-          "addMetaTitles": "SEO-Metatitel für {count} Produkt hinzufügen | SEO-Metatitel für {count} Produkte hinzufügen",
-          "addMetaDescriptions": "SEO-Metabeschreibungen für {count} Produkt hinzufügen | SEO-Metabeschreibungen für {count} Produkte hinzufügen"
-        }
-      }
     }
   }
 }

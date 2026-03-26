@@ -53,7 +53,7 @@
       "runScanSuccess": "Scan completed and dashboard updated successfully.",
       "runScanError": "The scan could not be completed.",
       "loadError": "The audit dashboard could not be loaded.",
-      "emptyState": "No audit data loaded yet.",
+      "emptyState": "No audit data loaded yet, please run your first scan",
 
       "storeHealthTitle": "Store health",
       "storeHealthInfo": "Store Health is an overall quality score from 0 to 100. It is calculated from important audit issues such as out-of-stock products, missing prices, inactive products, missing descriptions, missing images, SEO-related gaps, and critical issues. More severe and more frequent problems reduce the score more strongly. To improve your score, fix critical issues first, then resolve content and SEO gaps.",
@@ -347,8 +347,63 @@
     },
     "settings": {
       "pageTitle": "Settings",
-      "headline": "Shop Audit AI configuration",
-      "variantAuditSectionTitle": "Variant audit mode"
+      "headline": "Plugin settings",
+      "description": "Manage the audit configuration for Esmx Shop Audit AI directly in this module.",
+      "loading": "Loading settings...",
+      "saveButton": "Save settings",
+      "saveSuccess": "Settings saved successfully.",
+      "saveError": "Settings could not be saved.",
+      "loadError": "Settings could not be loaded.",
+      "scanDisabledHint": "Run scan from Dashboard page",
+      "sections": {
+        "general": "General settings",
+        "scanOptions": "Scan options"
+      },
+      "fields": {
+        "enableAudit": {
+          "label": "Enable audit checks",
+          "helpText": "Enable or disable audit checks for the plugin."
+        },
+        "auditProductLimit": {
+          "label": "Product audit limit per run",
+          "helpText": "Maximum number of products scanned in one run."
+        },
+        "variantAuditMode": {
+          "label": "Variant audit mode",
+          "helpText": "Choose whether to audit effective storefront data or raw variant records.",
+          "options": {
+            "effective": "Audit effective storefront data",
+            "raw": "Audit raw variant records"
+          }
+        },
+        "checkMissingManufacturer": {
+          "label": "Check missing manufacturer"
+        },
+        "checkMissingTranslations": {
+          "label": "Check missing translations"
+        },
+        "checkSeoFields": {
+          "label": "Check SEO fields"
+        },
+        "checkProductMetaDescription": {
+          "label": "Check missing product meta description"
+        },
+        "checkWeakProductTitle": {
+          "label": "Check weak product title"
+        },
+        "minProductTitleLength": {
+          "label": "Minimum product title length"
+        },
+        "checkShortProductDescription": {
+          "label": "Check short product description"
+        },
+        "minProductDescriptionLength": {
+          "label": "Minimum product description length"
+        },
+        "checkCategorySeo": {
+          "label": "Check category SEO fields"
+        }
+      }
     },
     "status": {
       "open": "Open",
@@ -396,40 +451,6 @@
 
       "descriptionMissing": "Description is missing",
       "descriptionTooShort": "Description is too short"
-    },
-    "delete": {
-      "dashboard": {
-        "cardTitle": "Audit Dashboard",
-        "refresh": "Refresh",
-        "refreshButton": "Refresh audit",
-        "noEntries": "No matching products found.",
-        "loadingButton": "Loading...",
-
-        "runningScanButton": "Running scan...",
-        "latestScanHeadline": "Latest scan",
-
-        "groupedFindings": "Grouped findings",
-
-        "affectedProductsLabel": "Affected products",
-        "criticalIssuesLabel": "Critical issues"
-      },
-      "dashboardInsights": {
-        "kpiHeadline": "Key metrics",
-        "groupedFindings": "Grouped findings",
-        "highPriorityFindings": "High-priority findings",
-        "topFindingsHeadline": "Top findings",
-        "latestSummaryHeadline": "Latest summary",
-        "emptyFindings": "No high-priority findings available.",
-        "emptySummary": "No summary available yet.",
-        "latestSummaryText": "The latest scan reviewed {scannedProducts} products, produced {totalFindings} grouped findings, and generated {taskCount} tasks.",
-        "auditOverviewHeadline": "Audit overview"
-      },
-      "task": {
-        "dynamic": {
-          "addMetaTitles": "Add SEO meta titles to {count} product | Add SEO meta titles to {count} products",
-          "addMetaDescriptions": "Add SEO meta descriptions to {count} product | Add SEO meta descriptions to {count} products"
-        }
-      }
     }
   }
 }

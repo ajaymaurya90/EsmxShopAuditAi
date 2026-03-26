@@ -1,6 +1,21 @@
 import template from './esmx-shop-audit-reports.html.twig';
 import '../../shared/esmx-shop-audit-shared.scss';
 import './esmx-shop-audit-reports.scss';
+import {
+    formatLatestScanDate,
+    formatAdminDateTime,
+    getFindingTitleByCode,
+    getDynamicTaskTitle,
+    getPriorityLabel,
+    getStatusLabel,
+    getSeverityLabel,
+} from '../../core/utils/format.util';
+import {
+    goToDashboard,
+    goToFindings,
+    goToTasks,
+    goToSettings,
+} from '../../core/utils/navigation.util';
 
 Shopware.Component.register('esmx-shop-audit-reports', {
     template,
@@ -58,12 +73,8 @@ Shopware.Component.register('esmx-shop-audit-reports', {
             return this.reports.length > 1 ? this.reports[1] : null;
         },
 
-        latestReportDate() {
-            if (!this.latestReport) {
-                return null;
-            }
-
-            return this.latestReport.finishedAt || this.latestReport.startedAt || null;
+        formattedLatestScanDate() {
+            return formatLatestScanDate(this.latestReport);
         },
 
         latestFindingsCount() {
@@ -337,21 +348,7 @@ Shopware.Component.register('esmx-shop-audit-reports', {
         },
 
         formatDate(value) {
-            if (!value) {
-                return '';
-            }
-
-            try {
-                return Shopware.Utils.format.date(value, {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    year: 'numeric',
-                    month: 'short',
-                    day: '2-digit',
-                });
-            } catch (e) {
-                return value;
-            }
+            return formatAdminDateTime(value);
         },
 
         getStatusVariant(status) {
@@ -369,7 +366,7 @@ Shopware.Component.register('esmx-shop-audit-reports', {
 
         formatDelta(value) {
             if (value === null || value === undefined) {
-                return 'No previous scan';
+                return 0;
             }
 
             if (value > 0) {
@@ -469,68 +466,39 @@ Shopware.Component.register('esmx-shop-audit-reports', {
         },
 
         goToDashboard() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.index' });
+            return goToDashboard(this.$router);
         },
 
         goToFindings() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.findings' });
+            return goToFindings(this.$router);
         },
 
         goToTasks() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.tasks' });
+            return goToTasks(this.$router);
         },
 
         goToSettings() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.settings' });
+            return goToSettings(this.$router);
         },
 
         getFindingTitleByCode(code, fallbackTitle = '') {
-            if (!code) {
-                return fallbackTitle || '-';
-            }
-
-            const key = `esmx-shop-audit-ai.findingTitles.${code}`;
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : (fallbackTitle || code);
+            return getFindingTitleByCode(this.$tc.bind(this), code, fallbackTitle);
         },
 
         getDynamicTaskTitle(task) {
-            if (!task) {
-                return '';
-            }
-
-            const key = `esmx-shop-audit-ai.taskTitles.${task.code}`;
-            const translated = this.$tc(key, task.affectedCount || 0, {
-                count: task.affectedCount || 0,
-            });
-
-            if (translated !== key) {
-                return translated;
-            }
-
-            return task.title || task.code || '-';
+            return getDynamicTaskTitle(this.$tc.bind(this), task);
         },
 
         getPriorityLabel(priority) {
-            const key = `esmx-shop-audit-ai.taskPriority.${priority}`;
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : (priority || '-');
+            return getPriorityLabel(this.$tc.bind(this), priority);
         },
 
         getStatusLabel(status) {
-            const key = `esmx-shop-audit-ai.status.${status}`;
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : (status || '-');
+            return getStatusLabel(this.$tc.bind(this), status);
         },
 
         getFindingSeverityLabel(severity) {
-            const key = `esmx-shop-audit-ai.severity.${severity}`;
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : (severity || '-');
+            return getSeverityLabel(this.$tc.bind(this), severity);
         },
 
         isReportSelected(reportId) {
@@ -566,7 +534,6 @@ Shopware.Component.register('esmx-shop-audit-reports', {
         },
 
         openDeleteReportsModal() {
-            console.log('openDeleteReportsModal called', this.selectedReports.length);
 
             if (!this.selectedReports.length) {
                 return;

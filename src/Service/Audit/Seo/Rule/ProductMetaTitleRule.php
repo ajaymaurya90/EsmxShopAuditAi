@@ -11,9 +11,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ProductMetaTitleRule extends AbstractScoredProductSeoAuditRule
 {
-    private const int DEFAULT_MIN_LENGTH = 30;
-    private const int DEFAULT_MAX_LENGTH = 65;
-    private const int DEFAULT_WEAK_SCORE_THRESHOLD = 70;
+    private const DEFAULT_MIN_LENGTH = 30;
+    private const DEFAULT_MAX_LENGTH = 65;
+    private const DEFAULT_WEAK_SCORE_THRESHOLD = 70;
 
     public function __construct(
         SystemConfigService $systemConfigService,

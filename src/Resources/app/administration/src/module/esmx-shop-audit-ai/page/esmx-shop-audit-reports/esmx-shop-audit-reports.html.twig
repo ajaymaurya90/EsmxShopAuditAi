@@ -74,10 +74,10 @@
 
                         <div class="esmx-shop-audit__section-header-meta">
                             <div
-                                    v-if="latestReportDate"
+                                    v-if="formattedLatestScanDate"
                                     class="esmx-shop-audit__section-subtitle"
                             >
-                                {{ $tc('esmx-shop-audit-ai.dashboard.lastScanLabel') }}: {{ formatDate(latestReportDate) }}
+                                {{ $tc('esmx-shop-audit-ai.dashboard.lastScanLabel') }}: {{ formattedLatestScanDate }}
                             </div>
 
                             <span
@@ -345,9 +345,8 @@
                         <sw-data-grid
                                 :dataSource="paginatedSelectedFindings"
                                 :columns="findingColumns"
-                                :allow-column-edit="false"
-                                :allow-inline-edit="false"
                                 :show-selection="false"
+                                :showActions="false"
                         >
                             <template #column-title="{ item }">
                                 {{ getFindingTitleByCode(item.code, item.title) }}
@@ -399,8 +398,7 @@
                         <sw-data-grid
                                 :dataSource="paginatedSelectedTasks"
                                 :columns="taskColumns"
-                                :allow-column-edit="false"
-                                :allow-inline-edit="false"
+                                :showActions="false"
                                 :show-selection="false"
                         >
                             <template #column-title="{ item }">

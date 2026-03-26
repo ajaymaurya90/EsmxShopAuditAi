@@ -61,7 +61,7 @@
                     </mt-banner>
                 </template>
 
-                <template v-else-if="dashboard">
+                <template v-else-if="hasCompletedScan">
                     <template v-if="scanError">
                         <mt-banner variant="danger">
                             {{ scanError }}

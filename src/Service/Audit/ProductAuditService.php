@@ -15,9 +15,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ProductAuditService
 {
-    private const int DEFAULT_LIMIT = 100;
-    private const string VARIANT_AUDIT_MODE_EFFECTIVE = 'effective';
-    private const string VARIANT_AUDIT_MODE_RAW = 'raw';
+    private const DEFAULT_LIMIT = 100;
+    private const VARIANT_AUDIT_MODE_EFFECTIVE = 'effective';
+    private const VARIANT_AUDIT_MODE_RAW = 'raw';
 
     public function __construct(
         private readonly EntityRepository $productRepository,

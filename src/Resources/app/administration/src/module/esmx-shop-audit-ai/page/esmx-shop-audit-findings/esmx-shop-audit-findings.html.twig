@@ -78,7 +78,7 @@
                                     v-if="latestScan && latestScan.finishedAt"
                                     class="esmx-shop-audit__section-subtitle"
                             >
-                                {{ $tc('esmx-shop-audit-ai.dashboard.lastScanLabel') }}: {{ formatDate(latestScan.finishedAt) }}
+                                {{ $tc('esmx-shop-audit-ai.dashboard.lastScanLabel') }}: {{ formattedLatestScanDate }}
                             </div>
 
                             <span

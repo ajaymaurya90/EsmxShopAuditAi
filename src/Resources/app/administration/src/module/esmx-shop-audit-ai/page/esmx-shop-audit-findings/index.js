@@ -2,6 +2,20 @@ import template from './esmx-shop-audit-findings.html.twig';
 import '../../shared/esmx-shop-audit-shared.scss';
 import './esmx-shop-audit-findings.scss';
 import { getFindingImpact } from './constants/finding-impact.constant';
+import {
+    formatLatestScanDate,
+    formatAdminDateTime,
+    getFindingTitleByCode,
+    getSeverityLabel,
+    getSeoReasonLabel as resolveSeverityLabel,
+} from '../../core/utils/format.util';
+import {
+    goToDashboard,
+    goToTasks,
+    goToReports,
+    goToSettings,
+} from '../../core/utils/navigation.util';
+import { SEVERITY_ORDER, SEVERITY_WEIGHT, DEFAULT_SEVERITY_WEIGHT, } from '../../core/constants/severity.constant';
 
 Shopware.Component.register('esmx-shop-audit-findings', {
     template,
@@ -47,12 +61,13 @@ Shopware.Component.register('esmx-shop-audit-findings', {
         },
 
         findingsBySeverity() {
-            return {
-                critical: this.findings.filter((item) => item.severity === 'critical').length,
-                high: this.findings.filter((item) => item.severity === 'high').length,
-                medium: this.findings.filter((item) => item.severity === 'medium').length,
-                low: this.findings.filter((item) => item.severity === 'low').length,
-            };
+            return SEVERITY_ORDER.reduce((result, severity) => {
+                result[severity] = this.findings.filter((item) => {
+                    return String(item.severity || '').toLowerCase().trim() === severity;
+                }).length;
+
+                return result;
+            }, {});
         },
 
         totalAffectedCount() {
@@ -64,14 +79,14 @@ Shopware.Component.register('esmx-shop-audit-findings', {
         },
 
         severityFilters() {
-            return ['critical', 'high', 'medium', 'low'].map((severity) => {
+            return SEVERITY_ORDER.map((severity) => {
                 const count = this.findings.filter((finding) => {
                     return String(finding.severity || '').toLowerCase().trim() === severity;
                 }).length;
 
                 return {
                     key: severity,
-                    label: this.$tc(`esmx-shop-audit-ai.severity.${severity}`),
+                    label: getSeverityLabel(this.$tc.bind(this), severity),
                     count,
                     disabled: count === 0,
                 };
@@ -105,13 +120,6 @@ Shopware.Component.register('esmx-shop-audit-findings', {
         },
 
         sortedFindings() {
-            const severityWeight = {
-                critical: 4,
-                high: 3,
-                medium: 2,
-                low: 1,
-            };
-
             const items = [...this.filteredFindings];
 
             items.sort((a, b) => {
@@ -132,7 +140,9 @@ Shopware.Component.register('esmx-shop-audit-findings', {
                         const severityA = String(a.severity || '').toLowerCase().trim();
                         const severityB = String(b.severity || '').toLowerCase().trim();
 
-                        result = (severityWeight[severityA] || 0) - (severityWeight[severityB] || 0);
+                        result =
+                            (SEVERITY_WEIGHT[severityA] || DEFAULT_SEVERITY_WEIGHT) -
+                            (SEVERITY_WEIGHT[severityB] || DEFAULT_SEVERITY_WEIGHT);
                         break;
                     }
 
@@ -175,6 +185,10 @@ Shopware.Component.register('esmx-shop-audit-findings', {
             }
 
             return `${this.$tc('esmx-shop-audit-ai.findings.resultsSummaryPrefix')} ${items} ${this.$tc('esmx-shop-audit-ai.findings.resultsSummaryMiddle')} ${groups} ${this.$tc('esmx-shop-audit-ai.findings.resultsSummarySuffix')} ${this.$tc('esmx-shop-audit-ai.findings.resultsSummaryWithSelectedFilters')}`;
+        },
+
+        formattedLatestScanDate() {
+            return formatLatestScanDate(this.latestScan);
         },
     },
 
@@ -227,21 +241,7 @@ Shopware.Component.register('esmx-shop-audit-findings', {
         },
 
         formatDate(value) {
-            if (!value) {
-                return '';
-            }
-
-            try {
-                return Shopware.Utils.format.date(value, {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    year: 'numeric',
-                    month: 'short',
-                    day: '2-digit',
-                });
-            } catch (e) {
-                return value;
-            }
+            return formatAdminDateTime(value);
         },
 
         toggleFilterMenu() {
@@ -318,9 +318,7 @@ Shopware.Component.register('esmx-shop-audit-findings', {
         },
 
         getSeverityLabel(severity) {
-            const normalized = String(severity || '').toLowerCase().trim();
-
-            return this.$tc(`esmx-shop-audit-ai.severity.${normalized}`);
+            return resolveSeverityLabel(this.$tc.bind(this), severity);
         },
 
         getSeverityClass(severity) {
@@ -367,19 +365,19 @@ Shopware.Component.register('esmx-shop-audit-findings', {
         },
 
         goToDashboard() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.index' });
+            return goToDashboard(this.$router);
         },
 
         goToTasks() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.tasks' });
+            return goToTasks(this.$router);
         },
 
         goToReports() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.reports' });
+            return goToReports(this.$router);
         },
 
         goToSettings() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.settings' });
+            return goToSettings(this.$router);
         },
 
         getFindingItems(finding) {
@@ -504,45 +502,11 @@ Shopware.Component.register('esmx-shop-audit-findings', {
         },
 
         getFindingTitleByCode(code, fallbackTitle = '') {
-            if (!code) {
-                return fallbackTitle || '-';
-            }
-
-            const key = `esmx-shop-audit-ai.findingTitles.${code}`;
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : (fallbackTitle || code);
+            return getFindingTitleByCode(this.$tc.bind(this), code, fallbackTitle);
         },
 
         getReasonLabel(reason) {
-            const reasonMap = {
-                'Meta title is missing': 'esmx-shop-audit-ai.seoReasons.metaTitleMissing',
-                'Meta title is identical to the product name': 'esmx-shop-audit-ai.seoReasons.metaTitleIdenticalToProductName',
-                'Meta title is too short': 'esmx-shop-audit-ai.seoReasons.metaTitleTooShort',
-                'Meta title is too long': 'esmx-shop-audit-ai.seoReasons.metaTitleTooLong',
-                'Meta title needs SEO improvement': 'esmx-shop-audit-ai.seoReasons.metaTitleNeedsImprovement',
-
-                'Meta description is missing': 'esmx-shop-audit-ai.seoReasons.metaDescriptionMissing',
-                'Meta description is too short': 'esmx-shop-audit-ai.seoReasons.metaDescriptionTooShort',
-                'Meta description is too long': 'esmx-shop-audit-ai.seoReasons.metaDescriptionTooLong',
-                'Meta description needs SEO improvement': 'esmx-shop-audit-ai.seoReasons.metaDescriptionNeedsImprovement',
-
-                'Product name is missing': 'esmx-shop-audit-ai.seoReasons.productNameMissing',
-                'Product name is too short': 'esmx-shop-audit-ai.seoReasons.productNameTooShort',
-
-                'Description is missing': 'esmx-shop-audit-ai.seoReasons.descriptionMissing',
-                'Description is too short': 'esmx-shop-audit-ai.seoReasons.descriptionTooShort',
-            };
-
-            const key = reasonMap[reason];
-
-            if (!key) {
-                return reason || '-';
-            }
-
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : reason;
+            return getSeoReasonLabel(this.$tc.bind(this), reason);
         },
     }
 });

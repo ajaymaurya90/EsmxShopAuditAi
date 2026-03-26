@@ -1,6 +1,20 @@
 import template from './esmx-shop-audit-tasks.html.twig';
 import '../../shared/esmx-shop-audit-shared.scss';
 import './esmx-shop-audit-tasks.scss';
+import {
+    formatLatestScanDate,
+    getDynamicTaskTitle,
+    getPriorityLabel,
+    getStatusLabel,
+    getSeoReasonLabel,
+    getFindingTitleByCode,
+} from '../../core/utils/format.util';
+import {
+    goToDashboard,
+    goToFindings,
+    goToReports,
+    goToSettings,
+} from '../../core/utils/navigation.util';
 
 Shopware.Component.register('esmx-shop-audit-tasks', {
     template,
@@ -59,23 +73,7 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
         },
 
         formattedLatestScanDate() {
-            if (!this.latestScan?.finishedAt && !this.latestScan?.startedAt) {
-                return null;
-            }
-
-            const value = this.latestScan.finishedAt || this.latestScan.startedAt;
-
-            try {
-                return Shopware.Utils.format.date(value, {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    year: 'numeric',
-                    month: 'short',
-                    day: '2-digit',
-                });
-            } catch (e) {
-                return value;
-            }
+            return formatLatestScanDate(this.latestScan);
         },
 
         priorityFilters() {
@@ -346,19 +344,19 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
         },
 
         goToDashboard() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.index' });
+            return goToDashboard(this.$router);
         },
 
         goToFindings() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.findings' });
+            return goToFindings(this.$router);
         },
 
         goToReports() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.reports' });
+            return goToReports(this.$router);
         },
 
         goToSettings() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.settings' });
+            return goToSettings(this.$router);
         },
 
         getPriorityVariant(priority) {
@@ -389,32 +387,15 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
         },
 
         getDynamicTaskTitle(task) {
-            if (!task) {
-                return '';
-            }
-
-            const key = `esmx-shop-audit-ai.taskTitles.${task.code}`;
-            const translated = this.$tc(key, task.affectedCount, { count: task.affectedCount });
-
-            if (translated !== key) {
-                return translated;
-            }
-
-            return task.title;
+            return getDynamicTaskTitle(this.$tc.bind(this), task);
         },
 
         getPriorityLabel(priority) {
-            const key = `esmx-shop-audit-ai.taskPriority.${priority}`;
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : priority;
+            return getPriorityLabel(this.$tc.bind(this), priority);
         },
 
         getStatusLabel(status) {
-            const key = `esmx-shop-audit-ai.status.${status}`;
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : status;
+            return getStatusLabel(this.$tc.bind(this), status);
         },
 
         onSortColumn(column) {
@@ -557,40 +538,8 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
         },
 
         getReasonLabel(item) {
-            const reason = item?.reason || item?.issue || '';
-
-            const reasonMap = {
-                'Meta title is missing': 'esmx-shop-audit-ai.seoReasons.metaTitleMissing',
-                'Meta title is identical to the product name': 'esmx-shop-audit-ai.seoReasons.metaTitleIdenticalToProductName',
-                'Meta title is too short': 'esmx-shop-audit-ai.seoReasons.metaTitleTooShort',
-                'Meta title is too long': 'esmx-shop-audit-ai.seoReasons.metaTitleTooLong',
-                'Meta title needs SEO improvement': 'esmx-shop-audit-ai.seoReasons.metaTitleNeedsImprovement',
-
-                'Meta description is missing': 'esmx-shop-audit-ai.seoReasons.metaDescriptionMissing',
-                'Meta description is too short': 'esmx-shop-audit-ai.seoReasons.metaDescriptionTooShort',
-                'Meta description is too long': 'esmx-shop-audit-ai.seoReasons.metaDescriptionTooLong',
-                'Meta description needs SEO improvement': 'esmx-shop-audit-ai.seoReasons.metaDescriptionNeedsImprovement',
-
-                'Product name is missing': 'esmx-shop-audit-ai.seoReasons.productNameMissing',
-                'Description is missing': 'esmx-shop-audit-ai.seoReasons.descriptionMissing',
-            };
-
-            const key = reasonMap[reason];
-
-            if (!key) {
-                return reason || '-';
-            }
-
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : reason;
+            return getSeoReasonLabel(this.$tc.bind(this), item);
         },
-        /*
-        getReasonLabel(item) {
-            return item?.reason || item?.issue || '-';
-        },
-
-         */
 
         openManualFix(item) {
             this.closeAllActionMenus();
@@ -789,37 +738,6 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
                 className: 'is-critical',
             };
         },
-        /*
-        getSeoSeverity(score) {
-            const value = Number(score) || 0;
-
-            if (value >= 85) {
-                return {
-                    label: 'Minor opportunity',
-                    className: 'is-minor',
-                };
-            }
-
-            if (value >= 70) {
-                return {
-                    label: 'Optimization',
-                    className: 'is-optimization',
-                };
-            }
-
-            if (value >= 40) {
-                return {
-                    label: 'Needs improvement',
-                    className: 'is-improvement',
-                };
-            }
-
-            return {
-                label: 'Critical',
-                className: 'is-critical',
-            };
-        },
-        */
 
         getSeoSeverityLabel(score) {
             return this.getSeoSeverity(score).label;
@@ -830,14 +748,7 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
         },
 
         getFindingTitleByCode(code, fallbackTitle = '') {
-            if (!code) {
-                return fallbackTitle || '-';
-            }
-
-            const key = `esmx-shop-audit-ai.findingTitles.${code}`;
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : (fallbackTitle || code);
+            return getFindingTitleByCode(this.$tc.bind(this), code, fallbackTitle);
         },
 
     },

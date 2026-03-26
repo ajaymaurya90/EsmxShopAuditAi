@@ -23,10 +23,10 @@ Features include:
 - AI-style "Next Best Action" recommendation
 - Top tasks generated from audit findings
 - Sales insights including:
-    - Revenue
-    - Orders
-    - Revenue change
-    - Order change
+  - Revenue
+  - Orders
+  - Revenue change
+  - Order change
 - Top selling products
 - Low stock bestsellers
 - Issue group summary cards for quick navigation
@@ -40,11 +40,12 @@ The Findings page lists all detected audit issues and groups them by severity an
 Capabilities include:
 
 - Complete list of detected audit findings
-- Severity-based filtering
+- Severity-based filtering (critical, high, medium, low)
 - Sorting by category, severity, title, or affected entities
 - Quick navigation to affected product records
 - Detailed sections showing affected entities
 - Pagination for detailed findings lists
+- Standardized severity labeling and consistent ordering across the module
 
 This allows merchants to quickly understand what problems exist in the store and where corrective action is required.
 
@@ -62,6 +63,7 @@ Features include:
 - Filtering by priority and status
 - Affected entity counts for each task
 - Sorting capabilities for better task prioritization
+- SEO issue mapping with structured reason labels
 
 This allows teams to organize and address store issues systematically.
 
@@ -78,6 +80,7 @@ Features include:
 - Comparison with previous scans
 - Selected report details
 - Findings and tasks related to a specific scan
+- Clean data grid view without unnecessary actions
 - Smooth navigation between reports and report details
 
 This helps store operators monitor improvements over time and track the impact of optimizations.
@@ -111,7 +114,7 @@ The plugin integrates directly into the Shopware Administration navigation and p
 - Reports
 - Settings
 
-Each section is designed to provide focused insights and operational guidance.
+Navigation logic is standardized across all pages to ensure consistent routing and predictable user experience.
 
 ---
 
@@ -119,14 +122,15 @@ Each section is designed to provide focused insights and operational guidance.
 
 The plugin is implemented as a Shopware 6 administration module with the following architecture components:
 
-Frontend (Administration):
+### Frontend (Administration)
 
 - Vue-based Shopware administration components
 - Modular page structure
-- Shared UI styling and components
+- Shared utilities for formatting, labels, and navigation
+- Centralized constants for severity, SEO reasons, and configuration logic
 - Data grids and analytical widgets
 
-Backend:
+### Backend
 
 - Plugin services responsible for audit logic
 - API endpoints consumed by the administration module
@@ -140,8 +144,7 @@ The architecture is designed to allow future expansion with additional audit rul
 
 Install the plugin like any standard Shopware plugin.
 
-
-After installation the plugin will appear in the Shopware Administration menu.
+After installation, the plugin will appear in the Shopware Administration menu.
 
 ---
 
@@ -149,19 +152,15 @@ After installation the plugin will appear in the Shopware Administration menu.
 
 The plugin provides configuration options in the Settings page.
 
-Key configuration options include:
-
 ### Variant Audit Mode
 
 Two modes are available:
 
-**Effective Mode (default)**
-
+**Effective Mode (default)**  
 Audits effective storefront product data including parent inheritance.  
 This reflects what customers actually see in the storefront.
 
-**Raw Mode**
-
+**Raw Mode**  
 Audits raw variant records without inheritance logic.
 
 ---

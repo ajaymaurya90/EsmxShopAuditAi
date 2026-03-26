@@ -6,10 +6,10 @@ use Shopware\Core\Content\Product\ProductEntity;
 
 class SeoSuggestionService
 {
-    private const int DEFAULT_META_TITLE_MAX_LENGTH = 65;
-    private const int DEFAULT_META_DESCRIPTION_MAX_LENGTH = 160;
-    private const int SHORT_PRODUCT_NAME_THRESHOLD = 12;
-    private const int MIN_USEFUL_DESCRIPTION_LENGTH = 40;
+    private const DEFAULT_META_TITLE_MAX_LENGTH = 65;
+    private const DEFAULT_META_DESCRIPTION_MAX_LENGTH = 160;
+    private const SHORT_PRODUCT_NAME_THRESHOLD = 12;
+    private const MIN_USEFUL_DESCRIPTION_LENGTH = 40;
 
     public function suggestForWeakMetaTitle(ProductEntity $product, ProductSeoScoreResult $scoreResult): array
     {

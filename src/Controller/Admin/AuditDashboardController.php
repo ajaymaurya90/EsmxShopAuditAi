@@ -25,7 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['api']])]
 class AuditDashboardController extends AbstractController
 {
-    private const array PRODUCT_ISSUE_KEYS = [
+    private const PRODUCT_ISSUE_KEYS = [
         'missingCoverImage',
         'inactiveProducts',
         'outOfStockProducts',
@@ -39,7 +39,7 @@ class AuditDashboardController extends AbstractController
         'product_meta_description',
     ];
 
-    private const array TASK_IMPACT_WEIGHTS = [
+    private const TASK_IMPACT_WEIGHTS = [
         'review_product_names' => 2.0,
         'review_product_descriptions' => 2.0,
         'review_product_meta_titles' => 2.0,
@@ -53,7 +53,7 @@ class AuditDashboardController extends AbstractController
         'complete_product_translations' => 1.5,
     ];
 
-    private const array HEALTH_SCORE_RULES = [
+    private const HEALTH_SCORE_RULES = [
         'outOfStockProducts' => ['weight' => 3, 'max' => 30],
         'missingPrice' => ['weight' => 4, 'max' => 25],
         'inactiveProducts' => ['weight' => 3, 'max' => 20],

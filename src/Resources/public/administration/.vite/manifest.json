@@ -1,0 +1,11 @@
+{
+  "main.js": {
+    "file": "assets/esmx-shop-audit-ai-2NQ-RCKK.js",
+    "name": "esmx-shop-audit-ai",
+    "src": "main.js",
+    "isEntry": true,
+    "css": [
+      "assets/esmx-shop-audit-ai-DAFr9iph.css"
+    ]
+  }
+}

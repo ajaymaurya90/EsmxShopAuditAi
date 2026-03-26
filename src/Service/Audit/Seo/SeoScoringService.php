@@ -8,12 +8,12 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class SeoScoringService
 {
-    private const int DEFAULT_META_TITLE_MIN_LENGTH = 30;
-    private const int DEFAULT_META_TITLE_MAX_LENGTH = 65;
-    private const int DEFAULT_META_DESCRIPTION_MIN_LENGTH = 80;
-    private const int DEFAULT_META_DESCRIPTION_MAX_LENGTH = 160;
-    private const int DEFAULT_DESCRIPTION_MIN_LENGTH = 120;
-    private const int DEFAULT_IMPROVEMENT_THRESHOLD = 70;
+    private const DEFAULT_META_TITLE_MIN_LENGTH = 30;
+    private const DEFAULT_META_TITLE_MAX_LENGTH = 65;
+    private const DEFAULT_META_DESCRIPTION_MIN_LENGTH = 80;
+    private const DEFAULT_META_DESCRIPTION_MAX_LENGTH = 160;
+    private const DEFAULT_DESCRIPTION_MIN_LENGTH = 120;
+    private const DEFAULT_IMPROVEMENT_THRESHOLD = 70;
 
     public function __construct(
         private readonly SystemConfigService $systemConfigService

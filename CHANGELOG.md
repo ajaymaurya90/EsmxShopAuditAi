@@ -78,6 +78,49 @@ Localization
 
 ---
 
+### Improved
+
+Code Architecture
+
+- Introduced shared utility modules for:
+    - Date and time formatting
+    - Label resolution (severity, task status, priority)
+    - SEO reason handling
+- Centralized navigation logic using shared navigation utilities
+- Introduced structured constants for severity handling (order and weight)
+- Reduced code duplication across dashboard, findings, tasks, and reports modules
+- Improved maintainability by standardizing repeated logic across pages
+
+Data Handling
+
+- Standardized date/time formatting across all pages (timezone-safe handling)
+- Unified severity normalization and sorting logic
+- Centralized SEO reason mapping for consistent labeling across findings and tasks
+
+User Interface
+
+- Improved consistency across all pages (dashboard, findings, tasks, reports)
+- Removed non-functional row action menus from report detail grids
+- Standardized severity labels and ordering in filters and views
+- Improved clarity of report detail sections
+
+Navigation
+
+- Standardized routing behavior across all modules
+- Improved navigation consistency between dashboard, findings, tasks, reports, and settings
+
+---
+
+### Fixed
+
+- Fixed incorrect scan time display caused by timezone mismatch (UTC vs local time)
+- Fixed inconsistent severity sorting logic across different modules
+- Fixed missing fallback handling for translated labels
+- Removed unused or redundant UI elements (non-functional action menus)
+- Cleaned up debug logs and redundant helper methods
+
+---
+
 ## Future Improvements
 
 Planned enhancements for upcoming versions:
@@ -85,6 +128,7 @@ Planned enhancements for upcoming versions:
 - Additional audit rule sets
 - Scheduled automatic scans
 - Automated fix suggestions
-- SEO audit modules
+- AI-powered optimization insights
+- SEO audit extensions
 - Performance diagnostics
 - SaaS analytics integration

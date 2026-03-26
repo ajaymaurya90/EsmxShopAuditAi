@@ -1,0 +1,25 @@
+{
+  "base": "/bundles/esmxshopauditai/administration/",
+  "entryPoints": {
+    "esmx-shop-audit-ai": {
+      "css": [
+        "/bundles/esmxshopauditai/administration/assets/esmx-shop-audit-ai-DAFr9iph.css"
+      ],
+      "dynamic": [],
+      "js": [
+        "/bundles/esmxshopauditai/administration/assets/esmx-shop-audit-ai-2NQ-RCKK.js"
+      ],
+      "legacy": false,
+      "preload": []
+    }
+  },
+  "legacy": false,
+  "metadatas": {},
+  "version": [
+    "7.1.0",
+    7,
+    1,
+    0
+  ],
+  "viteServer": null
+}

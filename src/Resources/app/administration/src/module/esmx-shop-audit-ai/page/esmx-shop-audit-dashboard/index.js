@@ -2,6 +2,23 @@ import template from './esmx-shop-audit-dashboard.html.twig';
 import './esmx-shop-audit-dashboard.scss';
 import '../../shared/esmx-shop-audit-shared.scss';
 import { buildSummaryCards } from './constants/summary-cards.constant';
+import {
+    goToReports,
+    goToFindings,
+    goToTasks,
+    goToSettings,
+} from '../../core/utils/navigation.util';
+import {
+    formatLatestScanDate,
+    formatCurrency,
+    formatPercent,
+    getFindingTitleByCode,
+    getDynamicTaskTitle,
+    getPriorityLabel,
+    getStatusLabel,
+    getSeverityLabel as resolveSeverityLabel,
+} from '../../core/utils/format.util';
+import { SEVERITY_WEIGHT, DEFAULT_SEVERITY_WEIGHT } from '../../core/constants/severity.constant';
 
 Shopware.Component.register('esmx-shop-audit-dashboard', {
     template,
@@ -28,6 +45,10 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
     },
 
     computed: {
+        hasCompletedScan() {
+            return !!this.latestScan?.id;
+        },
+
         totals() {
             return this.dashboard?.liveAudit?.totals ?? {};
         },
@@ -109,19 +130,7 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
         },
 
         formattedLatestScanDate() {
-            const scanDate = this.latestScan?.finishedAt || this.latestScan?.startedAt || null;
-
-            if (!scanDate) {
-                return null;
-            }
-
-            return new Intl.DateTimeFormat(undefined, {
-                year: 'numeric',
-                month: 'short',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-            }).format(new Date(scanDate));
+            return formatLatestScanDate(this.latestScan);
         },
 
         activeSummaryCards() {
@@ -129,15 +138,10 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
         },
 
         sortedSummaryCards() {
-            const severityWeight = {
-                critical: 4,
-                high: 3,
-                medium: 2,
-                low: 1,
-            };
-
             return [...this.activeSummaryCards].sort((a, b) => {
-                const severityDiff = (severityWeight[b.severity] || 0) - (severityWeight[a.severity] || 0);
+                const severityDiff =
+                    (SEVERITY_WEIGHT[b.severity] || DEFAULT_SEVERITY_WEIGHT) -
+                    (SEVERITY_WEIGHT[a.severity] || DEFAULT_SEVERITY_WEIGHT);
 
                 if (severityDiff !== 0) {
                     return severityDiff;
@@ -206,17 +210,6 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
                 label: this.getNextBestActionLabel(bestCard),
                 code: bestCard.key,
             };
-        },
-
-        getNextBestActionLabel(card) {
-            const map = {
-                outOfStockProducts: this.$tc('esmx-shop-audit-ai.dashboard.nextActionRestock'),
-                missingPrice: this.$tc('esmx-shop-audit-ai.dashboard.nextActionPrice'),
-                missingDescription: this.$tc('esmx-shop-audit-ai.dashboard.nextActionDescriptions'),
-                missingMetaTitle: this.$tc('esmx-shop-audit-ai.dashboard.nextActionSeo'),
-            };
-
-            return map[card.key] || card.label;
         },
 
         healthScore() {
@@ -390,19 +383,19 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
         },
 
         goToFindings() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.findings' });
+            return goToFindings(this.$router);
         },
 
         goToTasks() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.tasks' });
+            return goToTasks(this.$router);
         },
 
         goToReports() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.reports' });
+            return goToReports(this.$router);
         },
 
         goToSettings() {
-            this.$router.push({ name: 'esmx.shop.audit.ai.settings' });
+            return goToSettings(this.$router);
         },
 
         goToTaskFilter(task) {
@@ -415,23 +408,27 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
             });
         },
 
+        getNextBestActionLabel(card) {
+            const map = {
+                outOfStockProducts: this.$tc('esmx-shop-audit-ai.dashboard.nextActionRestock'),
+                missingPrice: this.$tc('esmx-shop-audit-ai.dashboard.nextActionPrice'),
+                missingDescription: this.$tc('esmx-shop-audit-ai.dashboard.nextActionDescriptions'),
+                missingMetaTitle: this.$tc('esmx-shop-audit-ai.dashboard.nextActionSeo'),
+            };
+
+            return map[card.key] || card.label;
+        },
+
         getSeverityClass(severity) {
             return `esmx-shop-audit-dashboard__metric-card--${severity}`;
         },
 
         getSeverityLabel(severity) {
-            return this.$tc(`esmx-shop-audit-ai.severity.${severity}`);
+            return resolveSeverityLabel(this.$tc.bind(this), severity);
         },
 
         getCardPriorityScore(card) {
-            const severityWeight = {
-                critical: 4,
-                high: 3,
-                medium: 2,
-                low: 1,
-            };
-
-            const weight = severityWeight[card.severity] || 1;
+            const weight = SEVERITY_WEIGHT[card.severity] || DEFAULT_SEVERITY_WEIGHT;
 
             return (card.count || 0) * weight;
         },
@@ -463,17 +460,7 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
         },
 
         formatCurrency(value) {
-            if (value === null || value === undefined) {
-                return Number(0).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
-            }
-
-            return Number(value).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+            return formatCurrency(value);
         },
 
         goToFindingFromCard(card) {
@@ -533,47 +520,23 @@ Shopware.Component.register('esmx-shop-audit-dashboard', {
         },
 
         formatPercent(value) {
-            return `${Number(value || 0).toFixed(2)}%`;
+            return formatPercent(value);
         },
 
         getFindingTitleByCode(code, fallbackTitle = '') {
-            if (!code) {
-                return fallbackTitle || '-';
-            }
-
-            const key = `esmx-shop-audit-ai.findingTitles.${code}`;
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : (fallbackTitle || code);
+            return getFindingTitleByCode(this.$tc.bind(this), code, fallbackTitle);
         },
 
         getDynamicTaskTitle(task) {
-            if (!task) {
-                return '';
-            }
-
-            const key = `esmx-shop-audit-ai.taskTitles.${task.code}`;
-            const translated = this.$tc(key, task.affectedCount, { count: task.affectedCount });
-
-            if (translated !== key) {
-                return translated;
-            }
-
-            return task.title;
+            return getDynamicTaskTitle(this.$tc.bind(this), task);
         },
 
         getPriorityLabel(priority) {
-            const key = `esmx-shop-audit-ai.taskPriority.${priority}`;
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : priority;
+            return getPriorityLabel(this.$tc.bind(this), priority);
         },
 
         getStatusLabel(status) {
-            const key = `esmx-shop-audit-ai.status.${status}`;
-            const translated = this.$tc(key);
-
-            return translated !== key ? translated : status;
+            return getStatusLabel(this.$tc.bind(this), status);
         },
     }
 });

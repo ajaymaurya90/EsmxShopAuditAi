@@ -11,7 +11,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ProductDescriptionRule extends AbstractScoredProductSeoAuditRule
 {
-    private const int DEFAULT_MIN_LENGTH = 80;
+    private const DEFAULT_MIN_LENGTH = 80;
 
     public function __construct(
         SystemConfigService $systemConfigService,
