@@ -525,21 +525,35 @@
   }
 
   .dashboard__seo-kpi-card {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     margin-top: 24px;
+  }
+
+  .dashboard__seo-kpi-card .mt-card__content {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .dashboard__seo-kpi-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
+    width: 100%;
+    max-width: 100%;
   }
 
   .dashboard__seo-kpi-tile {
     min-width: 0;
+    width: 100%;
     padding: 18px;
     border: 1px solid #e5e7eb;
     border-radius: 16px;
     background: #ffffff;
+    box-sizing: border-box;
   }
 
   .dashboard__seo-kpi-header {
