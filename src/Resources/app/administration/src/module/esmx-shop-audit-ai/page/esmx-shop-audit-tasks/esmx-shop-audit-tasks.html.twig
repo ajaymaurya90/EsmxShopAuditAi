@@ -1,5 +1,5 @@
 {% block esmx_shop_audit_tasks %}
-    <sw-page class="esmx-shop-audit esmx-shop-audit-tasks">
+    <sw-page class="esmx-shop-audit tasks">
         <template #smart-bar-header>
             <h2>{{ pageTitle }}</h2>
         </template>
@@ -34,7 +34,7 @@
                 {{ $tc('esmx-shop-audit-ai.general.refresh') }}
             </mt-button>#}
 
-            <div class="esmx-shop-audit-dashboard__actions">
+            <div class="esmx-shop-audit__page-actions">
                 <mt-button
                         variant="primary"
                         size="default"
@@ -42,7 +42,7 @@
                         :disabled="isRunningScan"
                         @click="runScan"
                 >
-                    <span v-if="isRunningScan" class="esmx-shop-audit-dashboard__scan-status">
+                    <span v-if="isRunningScan" class="esmx-shop-audit__scan-status">
                         {{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}
                     </span>
                     <span v-else>
@@ -261,15 +261,15 @@
                         >
                             <template #column-title="{ item }">
                                 <div
-                                        class="esmx-shop-audit__task-clickable-cell esmx-shop-audit__task-title-cell"
+                                        class="esmx-shop-audit__task-clickable-cell tasks__title-cell"
                                         :class="{ 'is-selected': isTaskSelected(item) }"
                                         @click="onTaskClick(item)"
                                 >
-                                    <div class="esmx-shop-audit__task-title-main">
+                                    <div class="tasks__title-main">
                                         {{ getDynamicTaskTitle(item) }}
                                     </div>
 
-                                    <div class="esmx-shop-audit__task-title-code">
+                                    <div class="tasks__title-code">
                                         {{ item.code }}
                                     </div>
                                 </div>
@@ -328,8 +328,6 @@
                     </template>
                 </mt-card>
 
-
-
                 <mt-card
                         ref="taskDetailsSection"
                         class="esmx-shop-audit__section-card esmx-shop-audit__task-details-card"
@@ -345,9 +343,9 @@
                     </template>
 
                     <template v-else>
-                        <div class="esmx-shop-audit__task-details-summary">
-                            <div class="esmx-shop-audit__task-summary-item">
-                                <span class="esmx-shop-audit__task-summary-label">
+                        <div class="tasks__details-summary">
+                            <div class="tasks__summary-item">
+                                <span class="tasks__summary-label">
                                     {{ $tc('esmx-shop-audit-ai.tasks.columns.priority') }}
                                 </span>
                                 <mt-badge :variant="getPriorityVariant(selectedTask.priority)">
@@ -355,8 +353,8 @@
                                 </mt-badge>
                             </div>
 
-                            <div class="esmx-shop-audit__task-summary-item">
-                                <span class="esmx-shop-audit__task-summary-label">
+                            <div class="tasks__summary-item">
+                                <span class="tasks__summary-label">
                                     {{ $tc('esmx-shop-audit-ai.tasks.columns.status') }}
                                 </span>
                                 <mt-badge :variant="getStatusVariant(selectedTask.status)">
@@ -364,22 +362,22 @@
                                 </mt-badge>
                             </div>
 
-                            <div class="esmx-shop-audit__task-summary-item">
-                                <span class="esmx-shop-audit__task-summary-label">
+                            <div class="tasks__summary-item">
+                                <span class="tasks__summary-label">
                                     {{ $tc('esmx-shop-audit-ai.tasks.columns.affectedCount') }}
                                 </span>
                                 <strong>{{ selectedTask.affectedCount }}</strong>
                             </div>
 
-                            <div class="esmx-shop-audit__task-summary-item">
-    <span class="esmx-shop-audit__task-summary-label">
-        {{ $tc('esmx-shop-audit-ai.tasks.columns.impact') }}
-    </span>
+                            <div class="tasks__summary-item">
+                                <span class="tasks__summary-label">
+                                    {{ $tc('esmx-shop-audit-ai.tasks.columns.impact') }}
+                                </span>
                                 <strong>+{{ selectedTask.impactScore || 0 }}</strong>
                             </div>
 
-                            <div class="esmx-shop-audit__task-summary-item">
-                                <span class="esmx-shop-audit__task-summary-label">
+                            <div class="tasks__summary-item">
+                                <span class="tasks__summary-label">
                                     {{ $tc('esmx-shop-audit-ai.general.code') }}
                                 </span>
                                 <strong>{{ selectedTask.code }}</strong>
@@ -468,7 +466,7 @@
                                 </template>
 
                                 <template #column-actions="{ item }">
-                                    <div class="esmx-shop-audit__action-cell">
+                                    <div class="tasks__action-cell">
                                         <div class="esmx-shop-audit__row-action-menu-wrapper">
                                             <button
                                                     type="button"
@@ -515,7 +513,6 @@
                     </template>
                 </mt-card>
             </sw-card-view>
-
 
             <sw-modal
                     v-if="isAutoFixModalOpen"
@@ -626,7 +623,6 @@
                     </mt-button>
                 </template>
             </sw-modal>
-
         </template>
     </sw-page>
 {% endblock %}

@@ -1,5 +1,5 @@
 {% block esmx_shop_audit_dashboard %}
-    <sw-page class="esmx-shop-audit esmx-shop-audit-dashboard">
+    <sw-page class="esmx-shop-audit dashboard">
 
         <template #smart-bar-header>
             <h2>{{ $tc('esmx-shop-audit-ai.general.mainMenuItemGeneral') }}</h2>
@@ -26,16 +26,7 @@
                 {{ $tc('esmx-shop-audit-ai.navigation.settings') }}
             </mt-button>
 
-            {#<mt-button
-                    variant="primary"
-                    size="default"
-                    :disabled="isLoading || isRunningScan"
-                    @click="initializeDashboard"
-            >
-                <span>{{ $tc('esmx-shop-audit-ai.general.refresh') }}</span>
-            </mt-button>#}
-
-            <div class="esmx-shop-audit-dashboard__actions">
+            <div class="esmx-shop-audit__page-actions">
                 <mt-button
                         variant="primary"
                         size="default"
@@ -43,7 +34,7 @@
                         :disabled="isRunningScan"
                         @click="runScan"
                 >
-                    <span v-if="isRunningScan" class="esmx-shop-audit-dashboard__scan-status">
+                    <span v-if="isRunningScan" class="esmx-shop-audit__scan-status">
                         {{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}
                     </span>
                     <span v-else>
@@ -119,14 +110,14 @@
                             </div>
                         </div>
 
-                        <div class="esmx-shop-audit-dashboard__audit-overview-content">
-                            <div class="esmx-shop-audit-dashboard__store-health-panel">
-                                <div class="esmx-shop-audit-dashboard__widget-header">
-                                    <div class="esmx-shop-audit-dashboard__widget-header-text">
-                                        <div class="esmx-shop-audit-dashboard__widget-title">
+                        <div class="dashboard__audit-overview-content">
+                            <div class="dashboard__store-health-panel">
+                                <div class="dashboard__widget-header">
+                                    <div class="dashboard__widget-header-text">
+                                        <div class="dashboard__widget-title">
                                             {{ $tc('esmx-shop-audit-ai.dashboard.storeHealthTitle') }}
                                         </div>
-                                        <div class="esmx-shop-audit-dashboard__widget-subtitle">
+                                        <div class="dashboard__widget-subtitle">
                                             {{ healthSummaryText }}
                                         </div>
                                     </div>
@@ -144,47 +135,47 @@
 
                                         <span
                                                 v-if="activeWidgetTooltip === 'storeHealth'"
-                                                class="esmx-shop-audit__tooltip"
+                                                class="esmx-shop-audit__tooltip esmx-shop-audit__tooltip--light"
                                         >
-    <div class="esmx-shop-audit__health-tooltip">
-        <strong>{{ $tc('esmx-shop-audit-ai.dashboard.storeHealthFormulaTitle') }}</strong>
+                                            <div class="esmx-shop-audit__health-tooltip">
+                                                <strong>{{ $tc('esmx-shop-audit-ai.dashboard.storeHealthFormulaTitle') }}</strong>
 
-        <div
-                v-for="rule in dashboard?.health?.breakdown || []"
-                :key="rule.key"
-                class="esmx-shop-audit__health-tooltip-row"
-        >
-            <span>{{ getHealthLabel(rule.key) }}</span>
-            <span>-{{ rule.penalty }}</span>
-        </div>
+                                                <div
+                                                        v-for="rule in dashboard?.health?.breakdown || []"
+                                                        :key="rule.key"
+                                                        class="esmx-shop-audit__health-tooltip-row"
+                                                >
+                                                    <span>{{ getHealthLabel(rule.key) }}</span>
+                                                    <span>-{{ rule.penalty }}</span>
+                                                </div>
 
-        <div class="esmx-shop-audit__health-tooltip-total">
-            {{ $tc('esmx-shop-audit-ai.dashboard.storeHealthFinalScore') }}: {{ healthScore }} / 100
-        </div>
-    </div>
-</span>
+                                                <div class="esmx-shop-audit__health-tooltip-total">
+                                                    {{ $tc('esmx-shop-audit-ai.dashboard.storeHealthFinalScore') }}: {{ healthScore }} / 100
+                                                </div>
+                                            </div>
+                                        </span>
                                     </span>
                                 </div>
 
-                                <div class="esmx-shop-audit-dashboard__store-health-layout">
-                                    <div class="esmx-shop-audit-dashboard__store-health-score-column">
+                                <div class="dashboard__store-health-layout">
+                                    <div class="dashboard__store-health-score-column">
                                         <div
-                                                class="esmx-shop-audit-dashboard__health-score-ring"
+                                                class="dashboard__health-score-ring"
                                                 :style="healthRingStyle"
                                         >
-                                            <div class="esmx-shop-audit-dashboard__health-score-ring-inner">
-                                                <div class="esmx-shop-audit-dashboard__health-score-value">
+                                            <div class="dashboard__health-score-ring-inner">
+                                                <div class="dashboard__health-score-value">
                                                     {{ animatedHealthScore }}
                                                 </div>
-                                                <div class="esmx-shop-audit-dashboard__health-score-max">
+                                                <div class="dashboard__health-score-max">
                                                     / 100
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div class="esmx-shop-audit-dashboard__store-health-status">
+                                        <div class="dashboard__store-health-status">
                                             <span
-                                                    class="esmx-shop-audit-dashboard__severity-badge"
+                                                    class="esmx-shop-audit__severity-badge"
                                                     :class="'severity-' + healthStatus"
                                             >
                                                 {{ healthStatusLabel }}
@@ -192,26 +183,26 @@
                                         </div>
                                     </div>
 
-                                    <div class="esmx-shop-audit-dashboard__store-health-action-column">
-                                        <div class="esmx-shop-audit-dashboard__quick-action-header">
-                                            <div class="esmx-shop-audit-dashboard__quick-action-title">
+                                    <div class="dashboard__store-health-action-column">
+                                        <div class="dashboard__quick-action-header">
+                                            <div class="dashboard__quick-action-title">
                                                 {{ $tc('esmx-shop-audit-ai.dashboard.nextBestActionTitle') }}
                                             </div>
                                         </div>
 
                                         <div
                                                 v-if="nextBestAction"
-                                                class="esmx-shop-audit-dashboard__quick-action-body"
+                                                class="dashboard__quick-action-body"
                                         >
-                                            <div class="esmx-shop-audit-dashboard__quick-action-label">
+                                            <div class="dashboard__quick-action-label">
                                                 {{ nextBestAction.label }}
                                             </div>
 
-                                            <div class="esmx-shop-audit-dashboard__quick-action-summary">
+                                            <div class="dashboard__quick-action-summary">
                                                 {{ dashboardHeadline }}
                                             </div>
 
-                                            <div class="esmx-shop-audit-dashboard__quick-action-footer">
+                                            <div class="dashboard__quick-action-footer">
                                                 <mt-button
                                                         size="small"
                                                         variant="primary"
@@ -224,13 +215,13 @@
 
                                         <div
                                                 v-else
-                                                class="esmx-shop-audit-dashboard__quick-action-body"
+                                                class="dashboard__quick-action-body"
                                         >
-                                            <div class="esmx-shop-audit-dashboard__quick-action-label">
+                                            <div class="dashboard__quick-action-label">
                                                 {{ $tc('esmx-shop-audit-ai.dashboard.healthyHeadline') }}
                                             </div>
 
-                                            <div class="esmx-shop-audit-dashboard__quick-action-summary">
+                                            <div class="dashboard__quick-action-summary">
                                                 {{ healthSummaryText }}
                                             </div>
                                         </div>
@@ -238,18 +229,18 @@
                                 </div>
                             </div>
 
-                            <div class="esmx-shop-audit-dashboard__top-tasks-panel">
-                                <div class="esmx-shop-audit-dashboard__widget-header">
-                                    <div class="esmx-shop-audit-dashboard__widget-header-text">
-                                        <div class="esmx-shop-audit-dashboard__widget-title">
+                            <div class="dashboard__top-tasks-panel">
+                                <div class="dashboard__widget-header">
+                                    <div class="dashboard__widget-header-text">
+                                        <div class="dashboard__widget-title">
                                             {{ $tc('esmx-shop-audit-ai.dashboardInsights.topTasksHeadline') }}
                                         </div>
-                                        <div class="esmx-shop-audit-dashboard__widget-subtitle">
+                                        <div class="dashboard__widget-subtitle">
                                             {{ $tc('esmx-shop-audit-ai.dashboard.topTasksSubtitle') }}
                                         </div>
                                     </div>
 
-                                    <div class="esmx-shop-audit-dashboard__widget-header-actions">
+                                    <div class="dashboard__widget-header-actions">
                                         <span
                                                 class="esmx-shop-audit__info-trigger"
                                                 @mouseenter="activeWidgetTooltip = 'topTasks'"
@@ -279,19 +270,19 @@
                                     </div>
                                 </div>
 
-                                <div class="esmx-shop-audit-dashboard__widget-body">
+                                <div class="dashboard__widget-body">
                                     <template v-if="topTasks.length">
                                         <div
                                                 v-for="task in topTasks"
                                                 :key="task.id"
-                                                class="esmx-shop-audit-dashboard__insight-list-item esmx-shop-audit-dashboard__insight-list-item--clickable"
+                                                class="dashboard__insight-list-item dashboard__insight-list-item--clickable"
                                                 @click="goToTaskFilter(task)"
                                         >
                                             <div>
-                                                <div class="esmx-shop-audit-dashboard__insight-title">
+                                                <div class="dashboard__insight-title">
                                                     {{ getDynamicTaskTitle(task) }}
                                                 </div>
-                                                <div class="esmx-shop-audit-dashboard__insight-meta">
+                                                <div class="dashboard__insight-meta">
                                                     {{ getPriorityLabel(task.priority) }} · {{ getStatusLabel(task.status) }}
                                                 </div>
                                             </div>
@@ -307,14 +298,14 @@
                         </div>
                     </mt-card>
 
-                    <div class="esmx-shop-audit-dashboard__sales-section">
-                        <mt-card class="esmx-shop-audit-dashboard__sales-section-card">
-                            <div class="esmx-shop-audit-dashboard__widget-header">
-                                <div class="esmx-shop-audit-dashboard__widget-header-text">
-                                    <div class="esmx-shop-audit-dashboard__widget-title">
+                    <div class="dashboard__sales-section">
+                        <mt-card class="dashboard__sales-section-card">
+                            <div class="dashboard__widget-header">
+                                <div class="dashboard__widget-header-text">
+                                    <div class="dashboard__widget-title">
                                         {{ $tc('esmx-shop-audit-ai.dashboard.salesInsightsHeadline') }}
                                     </div>
-                                    <div class="esmx-shop-audit-dashboard__widget-subtitle">
+                                    <div class="dashboard__widget-subtitle">
                                         {{ $tc('esmx-shop-audit-ai.dashboard.salesInsightsSubtitle') }}
                                     </div>
                                 </div>
@@ -339,36 +330,36 @@
                                 </span>
                             </div>
 
-                            <div class="esmx-shop-audit-dashboard__sales-kpis">
-                                <div class="sales-kpi">
+                            <div class="dashboard__sales-kpis">
+                                <div class="dashboard__sales-kpi">
                                     <span>{{ $tc('esmx-shop-audit-ai.dashboard.salesRevenue') }}</span>
                                     <strong>{{ formatCurrency(salesKpis.revenue) }}</strong>
                                 </div>
 
-                                <div class="sales-kpi">
+                                <div class="dashboard__sales-kpi">
                                     <span>{{ $tc('esmx-shop-audit-ai.dashboard.salesOrders') }}</span>
                                     <strong>{{ salesKpis.orders }}</strong>
                                 </div>
 
-                                <div class="sales-kpi">
+                                <div class="dashboard__sales-kpi">
                                     <span>{{ $tc('esmx-shop-audit-ai.dashboard.salesRevenueChange') }}</span>
                                     <strong>{{ salesKpis.revenueChange.toFixed(1) }}%</strong>
                                 </div>
 
-                                <div class="sales-kpi">
+                                <div class="dashboard__sales-kpi">
                                     <span>{{ $tc('esmx-shop-audit-ai.dashboard.salesOrdersChange') }}</span>
                                     <strong>{{ salesKpis.ordersChange.toFixed(1) }}%</strong>
                                 </div>
                             </div>
 
-                            <div class="esmx-shop-audit-dashboard__sales-widgets-grid">
-                                <div class="esmx-shop-audit-dashboard__sales-widget">
-                                    <div class="esmx-shop-audit-dashboard__widget-header">
-                                        <div class="esmx-shop-audit-dashboard__widget-header-text">
-                                            <div class="esmx-shop-audit-dashboard__widget-title">
+                            <div class="dashboard__sales-widgets-grid">
+                                <div class="dashboard__sales-widget">
+                                    <div class="dashboard__widget-header">
+                                        <div class="dashboard__widget-header-text">
+                                            <div class="dashboard__widget-title">
                                                 {{ $tc('esmx-shop-audit-ai.dashboard.topSellingProducts') }}
                                             </div>
-                                            <div class="esmx-shop-audit-dashboard__widget-subtitle">
+                                            <div class="dashboard__widget-subtitle">
                                                 {{ $tc('esmx-shop-audit-ai.dashboard.topSellingProductsSubtitle') }}
                                             </div>
                                         </div>
@@ -393,12 +384,12 @@
                                         </span>
                                     </div>
 
-                                    <div class="esmx-shop-audit-dashboard__widget-body">
+                                    <div class="dashboard__widget-body">
                                         <div v-if="topSellingProducts.length">
                                             <div
                                                     v-for="product in topSellingProducts"
                                                     :key="product.productId"
-                                                    class="esmx-shop-audit-dashboard__insight-list-item esmx-shop-audit-dashboard__insight-list-item--clickable"
+                                                    class="dashboard__insight-list-item dashboard__insight-list-item--clickable"
                                                     @click="goToProductDetail(product.productId)"
                                             >
                                                 <span>{{ product.name }}</span>
@@ -412,13 +403,13 @@
                                     </div>
                                 </div>
 
-                                <div class="esmx-shop-audit-dashboard__sales-widget">
-                                    <div class="esmx-shop-audit-dashboard__widget-header">
-                                        <div class="esmx-shop-audit-dashboard__widget-header-text">
-                                            <div class="esmx-shop-audit-dashboard__widget-title">
+                                <div class="dashboard__sales-widget">
+                                    <div class="dashboard__widget-header">
+                                        <div class="dashboard__widget-header-text">
+                                            <div class="dashboard__widget-title">
                                                 {{ $tc('esmx-shop-audit-ai.dashboard.lowStockProducts') }}
                                             </div>
-                                            <div class="esmx-shop-audit-dashboard__widget-subtitle">
+                                            <div class="dashboard__widget-subtitle">
                                                 {{ $tc('esmx-shop-audit-ai.dashboard.lowStockProductsSubtitle') }}
                                             </div>
                                         </div>
@@ -443,12 +434,12 @@
                                         </span>
                                     </div>
 
-                                    <div class="esmx-shop-audit-dashboard__widget-body">
+                                    <div class="dashboard__widget-body">
                                         <div v-if="lowStockProducts.length">
                                             <div
                                                     v-for="product in lowStockProducts"
                                                     :key="product.id"
-                                                    class="esmx-shop-audit-dashboard__insight-list-item esmx-shop-audit-dashboard__insight-list-item--clickable"
+                                                    class="dashboard__insight-list-item dashboard__insight-list-item--clickable"
                                                     @click="goToProductDetail(product.id)"
                                             >
                                                 <span>{{ product.name }}</span>
@@ -467,44 +458,46 @@
                         </mt-card>
                     </div>
 
-                    {# -----------Start - SEO KPI Card------------ #}
-                    <mt-card class="esmx-shop-audit-dashboard__seo-kpi-card">
-                        <div class="esmx-shop-audit-dashboard__section-header esmx-shop-audit-dashboard__seo-kpi-header">
-                            <h3>{{ $tc('esmx-shop-audit-ai.dashboard.seoKpiTitle') }}</h3>
-                            <p>{{ $tc('esmx-shop-audit-ai.dashboard.seoKpiSubtitle') }}</p>
+                    <mt-card class="dashboard__seo-kpi-card">
+                        <div class="esmx-shop-audit__section-header">
+                            <div class="esmx-shop-audit__section-title">
+                                {{ $tc('esmx-shop-audit-ai.dashboard.seoKpiTitle') }}
+                            </div>
+                            <div class="esmx-shop-audit__section-subtitle">
+                                {{ $tc('esmx-shop-audit-ai.dashboard.seoKpiSubtitle') }}
+                            </div>
                         </div>
 
-                        <div class="esmx-shop-audit-dashboard__seo-kpi-grid">
+                        <div class="dashboard__seo-kpi-grid">
                             <div
                                     v-for="card in seoKpiCards"
                                     :key="card.key"
-                                    class="esmx-shop-audit-dashboard__seo-kpi-item"
+                                    class="dashboard__seo-kpi-tile"
                             >
-                                <div class="esmx-shop-audit-dashboard__seo-kpi-label">
+                                <div class="dashboard__seo-kpi-label">
                                     {{ card.label }}
                                 </div>
 
-                                <div class="esmx-shop-audit-dashboard__seo-kpi-value">
+                                <div class="dashboard__seo-kpi-value">
                                     {{ card.value }}
                                 </div>
 
-                                <div class="esmx-shop-audit-dashboard__seo-kpi-hint">
+                                <div class="dashboard__widget-subtitle">
                                     {{ card.hint }}
                                 </div>
                             </div>
                         </div>
                     </mt-card>
-                    {# -----------End - SEO KPI Card------------ #}
 
-                    <div class="esmx-shop-audit-dashboard__summary">
-                        <div class="esmx-shop-audit-dashboard__summary-meta">
-                            <div class="esmx-shop-audit-dashboard__summary-header">
-                                <div class="esmx-shop-audit-dashboard__headline">
+                    <div class="dashboard__summary">
+                        <div class="dashboard__summary-meta">
+                            <div class="dashboard__summary-header">
+                                <div class="dashboard__headline">
                                     <h3>{{ $tc('esmx-shop-audit-ai.dashboard.issueGroups') }}</h3>
-                                    <p class="esmx-shop-audit-dashboard__summary-subtitle">
+                                    <p class="dashboard__widget-subtitle">
                                         {{ $tc('esmx-shop-audit-ai.dashboard.issueGroupsSubtitle') }}
                                     </p>
-                                    <p class="esmx-shop-audit-dashboard__summary-stats">
+                                    <p class="dashboard__widget-subtitle">
                                         {{ $tc('esmx-shop-audit-ai.dashboard.scannedProducts') }}:
                                         <strong>{{ meta.scannedProducts }}</strong>
                                         ·
@@ -523,57 +516,57 @@
                             </div>
                         </div>
 
-                        <div class="esmx-shop-audit-dashboard__summary-grid">
+                        <div class="dashboard__summary-grid">
                             <a
                                     v-for="card in sortedSummaryCards"
                                     :key="card.key"
                                     href="#"
-                                    class="esmx-shop-audit-dashboard__metric-card-link"
+                                    class="dashboard__metric-card-link"
                                     @click.prevent="goToFindingFromCard(card)"
                             >
                                 <mt-card
-                                        class="esmx-shop-audit-dashboard__metric-card"
-                                        :class="getSeverityClass(card.severity)"
+                                        class="dashboard__metric-card"
+                                        :class="'dashboard__metric-card--' + card.severity"
                                 >
-                                    <div class="esmx-shop-audit-dashboard__metric-card-layout">
+                                    <div class="dashboard__metric-card-layout">
                                         <div
-                                                class="esmx-shop-audit-dashboard__metric-card-count-area"
+                                                class="dashboard__metric-card-count-area"
                                                 :class="'severity-' + card.severity"
                                         >
-                                            <span class="esmx-shop-audit-dashboard__metric-card-number">
+                                            <span class="dashboard__metric-card-number">
                                                 {{ card.count }}
                                             </span>
                                         </div>
 
-                                        <div class="esmx-shop-audit-dashboard__metric-card-details">
-                                            <div class="esmx-shop-audit-dashboard__metric-card-title-row">
-                                                <div class="esmx-shop-audit-dashboard__metric-card-label">
+                                        <div class="dashboard__metric-card-details">
+                                            <div class="dashboard__metric-card-title-row">
+                                                <div class="dashboard__metric-card-label">
                                                     {{ card.label }}
                                                 </div>
                                             </div>
 
-                                            <div class="esmx-shop-audit-dashboard__metric-card-meta-row">
+                                            <div class="dashboard__metric-card-meta-row">
                                                 <span
-                                                        class="esmx-shop-audit-dashboard__severity-badge"
+                                                        class="esmx-shop-audit__severity-badge"
                                                         :class="'severity-' + card.severity"
                                                 >
                                                     {{ getSeverityLabel(card.severity) }}
                                                 </span>
 
                                                 <span
-                                                        class="esmx-shop-audit-dashboard__metric-card-info-wrapper"
+                                                        class="dashboard__metric-card-info-wrapper"
                                                         @mouseenter="activeImpactKey = card.key"
                                                         @mouseleave="activeImpactKey = null"
                                                 >
                                                     <mt-icon
                                                             name="regular-info-circle"
                                                             size="16px"
-                                                            class="esmx-shop-audit-dashboard__metric-card-info"
+                                                            class="dashboard__metric-card-info"
                                                     />
 
                                                     <span
                                                             v-if="activeImpactKey === card.key"
-                                                            class="esmx-shop-audit-dashboard__metric-card-tooltip"
+                                                            class="dashboard__metric-card-tooltip"
                                                     >
                                                         {{ card.impact }}
                                                     </span>

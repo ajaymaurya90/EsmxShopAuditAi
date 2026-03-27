@@ -1,4 +1,4 @@
-.esmx-shop-audit-tasks {
+.esmx-shop-audit.tasks {
   .sw-data-grid,
   .sw-data-grid__body,
   .sw-data-grid__row,
@@ -17,28 +17,28 @@
     background: #f8fafc;
   }
 
-  .esmx-shop-audit__task-title-cell {
+  .tasks__title-cell {
     padding: 4px 0;
   }
 
-  .esmx-shop-audit__task-title-cell:hover {
+  .tasks__title-cell:hover {
     background: #f8fafc;
     padding-left: 8px;
     padding-right: 8px;
   }
 
-  .esmx-shop-audit__task-title-cell.is-selected {
+  .tasks__title-cell.is-selected {
     color: #1d4ed8;
     background: #eff6ff;
     padding-left: 8px;
     padding-right: 8px;
   }
 
-  .esmx-shop-audit__task-title-main {
+  .tasks__title-main {
     font-weight: 600;
   }
 
-  .esmx-shop-audit__task-title-code {
+  .tasks__title-code {
     font-size: 12px;
     opacity: 0.7;
   }
@@ -47,9 +47,9 @@
     scroll-margin-top: 24px;
   }
 
-  .esmx-shop-audit__task-details-summary {
+  .tasks__details-summary {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 16px;
     margin-bottom: 20px;
     padding: 16px;
@@ -58,14 +58,14 @@
     background: #f9fafb;
   }
 
-  .esmx-shop-audit__task-summary-item {
+  .tasks__summary-item {
     display: flex;
     flex-direction: column;
     gap: 6px;
     min-width: 0;
   }
 
-  .esmx-shop-audit__task-summary-label {
+  .tasks__summary-label {
     font-size: 12px;
     font-weight: 600;
     color: #6b7280;
@@ -79,6 +79,7 @@
     gap: 12px;
     margin-bottom: 16px;
     flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .esmx-shop-audit__task-clickable-cell {
@@ -151,7 +152,7 @@
     border-color: #9ca3af;
   }
 
-  .esmx-shop-audit__action-cell {
+  .tasks__action-cell {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -195,7 +196,6 @@
     background: #f3f4f6;
   }
 
-// Start Auto fix CSS
   .esmx-shop-audit__auto-fix-preview {
     display: flex;
     flex-direction: column;
@@ -222,14 +222,6 @@
     justify-content: flex-end;
     width: 100%;
     font-weight: 700;
-  }
-
-  .esmx-shop-audit__task-detail-toolbar {
-    justify-content: flex-end;
-  }
-
-  .esmx-shop-audit__task-details-summary {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .esmx-shop-audit__seo-score-badge {
@@ -268,18 +260,6 @@
     color: #374151;
   }
 
-  .esmx-shop-audit__severity-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 28px;
-    padding: 0 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
   .esmx-shop-audit__severity-badge.is-critical {
     background: #fef2f2;
     color: #dc2626;
@@ -300,16 +280,14 @@
     color: #059669;
   }
 
-  // End Auto fix CSS
-
   @media (max-width: 900px) {
-    .esmx-shop-audit__task-details-summary {
+    .tasks__details-summary {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   @media (max-width: 600px) {
-    .esmx-shop-audit__task-details-summary {
+    .tasks__details-summary {
       grid-template-columns: 1fr;
     }
   }

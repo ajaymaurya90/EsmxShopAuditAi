@@ -1,17 +1,17 @@
-.esmx-shop-audit-reports {
-  .esmx-shop-audit-reports__history-list {
+.esmx-shop-audit.reports {
+  .reports__history-list {
     width: 100%;
   }
 
-  .esmx-shop-audit-reports__history-header,
-  .esmx-shop-audit-reports__history-row {
+  .reports__history-header,
+  .reports__history-row {
     display: grid;
     grid-template-columns: 90px 240px 140px 120px 170px 160px 130px;
     gap: 16px;
     align-items: center;
   }
 
-  .esmx-shop-audit-reports__history-header {
+  .reports__history-header {
     padding: 0 0 12px;
     border-bottom: 1px solid #e5e7eb;
     font-size: 12px;
@@ -22,7 +22,7 @@
     letter-spacing: 0.04em;
   }
 
-  .esmx-shop-audit-reports__history-row {
+  .reports__history-row {
     padding: 16px 8px;
     margin: 0 -8px;
     border-bottom: 1px solid #edf0f2;
@@ -32,21 +32,21 @@
     cursor: pointer;
   }
 
-  .esmx-shop-audit-reports__history-row:hover {
+  .reports__history-row:hover {
     background-color: #f6f8fa;
   }
 
-  .esmx-shop-audit-reports__history-row.is-selected {
+  .reports__history-row.is-selected {
     background: #f8fafc;
     box-shadow: inset 0 0 0 1px #dbe4ee;
   }
 
-  .esmx-shop-audit-reports__history-row > div,
-  .esmx-shop-audit-reports__history-header > div {
+  .reports__history-row > div,
+  .reports__history-header > div {
     min-width: 0;
   }
 
-  .esmx-shop-audit-reports__row-label {
+  .reports__row-label {
     display: none;
     font-size: 11px;
     font-weight: 700;
@@ -56,20 +56,20 @@
     margin-bottom: 4px;
   }
 
-  .esmx-shop-audit-reports__bulk-actions {
+  .reports__bulk-actions {
     display: flex;
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
   }
 
-  .esmx-shop-audit-reports__bulk-label {
+  .reports__bulk-label {
     font-size: 13px;
     font-weight: 500;
     color: #374151;
   }
 
-  .esmx-shop-audit-reports__delete-modal-content {
+  .reports__delete-modal-content {
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -77,51 +77,41 @@
     color: #374151;
   }
 
-  .esmx-shop-audit-reports__delete-modal-warning {
+  .reports__delete-modal-warning {
     color: #b91c1c;
     font-weight: 600;
   }
 
-  .esmx-shop-audit-reports__small-stat {
+  .reports__small-stat {
     font-size: 20px;
   }
 
-  .esmx-shop-audit-reports__delta-value.is-positive {
+  .reports__delta-value.is-positive {
     color: #15803d;
   }
 
-  .esmx-shop-audit-reports__delta-value.is-negative {
+  .reports__delta-value.is-negative {
     color: #b91c1c;
   }
 
-  .esmx-shop-audit-reports__delta-value.is-neutral {
+  .reports__delta-value.is-neutral {
     color: #6b7280;
   }
 
-  .esmx-shop-audit-reports__detail-card,
-  .esmx-shop-audit-reports__detail-card .mt-card__content {
+  .reports__detail-card,
+  .reports__detail-card .mt-card__content {
     overflow: visible !important;
   }
 
-  .esmx-shop-audit-reports__detail-summary-header {
+  .reports__detail-summary-header {
     margin-bottom: 20px;
   }
 
-  .esmx-shop-audit-reports__detail-section {
+  .reports__detail-section {
     margin-top: 24px;
   }
 
-  .esmx-shop-audit-reports__detail-section-heading {
-    margin-bottom: 12px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1.4;
-    color: #111827;
-  }
-
-  .esmx-shop-audit-reports__pagination {
+  .reports__pagination {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -132,13 +122,13 @@
     border-top: 1px solid #e5e7eb;
   }
 
-  .esmx-shop-audit-reports__pagination-meta {
+  .reports__pagination-meta {
     font-size: 13px;
     line-height: 1.5;
     color: #4b5563;
   }
 
-  .esmx-shop-audit-reports__pagination-actions {
+  .reports__pagination-actions {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -146,18 +136,18 @@
   }
 
   @media (max-width: 1400px) {
-    .esmx-shop-audit-reports__history-header,
-    .esmx-shop-audit-reports__history-row {
+    .reports__history-header,
+    .reports__history-row {
       grid-template-columns: 80px 220px 130px 110px 150px 140px 120px;
     }
   }
 
   @media (max-width: 1200px) {
-    .esmx-shop-audit-reports__history-header {
+    .reports__history-header {
       display: none;
     }
 
-    .esmx-shop-audit-reports__history-row {
+    .reports__history-row {
       grid-template-columns: 1fr;
       gap: 10px;
       padding: 16px;
@@ -166,7 +156,7 @@
       border-radius: 14px;
     }
 
-    .esmx-shop-audit-reports__row-label {
+    .reports__row-label {
       display: block;
     }
   }

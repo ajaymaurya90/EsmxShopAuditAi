@@ -1,47 +1,17 @@
-.esmx-shop-audit-dashboard {
+.esmx-shop-audit.dashboard {
   scroll-behavior: smooth;
-
-  .esmx-shop-audit-dashboard__severity-badge {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 5px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .severity-low {
-    background: #e0f2fe;
-    color: #0369a1;
-  }
-
-  .severity-medium {
-    background: #fef3c7;
-    color: #92400e;
-  }
-
-  .severity-high {
-    background: #fde68a;
-    color: #78350f;
-  }
-
-  .severity-critical {
-    background: #fee2e2;
-    color: #991b1b;
-  }
 
   .esmx-shop-audit__health-tooltip {
     min-width: 220px;
     max-width: 280px;
     padding: 10px 12px;
-
     display: flex;
     flex-direction: column;
     gap: 6px;
-
     font-size: 12px;
     line-height: 1.4;
     color: #374151;
+    background: transparent;
 
     strong {
       font-size: 13px;
@@ -51,35 +21,18 @@
     }
   }
 
-  .esmx-shop-audit__health-tooltip-row:hover {
-    background: #f9fafb;
-    border-radius: 4px;
-    padding-left: 4px;
-    padding-right: 4px;
-  }
-
-  .esmx-shop-audit__tooltip {
-    background: #ffffff !important;
-    color: #111827 !important;
-
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
-
-    padding: 8px 10px;
-  }
-
-  .esmx-shop-audit__health-tooltip {
-    background: transparent; // important
-  }
-
   .esmx-shop-audit__health-tooltip-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     padding: 2px 0;
+
+    &:hover {
+      background: #f9fafb;
+      border-radius: 4px;
+      padding-left: 4px;
+      padding-right: 4px;
+    }
 
     span:first-child {
       color: #4b5563;
@@ -87,25 +40,22 @@
 
     span:last-child {
       font-weight: 600;
-      color: #ef4444; // red for penalty
+      color: #ef4444;
     }
   }
 
   .esmx-shop-audit__health-tooltip-total {
-    margin-top: 6px;
-    padding-top: 6px;
-
-    border-top: 1px solid #e5e7eb;
-
-    font-weight: 600;
-    font-size: 13px;
-    color: #111827;
-
     display: flex;
     justify-content: space-between;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
   }
 
-  .esmx-shop-audit-dashboard__widget-header {
+  .dashboard__widget-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -115,36 +65,36 @@
     border-bottom: 1px solid #e5e7eb;
   }
 
-  .esmx-shop-audit-dashboard__widget-header-text {
+  .dashboard__widget-header-text {
     min-width: 0;
     flex: 1;
   }
 
-  .esmx-shop-audit-dashboard__widget-title {
+  .dashboard__widget-title {
     font-size: 16px;
     font-weight: 700;
     line-height: 1.35;
     color: #111827;
   }
 
-  .esmx-shop-audit-dashboard__widget-subtitle {
+  .dashboard__widget-subtitle {
     margin-top: 2px;
     font-size: 12px;
     line-height: 1.4;
     color: #6b7280;
   }
 
-  .esmx-shop-audit-dashboard__widget-header-actions {
+  .dashboard__widget-header-actions {
     display: flex;
     align-items: center;
     gap: 10px;
   }
 
-  .esmx-shop-audit-dashboard__widget-body {
+  .dashboard__widget-body {
     position: relative;
   }
 
-  .esmx-shop-audit-dashboard__insight-list-item {
+  .dashboard__insight-list-item {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -153,11 +103,11 @@
     border-bottom: 1px solid #edf0f2;
   }
 
-  .esmx-shop-audit-dashboard__insight-list-item:last-child {
+  .dashboard__insight-list-item:last-child {
     border-bottom: 0;
   }
 
-  .esmx-shop-audit-dashboard__insight-list-item--clickable {
+  .dashboard__insight-list-item--clickable {
     cursor: pointer;
     transition: background-color 0.15s ease;
     border-radius: 8px;
@@ -167,43 +117,43 @@
     margin-right: -8px;
   }
 
-  .esmx-shop-audit-dashboard__insight-list-item--clickable:hover {
+  .dashboard__insight-list-item--clickable:hover {
     background-color: #f6f8fa;
   }
 
-  .esmx-shop-audit-dashboard__insight-title {
+  .dashboard__insight-title {
     font-weight: 600;
     line-height: 1.4;
   }
 
-  .esmx-shop-audit-dashboard__insight-meta {
+  .dashboard__insight-meta {
+    margin-top: 4px;
     font-size: 12px;
     color: #6b7280;
-    margin-top: 4px;
     text-transform: capitalize;
   }
 
-  .esmx-shop-audit-dashboard__product-link {
+  .dashboard__product-link {
     color: #2563eb;
     cursor: pointer;
     text-decoration: none;
     transition: color 0.2s ease;
   }
 
-  .esmx-shop-audit-dashboard__product-link:hover {
+  .dashboard__product-link:hover {
     color: #1d4ed8;
     text-decoration: underline;
   }
 
-  .esmx-shop-audit-dashboard__audit-overview-content {
+  .dashboard__audit-overview-content {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
     padding-top: 16px;
   }
 
-  .esmx-shop-audit-dashboard__store-health-panel,
-  .esmx-shop-audit-dashboard__top-tasks-panel {
+  .dashboard__store-health-panel,
+  .dashboard__top-tasks-panel {
     min-width: 0;
     padding: 20px;
     border: 1px solid #e5e7eb;
@@ -212,14 +162,14 @@
     box-sizing: border-box;
   }
 
-  .esmx-shop-audit-dashboard__store-health-layout {
+  .dashboard__store-health-layout {
     display: grid;
     grid-template-columns: minmax(180px, 25%) minmax(0, 1fr);
     gap: 24px;
     align-items: center;
   }
 
-  .esmx-shop-audit-dashboard__store-health-score-column {
+  .dashboard__store-health-score-column {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -227,43 +177,43 @@
     gap: 12px;
   }
 
-  .esmx-shop-audit-dashboard__store-health-status {
+  .dashboard__store-health-status {
     display: flex;
     justify-content: center;
   }
 
-  .esmx-shop-audit-dashboard__store-health-action-column {
+  .dashboard__store-health-action-column {
     display: flex;
     flex-direction: column;
     justify-content: center;
     min-width: 0;
   }
 
-  .esmx-shop-audit-dashboard__health-score-ring {
+  .dashboard__health-score-ring {
     width: 128px;
     height: 128px;
-    border-radius: 999px;
+    padding: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    padding: 8px;
+    border-radius: 999px;
     transition: background 0.2s linear;
   }
 
-  .esmx-shop-audit-dashboard__health-score-ring-inner {
+  .dashboard__health-score-ring-inner {
     width: 100%;
     height: 100%;
-    border-radius: 999px;
-    background: #ffffff;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    border-radius: 999px;
+    background: #ffffff;
     box-shadow: inset 0 0 0 1px #f3f4f6;
   }
 
-  .esmx-shop-audit-dashboard__health-score-value {
+  .dashboard__health-score-value {
     font-size: 34px;
     font-weight: 700;
     line-height: 1;
@@ -271,13 +221,13 @@
     transition: color 0.2s ease;
   }
 
-  .esmx-shop-audit-dashboard__health-score-max {
+  .dashboard__health-score-max {
     margin-top: 4px;
     font-size: 13px;
     color: #6b7280;
   }
 
-  .esmx-shop-audit-dashboard__quick-action-header {
+  .dashboard__quick-action-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -285,85 +235,85 @@
     margin-bottom: 16px;
   }
 
-  .esmx-shop-audit-dashboard__quick-action-title {
+  .dashboard__quick-action-title {
     font-size: 16px;
     font-weight: 700;
     line-height: 1.4;
     color: #111827;
   }
 
-  .esmx-shop-audit-dashboard__quick-action-body {
+  .dashboard__quick-action-body {
     padding: 4px 0;
   }
 
-  .esmx-shop-audit-dashboard__quick-action-label {
+  .dashboard__quick-action-label {
+    margin-bottom: 12px;
     font-size: 18px;
     font-weight: 700;
     line-height: 1.5;
     color: #111827;
-    margin-bottom: 12px;
   }
 
-  .esmx-shop-audit-dashboard__quick-action-summary {
+  .dashboard__quick-action-summary {
     margin-bottom: 12px;
     font-size: 14px;
     line-height: 1.5;
     color: #4b5563;
   }
 
-  .esmx-shop-audit-dashboard__quick-action-footer {
+  .dashboard__quick-action-footer {
     display: flex;
     align-items: center;
     justify-content: flex-start;
   }
 
-  .esmx-shop-audit-dashboard__top-tasks-panel .esmx-shop-audit-dashboard__widget-body {
+  .dashboard__top-tasks-panel .dashboard__widget-body {
     padding-top: 4px;
   }
 
-  .esmx-shop-audit-dashboard__sales-section {
+  .dashboard__sales-section {
     width: 100%;
     margin-bottom: 24px;
   }
 
-  .esmx-shop-audit-dashboard__sales-section-card {
+  .dashboard__sales-section-card {
     display: block;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
   }
 
-  .esmx-shop-audit-dashboard__sales-kpis {
+  .dashboard__sales-kpis {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
     margin-bottom: 16px;
   }
 
-  .sales-kpi {
-    background: #f6f8fa;
+  .dashboard__sales-kpi {
     padding: 12px;
     border-radius: 6px;
+    background: #f6f8fa;
   }
 
-  .sales-kpi span {
+  .dashboard__sales-kpi span {
     font-size: 12px;
     color: #777;
   }
 
-  .sales-kpi strong {
+  .dashboard__sales-kpi strong {
+    display: block;
     font-size: 20px;
     font-weight: 700;
-    display: block;
   }
 
-  .esmx-shop-audit-dashboard__sales-widgets-grid {
+  .dashboard__sales-widgets-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
   }
 
-  .esmx-shop-audit-dashboard__sales-widget {
+  .dashboard__sales-widget {
     min-width: 0;
     padding: 20px;
     border: 1px solid #e5e7eb;
@@ -372,16 +322,16 @@
     box-sizing: border-box;
   }
 
-  .esmx-shop-audit-dashboard__summary {
+  .dashboard__summary {
     width: 100%;
     margin-bottom: 24px;
   }
 
-  .esmx-shop-audit-dashboard__summary-meta {
+  .dashboard__summary-meta {
     margin-bottom: 20px;
   }
 
-  .esmx-shop-audit-dashboard__summary-header {
+  .dashboard__summary-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -389,7 +339,7 @@
     margin-bottom: 20px;
   }
 
-  .esmx-shop-audit-dashboard__headline h3 {
+  .dashboard__headline h3 {
     margin: 0 0 6px;
     font-size: 22px;
     font-weight: 700;
@@ -397,151 +347,155 @@
     color: #111827;
   }
 
-  .esmx-shop-audit-dashboard__summary-subtitle {
-    margin: 0 0 6px;
+  .dashboard__headline p {
+    margin: 0;
     font-size: 14px;
     line-height: 1.5;
     color: #6b7280;
   }
 
-  .esmx-shop-audit-dashboard__summary-stats {
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.5;
-    color: #6b7280;
-  }
-
-  .esmx-shop-audit-dashboard__summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 16px;
-    align-items: stretch;
-  }
-
-  .esmx-shop-audit-dashboard__metric-card-link {
+  .dashboard__metric-card-link {
     display: block;
-    text-decoration: none;
     color: inherit;
-    height: 100%;
-    cursor: pointer;
+    text-decoration: none !important;
   }
 
-  .esmx-shop-audit-dashboard__metric-card-link:hover {
-    text-decoration: none;
+  .dashboard__metric-card-link:hover,
+  .dashboard__metric-card-link:focus,
+  .dashboard__metric-card-link:active,
+  .dashboard__metric-card-link:visited {
+    color: inherit;
+    text-decoration: none !important;
   }
 
-  .esmx-shop-audit-dashboard__metric-card-link:hover .esmx-shop-audit-dashboard__metric-card {
-    transform: translateY(-1px);
-    transition: transform 0.18s ease;
+  .dashboard__metric-card-link * {
+    text-decoration: none !important;
   }
 
-  .esmx-shop-audit-dashboard__metric-card {
-    height: 100%;
-    border-radius: 16px;
-    overflow: hidden;
-    position: relative;
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-  }
-
-  .esmx-shop-audit-dashboard__metric-card:hover {
-    transform: translateY(-2px);
-  }
-
-  .esmx-shop-audit-dashboard__metric-card--low {
-    border-left: 4px solid #0ea5e9;
-  }
-
-  .esmx-shop-audit-dashboard__metric-card--medium {
-    border-left: 4px solid #f59e0b;
-  }
-
-  .esmx-shop-audit-dashboard__metric-card--high {
-    border-left: 4px solid #f97316;
-  }
-
-  .esmx-shop-audit-dashboard__metric-card--critical {
-    border-left: 4px solid #ef4444;
-  }
-
-  .esmx-shop-audit-dashboard__metric-card-layout {
+  .dashboard__summary-grid {
     display: grid;
-    grid-template-columns: 0.9fr 2.1fr;
-    align-items: stretch;
-    min-height: 96px;
-    gap: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
   }
 
-  .esmx-shop-audit-dashboard__metric-card-count-area {
+  .dashboard__metric-card {
+    position: relative;
+    min-width: 0;
+    padding: 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    background: #ffffff;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .dashboard__metric-card--critical {
+    border-left: 5px solid #ef4444;
+  }
+
+  .dashboard__metric-card--high {
+    border-left: 5px solid #f97316;
+  }
+
+  .dashboard__metric-card--medium {
+    border-left: 5px solid #f59e0b;
+  }
+
+  .dashboard__metric-card--low {
+    border-left: 5px solid #0ea5e9;
+  }
+
+
+
+  .dashboard__metric-card:hover {
+    border-color: #d8dee6;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+  }
+
+  .dashboard__metric-card-layout {
+    display: grid;
+    grid-template-columns: 82px minmax(0, 1fr);
+    gap: 0;
+    align-items: center;
+    min-height: 115px;
+  }
+
+  .dashboard__metric-card-count-area {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0;
     padding: 16px;
-    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
     background: #f3f4f6;
     color: #111827;
-    border: 1px solid #e5e7eb;
+    min-height: 108px;
   }
 
-  .esmx-shop-audit-dashboard__metric-card-number {
-    font-size: 28px;
+  .dashboard__metric-card-number {
+    font-size: 30px;
     font-weight: 700;
     line-height: 1;
+    color: #0f172a;
+    letter-spacing: -0.02em;
   }
 
-  .esmx-shop-audit-dashboard__metric-card-details {
+  .dashboard__metric-card-details {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 10px 0 10px 8px;
+    justify-content: center;
     min-width: 0;
+    padding-left: 10px;
+    gap: 8px;
   }
 
-  .esmx-shop-audit-dashboard__metric-card-title-row {
+  .dashboard__metric-card-title-row {
     display: flex;
     align-items: flex-start;
-    min-height: 40px;
+    min-height: 64px;
   }
 
-  .esmx-shop-audit-dashboard__metric-card-label {
+  .dashboard__metric-card-label {
+    display: block;
     font-size: 15px;
     font-weight: 600;
-    line-height: 1.4;
-    word-break: break-word;
+    line-height: 1.45;
+    color: #111827;
+    word-break: normal;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    text-decoration: none !important;
   }
 
-  .esmx-shop-audit-dashboard__metric-card-meta-row {
+  .dashboard__metric-card-meta-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    min-width: 0;
   }
 
-  .esmx-shop-audit-dashboard__metric-card,
-  .esmx-shop-audit-dashboard__metric-card-layout,
-  .esmx-shop-audit-dashboard__metric-card-details,
-  .esmx-shop-audit-dashboard__metric-card-meta-row {
-    overflow: visible !important;
-  }
-
-  .esmx-shop-audit-dashboard__metric-card-info-wrapper {
+  .dashboard__metric-card-info-wrapper {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    cursor: help;
     flex-shrink: 0;
+    cursor: help;
   }
 
-  .esmx-shop-audit-dashboard__metric-card-info {
+  .dashboard__metric-card-info {
     color: #6b7280;
     transition: color 0.2s ease;
   }
 
-  .esmx-shop-audit-dashboard__metric-card-info-wrapper:hover .esmx-shop-audit-dashboard__metric-card-info {
+  .dashboard__metric-card-info-wrapper:hover .dashboard__metric-card-info {
     color: #111827;
   }
 
-  .esmx-shop-audit-dashboard__metric-card-tooltip {
+  .dashboard__metric-card-tooltip {
     position: absolute;
     right: 0;
     bottom: calc(100% + 10px);
@@ -549,18 +503,18 @@
     width: 240px;
     max-width: 280px;
     padding: 8px 10px;
-    border-radius: 6px;
+    border-radius: 8px;
     background: #111827;
     color: #ffffff;
     font-size: 12px;
-    line-height: 1.4;
+    line-height: 1.45;
     font-weight: 400;
     text-align: left;
     white-space: normal;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
   }
 
-  .esmx-shop-audit-dashboard__metric-card-tooltip::after {
+  .dashboard__metric-card-tooltip::after {
     content: '';
     position: absolute;
     top: 100%;
@@ -570,82 +524,158 @@
     border-color: #111827 transparent transparent transparent;
   }
 
-  // Css for SEO Kpi section
-  .esmx-shop-audit-dashboard__seo-kpi-card {
+  .dashboard__seo-kpi-card {
     margin-top: 24px;
   }
 
-  .esmx-shop-audit-dashboard__seo-kpi-grid {
+  .dashboard__seo-kpi-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
   }
 
-  .esmx-shop-audit-dashboard__seo-kpi-item {
-    padding: 16px;
-    border: 1px solid #dfe3e8;
-    border-radius: 12px;
-    background: #fff;
+  .dashboard__seo-kpi-tile {
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #ffffff;
   }
 
-  .esmx-shop-audit-dashboard__seo-kpi-label {
-    font-size: 13px;
+  .dashboard__seo-kpi-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .dashboard__seo-kpi-label {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #111827;
+  }
+
+  .dashboard__seo-kpi-hint-trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: help;
+  }
+
+  .dashboard__seo-kpi-hint-icon {
     color: #6b7280;
-    margin-bottom: 8px;
+    transition: color 0.2s ease;
   }
 
-  .esmx-shop-audit-dashboard__seo-kpi-value {
+  .dashboard__seo-kpi-hint-trigger:hover .dashboard__seo-kpi-hint-icon {
+    color: #111827;
+  }
+
+  .dashboard__seo-kpi-hint-tooltip {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 10px);
+    z-index: 9999;
+    width: 220px;
+    max-width: 260px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: #111827;
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: left;
+    white-space: normal;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+  }
+
+  .dashboard__seo-kpi-hint-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 8px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: #111827 transparent transparent transparent;
+  }
+
+  .dashboard__seo-kpi-value {
     font-size: 28px;
     font-weight: 700;
     line-height: 1.2;
     color: #111827;
-    margin-bottom: 6px;
   }
 
-  .esmx-shop-audit-dashboard__seo-kpi-hint {
-    font-size: 12px;
-    color: #6b7280;
-    line-height: 1.4;
+  .dashboard__empty-state {
+    padding: 20px 0 8px;
   }
-  // End Css for SEO Kpi section
+
+  @media (max-width: 1400px) {
+    .dashboard__summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
 
   @media (max-width: 1200px) {
-    .esmx-shop-audit-dashboard__audit-overview-content {
+    .dashboard__audit-overview-content,
+    .dashboard__sales-widgets-grid,
+    .dashboard__seo-kpi-grid {
       grid-template-columns: 1fr;
     }
 
-    .esmx-shop-audit-dashboard__sales-kpis {
+    .dashboard__sales-kpis {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .esmx-shop-audit-dashboard__sales-widgets-grid {
+    .dashboard__store-health-layout {
       grid-template-columns: 1fr;
+    }
+
+    .dashboard__store-health-score-column {
+      align-items: center;
     }
   }
 
-  @media (max-width: 900px) {
-    .esmx-shop-audit-dashboard__store-health-layout {
+  @media (max-width: 768px) {
+    .dashboard__summary-grid,
+    .dashboard__sales-kpis {
       grid-template-columns: 1fr;
-      gap: 20px;
     }
 
-    .esmx-shop-audit-dashboard__store-health-score-column {
-      align-items: flex-start;
+    .dashboard__metric-card-layout {
+      grid-template-columns: 80px minmax(0, 1fr);
+      min-height: 106px;
     }
 
-    .esmx-shop-audit-dashboard__store-health-status {
-      justify-content: flex-start;
+    .dashboard__metric-card-count-area {
+      margin: 0;
+      min-height: 96px;
     }
 
-    .esmx-shop-audit-dashboard__summary-header {
+    .dashboard__metric-card-number {
+      font-size: 28px;
+    }
+
+    .dashboard__metric-card-details {
+      padding-left: 10px;
+      gap: 10px;
+    }
+
+    .dashboard__metric-card-title-row {
+      min-height: auto;
+    }
+
+    .dashboard__metric-card-label {
+      font-size: 14px;
+    }
+
+    .dashboard__summary-header {
       flex-direction: column;
       align-items: flex-start;
-    }
-  }
-
-  @media (max-width: 700px) {
-    .esmx-shop-audit-dashboard__sales-kpis {
-      grid-template-columns: 1fr;
     }
   }
 }
