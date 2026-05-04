@@ -261,35 +261,16 @@
 						<div class="findings__detail-body">
 							<template v-if="getFindingItems(finding).length">
 
-								<div v-if="finding.code === 'broken_links'" class="findings__sort-toolbar">
-									<span class="findings__sort-label">Sort by:</span>
-
-									<button type="button" @click="toggleDetailSort(finding.id, 'entity')">
-										Entity
-										{{ getDetailSortIcon(finding.id, 'entity') }}
-									</button>
-
-									<button type="button" @click="toggleDetailSort(finding.id, 'name')">
-										Name
-										{{ getDetailSortIcon(finding.id, 'name') }}
-									</button>
-
-									<button type="button" @click="toggleDetailSort(finding.id, 'languageName')">
-										Language
-										{{ getDetailSortIcon(finding.id, 'languageName') }}
-									</button>
-
-									<button type="button" @click="toggleDetailSort(finding.id, 'source')">
-										Source
-										{{ getDetailSortIcon(finding.id, 'source') }}
-									</button>
-
-									<button type="button" @click="toggleDetailSort(finding.id, 'status')">
-										Status
-										{{ getDetailSortIcon(finding.id, 'status') }}
-									</button>
-								</div>
-								<sw-data-grid :data-source="getPaginatedFindingItems(finding)" :columns="getFindingColumns(finding)" :identifier="'id'" :show-selection="false" :show-actions="true">
+								<sw-data-grid
+									:data-source="getPaginatedFindingItems(finding)"
+									:columns="getFindingColumns(finding)"
+									:identifier="'id'"
+									:show-selection="false"
+									:show-actions="true"
+									:sort-by="getDetailSortBy(finding.id)"
+									:sort-direction="getDetailSortDirection(finding.id).toUpperCase()"
+									@column-sort="onDetailSortChange(finding.id, $event)"
+								>
 
 
 									<template #column-url="{ item }">
@@ -312,11 +293,11 @@
 
 									<template #actions="{ item }">
 										<sw-context-menu-item v-if="item.url" @click="openBrokenLinkUrl(item)">
-											Open broken link
+											{{ $tc('esmx-shop-audit-ai.findings.openBrokenLink') }}
 										</sw-context-menu-item>
 
 										<sw-context-menu-item v-if="item.entity === 'product' || item.entity === 'category' || item.entity === 'cms_page'" @click="openAffectedEntityInNewTab(item)">
-											Open affected item
+											{{ $tc('esmx-shop-audit-ai.findings.openAffectedItem') }}
 										</sw-context-menu-item>
 
 										<sw-context-menu-item v-if="!item.url" @click="openProductDetailInNewTab(item)">

@@ -202,8 +202,8 @@ Shopware.Component.register("esmx-shop-audit-findings", {
       }
 
       if (this.selectedSeverityFilters.length === 1) {
-        const severityLabel = this.$tc(
-          `esmx-shop-audit-ai.severity.${this.selectedSeverityFilters[0]}`,
+        const severityLabel = this.getSeverityLabel(
+          this.selectedSeverityFilters[0],
         ).toLowerCase();
 
         return `${this.$tc("esmx-shop-audit-ai.findings.resultsSummaryPrefix")}
@@ -386,8 +386,8 @@ Shopware.Component.register("esmx-shop-audit-findings", {
       const labels = {
         product: this.$tc("esmx-shop-audit-ai.findings.categoryProduct"),
         category: this.$tc("esmx-shop-audit-ai.findings.categoryCategory"),
-        cms_page: "CMS Page",
-        link: "Broken Link",
+        cms_page: this.$tc("esmx-shop-audit-ai.findings.categoryCmsPage"),
+        link: this.$tc("esmx-shop-audit-ai.findings.categoryBrokenLink"),
         customer: this.$tc("esmx-shop-audit-ai.findings.categoryCustomer"),
         order: this.$tc("esmx-shop-audit-ai.findings.categoryOrder"),
       };
@@ -571,33 +571,33 @@ Shopware.Component.register("esmx-shop-audit-findings", {
         return [
           {
             property: "entity",
-            label: "Entity",
+            label: this.$tc("esmx-shop-audit-ai.findings.columns.entity"),
             primary: true,
             sortable: true,
           },
           {
             property: "name",
-            label: "Name",
+            label: this.$tc("esmx-shop-audit-ai.findings.columns.name"),
             sortable: true,
           },
           {
             property: "languageName",
-            label: "Language",
+            label: this.$tc("esmx-shop-audit-ai.findings.columns.language"),
             sortable: true,
           },
           {
             property: "source",
-            label: "Source",
+            label: this.$tc("esmx-shop-audit-ai.findings.columns.source"),
             sortable: true,
           },
           {
             property: "status",
-            label: "Status",
+            label: this.$tc("esmx-shop-audit-ai.findings.columns.status"),
             sortable: true,
           },
           {
             property: "url",
-            label: "URL",
+            label: this.$tc("esmx-shop-audit-ai.findings.columns.url"),
           },
         ];
       }
@@ -748,10 +748,11 @@ Shopware.Component.register("esmx-shop-audit-findings", {
 
     onDetailSortChange(findingId, event) {
       const column =
+        event?.column?.property ||
+        event?.property ||
         event?.dataIndex ||
         event?.sortBy ||
         event?.columnName ||
-        event?.property ||
         event;
 
       if (!column) {
@@ -759,14 +760,6 @@ Shopware.Component.register("esmx-shop-audit-findings", {
       }
 
       this.toggleDetailSort(findingId, column);
-    },
-
-    getDetailSortIcon(findingId, column) {
-      if (this.getDetailSortBy(findingId) !== column) {
-        return "";
-      }
-
-      return this.getDetailSortDirection(findingId) === "asc" ? "↑" : "↓";
     },
   },
 });
