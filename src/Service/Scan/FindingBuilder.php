@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace EsmxShopAuditAi\Service\Scan;
 
@@ -92,6 +94,12 @@ class FindingBuilder
                 'title' => 'Categories without description',
                 'severity' => 'low',
                 'entity' => 'category',
+            ],
+            'broken_links' => [
+                'code' => 'broken_links',
+                'title' => 'Broken links detected',
+                'severity' => 'high',
+                'entity' => 'link',
             ],
         ];
 

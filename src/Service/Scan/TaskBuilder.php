@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace EsmxShopAuditAi\Service\Scan;
 
@@ -103,6 +105,11 @@ class TaskBuilder
                 'code' => 'complete_product_translations',
                 'title' => sprintf('Complete translations for %d products', $affectedCount),
                 'priority' => 'medium',
+            ],
+            'broken_links' => [
+                'code' => 'fix_broken_links',
+                'title' => sprintf('Fix %d broken links', $affectedCount),
+                'priority' => 'high',
             ],
         ];
 

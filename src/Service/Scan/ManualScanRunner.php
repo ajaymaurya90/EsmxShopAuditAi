@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace EsmxShopAuditAi\Service\Scan;
 
@@ -8,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use EsmxShopAuditAi\Service\Audit\Seo\SeoAuditService;
 use Psr\Log\LoggerInterface;
+use EsmxShopAuditAi\Service\Audit\BrokenLink\BrokenLinkAuditService;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ManualScanRunner
 {
@@ -20,8 +24,9 @@ class ManualScanRunner
         private readonly EntityRepository $findingRepository,
         private readonly EntityRepository $taskRepository,
         private readonly LoggerInterface $logger,
-    ) {
-    }
+        private readonly BrokenLinkAuditService $brokenLinkAuditService,
+        private readonly SystemConfigService $systemConfigService
+    ) {}
 
     public function run(Context $context): string
     {
@@ -50,6 +55,34 @@ class ManualScanRunner
             $auditSummary = $this->productAuditService->buildProductAuditSummary($context);
             $seoAuditResult = $this->seoAuditService->run($context);
             $auditSummary = $this->productAuditService->mergeSeoAuditResultIntoSummary($auditSummary, $seoAuditResult);
+
+            // Broken Link Audit Integration
+            $enabledValue = $this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkAuditEnabled');
+            $brokenLinkEnabled = $enabledValue === null ? true : (bool) $enabledValue;
+
+            if ($brokenLinkEnabled) {
+                $maxLinks = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkMaxLinks') ?? 100);
+                $timeout = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkTimeout') ?? 5);
+                $checkExternal = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkCheckExternal') ?? false);
+
+                $brokenLinkResult = $this->brokenLinkAuditService->run($context, $maxLinks, $timeout, $checkExternal);
+
+                // Merge into audit summary
+                $existingBrokenLinks = $auditSummary['issues']['broken_links'] ?? [];
+                $newBrokenLinks = $brokenLinkResult['broken_links'] ?? [];
+
+                $auditSummary['issues']['broken_links'] = array_values(array_merge(
+                    \is_array($existingBrokenLinks) ? $existingBrokenLinks : [],
+                    \is_array($newBrokenLinks) ? $newBrokenLinks : []
+                ));
+
+                $auditSummary['totals']['broken_links'] = \count($auditSummary['issues']['broken_links']);
+
+                $this->logger->info('Broken link audit result', [
+                    'count' => count($brokenLinkResult['broken_links'] ?? []),
+                ]);
+            }
+
 
             $findings = $this->findingBuilder->build($scanId, $auditSummary);
             $tasks = $this->taskBuilder->build($scanId, $findings);

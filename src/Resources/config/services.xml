@@ -38,6 +38,8 @@
             <argument type="service" id="esmx_shop_audit_finding.repository" />
             <argument type="service" id="esmx_shop_audit_task.repository" />
             <argument type="service" id="logger" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Audit\BrokenLink\BrokenLinkAuditService" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
         </service>
 
         <service id="EsmxShopAuditAi\Service\Task\TaskAutoFixService" public="false">
@@ -83,6 +85,12 @@
             <argument type="service" id="order_line_item.repository" />
             <argument type="service" id="product.repository" />
         </service>
+
+        <service id="EsmxShopAuditAi\Service\Audit\BrokenLink\BrokenLinkExtractor"/>
+        <service id="EsmxShopAuditAi\Service\Audit\BrokenLink\BrokenLinkChecker"/>
+        <service id="EsmxShopAuditAi\Service\Audit\BrokenLink\BrokenLinkAuditService"/>
+
+
 
         <service id="EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductNameRule">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />

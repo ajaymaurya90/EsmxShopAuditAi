@@ -123,4 +123,37 @@
         </input-field>
     </card>
 
+    <card>
+    <title>Broken Link Audit</title>
+    <title lang="de-DE">Broken-Link-Prüfung</title>
+
+    <input-field type="bool">
+        <name>brokenLinkAuditEnabled</name>
+        <label>Enable broken link detection</label>
+        <label lang="de-DE">Broken-Link-Erkennung aktivieren</label>
+        <defaultValue>true</defaultValue>
+    </input-field>
+
+    <input-field type="bool">
+        <name>brokenLinkCheckExternal</name>
+        <label>Check external links</label>
+        <label lang="de-DE">Externe Links prüfen</label>
+        <defaultValue>false</defaultValue>
+    </input-field>
+
+    <input-field type="int">
+        <name>brokenLinkMaxLinks</name>
+        <label>Maximum links per scan</label>
+        <label lang="de-DE">Maximale Links pro Scan</label>
+        <defaultValue>100</defaultValue>
+    </input-field>
+
+    <input-field type="int">
+        <name>brokenLinkTimeout</name>
+        <label>HTTP request timeout (seconds)</label>
+        <label lang="de-DE">HTTP-Timeout (Sekunden)</label>
+        <defaultValue>5</defaultValue>
+    </input-field>
+
+</card>
 </config>
