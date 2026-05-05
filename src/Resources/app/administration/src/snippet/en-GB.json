@@ -38,9 +38,10 @@
       "storeHealthFormulaTitle": "Score calculation",
       "storeHealthFinalScore": "Final score",
 
-      "scanResultsTitle": "Shop scan results",
+      "scanResultsTitle": "Latest scan results",
       "issueGroups": "Active issue groups",
       "issueGroupsSubtitle": "Review grouped audit findings by severity and impact.",
+      "noActiveIssueGroups": "No active issue groups in the latest scan.",
       "viewAll": "View all",
       "viewAllFindings": "View all findings",
 
@@ -60,6 +61,10 @@
       "storeHealthInfo": "Store Health is an overall quality score from 0 to 100. It is calculated from important audit issues such as out-of-stock products, missing prices, inactive products, missing descriptions, missing images, SEO-related gaps, and critical issues. More severe and more frequent problems reduce the score more strongly. To improve your score, fix critical issues first, then resolve content and SEO gaps.",
       "nextBestActionTitle": "Next best action",
       "reviewNow": "Review now",
+      "healthScoreNotAvailable": "N/A",
+      "healthSummaryNotAvailable": "No audit checks were included in the latest scan.",
+      "healthIncludedChecksInfo": "Score is based on the audit checks included in the latest scan.",
+      "healthNoChecksAction": "Run a scan with at least one audit check.",
       "healthyHeadline": "Great job — no critical issues need immediate attention.",
       "headlineOutOfStock": "{count} products are out of stock and need immediate attention.",
       "headlineMissingPrice": "{count} products are missing prices and should be fixed first.",
@@ -75,7 +80,8 @@
       "healthStatus": {
         "good": "Good",
         "warning": "Needs attention",
-        "critical": "Critical"
+        "critical": "Critical",
+        "not_available": "Not available"
       },
 
       "topTasksSubtitle": "Review the most important audit tasks to improve store quality.",
@@ -117,12 +123,88 @@
       "criticalIssues": "Critical issues",
       "seoKpiTitle": "SEO Quality Overview",
       "seoKpiSubtitle": "Track the current SEO quality of audited products.",
+      "seoAuditNotIncluded": "SEO audit was not included in the latest scan.",
       "seoAverageScore": "Average SEO Score",
       "seoAverageScoreHint": "Weighted score across meta title, meta description, and description.",
       "seoNeedsImprovement": "Needs Improvement",
       "seoNeedsImprovementHint": "Products scoring below {threshold} are counted here.",
       "seoImprovementRate": "Improvement Rate",
-      "seoImprovementRateHint": "Share of audited products below the SEO threshold."
+      "seoImprovementRateHint": "Share of audited products below the SEO threshold.",
+      "scanOptions": {
+        "openButton": "Open scan options",
+        "title": "Scan options",
+        "description": "Choose which audit groups and checks should be used for this scan.",
+        "configureTitle": "Configure Scan",
+        "configureSubtitle": "Choose which audit checks should be included in this scan.",
+        "summary": "{checks} check selected across {groups} audit group | {checks} checks selected across {groups} audit groups",
+        "summaryChecks": "{count} check selected | {count} checks selected",
+        "summaryAcross": "across",
+        "summaryGroups": "{count} audit group | {count} audit groups",
+        "selectAll": "Select all",
+        "reset": "Reset",
+        "cancel": "Cancel",
+        "saveAndRun": "Save & Run Scan",
+        "groups": {
+          "productHealth": "Product Health Audit",
+          "seo": "SEO Audit",
+          "brokenLinks": "Broken Link Audit",
+          "sales": "Sales Audit"
+        },
+        "checks": {
+          "missingCoverImage": "Missing images",
+          "inactiveProducts": "Inactive products",
+          "outOfStockProducts": "Out of stock",
+          "missingCategory": "Missing category",
+          "missingManufacturer": "Missing manufacturer",
+          "missingPrice": "Missing price",
+          "missingTranslation": "Missing translations",
+          "productName": "Product name",
+          "productDescription": "Product description",
+          "productMetaTitle": "Product meta title",
+          "productMetaDescription": "Product meta description",
+          "categoryMetaTitle": "Category meta title",
+          "categoryMetaDescription": "Category meta description",
+          "categoryDescription": "Category description",
+          "brokenLinkProductDescriptions": "Product descriptions",
+          "brokenLinkCategoryDescriptions": "Category descriptions",
+          "brokenLinkCmsPages": "CMS pages",
+          "brokenLinkExternalLinks": "Check external links",
+          "salesKpis": "Sales KPIs",
+          "topSellingProducts": "Top selling products",
+          "lowStockBestSellers": "Low stock best sellers"
+        }
+      }
+    },
+    "scanOptions": {
+      "groupTooltips": {
+        "productHealth": "Checks catalog completeness and operational product quality, such as images, stock, prices, categories, manufacturers, and translations.",
+        "seo": "Checks product and category content that affects search visibility, metadata quality, and content completeness.",
+        "brokenLinks": "Validates links found in product descriptions, category descriptions, and CMS content.",
+        "sales": "Includes sales KPIs and sales-based recommendations such as top performers and low-stock best sellers."
+      },
+      "tooltips": {
+        "missingCoverImage": "Finds products without a cover image.",
+        "inactiveProducts": "Finds products that are inactive and hidden from the storefront.",
+        "outOfStockProducts": "Finds products with no available stock.",
+        "missingCategory": "Finds products that are not assigned to a category.",
+        "missingManufacturer": "Finds products without a manufacturer assignment.",
+        "missingPrice": "Finds products that are missing a usable price.",
+        "missingTranslation": "Finds products with missing language translations.",
+        "product_name": "Checks whether product names are present and useful.",
+        "product_description": "Checks whether product descriptions are present and long enough.",
+        "product_meta_title": "Checks product SEO meta titles for missing or weak values.",
+        "product_meta_description": "Checks product SEO meta descriptions for missing or weak values.",
+        "category_missing_meta_title": "Checks category SEO meta titles for missing values.",
+        "category_missing_meta_description": "Checks category SEO meta descriptions for missing values.",
+        "category_missing_description": "Checks categories for missing descriptions.",
+        "product_description_links": "Checks links found inside product descriptions.",
+        "category_description_links": "Checks links found inside category descriptions.",
+        "cms_content": "Checks links found inside CMS page content.",
+        "external_links": "Also checks absolute external URLs. This can make scans slower.",
+        "salesKpis": "Includes sales KPI metrics in the scan context.",
+        "topSellingProducts": "Includes top selling products based on recent sales.",
+        "lowStockBestSellers": "Includes best-selling products with low stock."
+      }
     },
     "dashboardInsights": {
       "scannedProducts": "Scanned products",
@@ -148,7 +230,8 @@
       "productDescription": "Descriptions are missing or too short and may reduce SEO quality and product clarity.",
       "categoryMissingMetaTitle": "Missing category SEO meta titles can weaken category visibility.",
       "categoryMissingMetaDescription": "Missing category meta descriptions may reduce SEO click-through rate.",
-      "categoryMissingDescription": "Thin category content may weaken SEO and user guidance."
+      "categoryMissingDescription": "Thin category content may weaken SEO and user guidance.",
+      "brokenLinks": "Broken links can lead customers and search engines to unavailable pages."
     },
     "grid": {
       "productName": "Product",
@@ -354,6 +437,17 @@
         "confirmButton": "Delete reports",
         "success": "{count} report deleted successfully. | {count} reports deleted successfully.",
         "error": "The selected reports could not be deleted."
+      },
+      "auditedParameters": {
+        "title": "Audited parameters",
+        "notRecorded": "Audit parameters were not recorded for this report.",
+        "selected": "Selected",
+        "notSelected": "Not selected",
+        "status": {
+          "enabled": "Enabled",
+          "disabled": "Disabled",
+          "partial": "Partial"
+        }
       }
     },
     "settings": {
@@ -393,23 +487,23 @@
         "checkMissingTranslations": {
           "label": "Check missing translations"
         },
-        "checkSeoFields": {
-          "label": "Check SEO fields"
-        },
-        "checkProductMetaDescription": {
-          "label": "Check missing product meta description"
-        },
-        "checkWeakProductTitle": {
-          "label": "Check weak product title"
+        "checkProductName": {
+          "label": "Check product name"
         },
         "minProductTitleLength": {
           "label": "Minimum product title length"
         },
-        "checkShortProductDescription": {
-          "label": "Check short product description"
+        "checkProductDescription": {
+          "label": "Check product description"
         },
         "minProductDescriptionLength": {
           "label": "Minimum product description length"
+        },
+        "checkProductMetaTitle": {
+          "label": "Check product meta title"
+        },
+        "checkProductMetaDescription": {
+          "label": "Check product meta description"
         },
         "checkCategorySeo": {
           "label": "Check category SEO fields"

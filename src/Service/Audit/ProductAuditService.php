@@ -26,7 +26,10 @@ class ProductAuditService
     ) {
     }
 
-    public function buildProductAuditSummary(Context $context): array
+    /**
+     * @param array<int, string>|null $enabledChecks Null keeps the historical full product health scan behavior.
+     */
+    public function buildProductAuditSummary(Context $context, ?array $enabledChecks = null): array
     {
         $limit = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.auditProductLimit') ?? self::DEFAULT_LIMIT);
 
@@ -39,6 +42,7 @@ class ProductAuditService
         $enableAudit = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.enableAudit') ?? true);
         $checkMissingManufacturer = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkMissingManufacturer') ?? true);
         $checkMissingTranslations = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkMissingTranslations') ?? true);
+        $activeChecks = $this->resolveActiveProductHealthChecks($enabledChecks);
 
         if ($enableAudit !== true) {
             return [
@@ -71,46 +75,47 @@ class ProductAuditService
         }
 
         $products = $this->loadProducts($context, $limit, $variantAuditMode);
-        $languages = $this->loadLanguages($context);
+        $languages = \in_array('missingTranslation', $activeChecks, true) && $checkMissingTranslations
+            ? $this->loadLanguages($context)
+            : null;
 
-        $issues = [
-            'missingCoverImage' => [],
-            'inactiveProducts' => [],
-            'outOfStockProducts' => [],
-            'missingCategory' => [],
-            'missingManufacturer' => [],
-            'missingPrice' => [],
-            'missingTranslation' => [],
-        ];
+        $issues = $this->buildProductHealthIssueBuckets($activeChecks);
 
         /** @var ProductEntity $product */
         foreach ($products as $product) {
 
-            if ($product->getCoverId() === null) {
+            if (\in_array('missingCoverImage', $activeChecks, true) && $product->getCoverId() === null) {
                 $issues['missingCoverImage'][] = $this->buildProductPayload($product);
             }
 
-            if ($product->getActive() !== true) {
+            if (\in_array('inactiveProducts', $activeChecks, true) && $product->getActive() !== true) {
                 $issues['inactiveProducts'][] = $this->buildProductPayload($product);
             }
 
-            if (($product->getStock() ?? 0) <= 0) {
+            if (\in_array('outOfStockProducts', $activeChecks, true) && ($product->getStock() ?? 0) <= 0) {
                 $issues['outOfStockProducts'][] = $this->buildProductPayload($product);
             }
 
-            if ($product->getCategories() === null || $product->getCategories()->count() === 0) {
+            if (
+                \in_array('missingCategory', $activeChecks, true) &&
+                ($product->getCategories() === null || $product->getCategories()->count() === 0)
+            ) {
                 $issues['missingCategory'][] = $this->buildProductPayload($product);
             }
 
-            if ($checkMissingManufacturer && $product->getManufacturerId() === null) {
+            if (
+                \in_array('missingManufacturer', $activeChecks, true) &&
+                $checkMissingManufacturer &&
+                $product->getManufacturerId() === null
+            ) {
                 $issues['missingManufacturer'][] = $this->buildProductPayload($product);
             }
 
-            if ($this->hasMissingPrice($product)) {
+            if (\in_array('missingPrice', $activeChecks, true) && $this->hasMissingPrice($product)) {
                 $issues['missingPrice'][] = $this->buildProductPayload($product);
             }
 
-            if ($checkMissingTranslations) {
+            if (\in_array('missingTranslation', $activeChecks, true) && $checkMissingTranslations && $languages !== null) {
                 $missingLanguages = $this->getMissingTranslationLanguages($product, $languages, $variantAuditMode);
 
                 if ($missingLanguages !== []) {
@@ -128,24 +133,7 @@ class ProductAuditService
                 'variantAuditMode' => $variantAuditMode,
                 'seo' => $this->buildDefaultSeoMeta(),
             ],
-            'totals' => [
-                'missingCoverImage' => \count($issues['missingCoverImage']),
-                'inactiveProducts' => \count($issues['inactiveProducts']),
-                'outOfStockProducts' => \count($issues['outOfStockProducts']),
-                'missingCategory' => \count($issues['missingCategory']),
-                'missingManufacturer' => \count($issues['missingManufacturer']),
-                'missingPrice' => \count($issues['missingPrice']),
-                'missingTranslation' => \count($issues['missingTranslation']),
-                'totalIssues' => $this->calculateTotalIssues([
-                    'missingCoverImage' => \count($issues['missingCoverImage']),
-                    'inactiveProducts' => \count($issues['inactiveProducts']),
-                    'outOfStockProducts' => \count($issues['outOfStockProducts']),
-                    'missingCategory' => \count($issues['missingCategory']),
-                    'missingManufacturer' => \count($issues['missingManufacturer']),
-                    'missingPrice' => \count($issues['missingPrice']),
-                    'missingTranslation' => \count($issues['missingTranslation']),
-                ]),
-            ],
+            'totals' => $this->buildProductHealthTotals($issues),
             'issues' => $issues,
         ];
     }
@@ -223,6 +211,64 @@ class ProductAuditService
             'improvementThreshold' => 0,
             'improvementRate' => 0.0,
         ];
+    }
+
+    /**
+     * @param array<int, string>|null $enabledChecks
+     *
+     * @return array<int, string>
+     */
+    private function resolveActiveProductHealthChecks(?array $enabledChecks): array
+    {
+        $defaultChecks = [
+            'missingCoverImage',
+            'inactiveProducts',
+            'outOfStockProducts',
+            'missingCategory',
+            'missingManufacturer',
+            'missingPrice',
+            'missingTranslation',
+        ];
+
+        if ($enabledChecks === null) {
+            return $defaultChecks;
+        }
+
+        return array_values(array_intersect($defaultChecks, $enabledChecks));
+    }
+
+    /**
+     * @param array<int, string> $activeChecks
+     *
+     * @return array<string, array<int, array<string, mixed>>>
+     */
+    private function buildProductHealthIssueBuckets(array $activeChecks): array
+    {
+        $issues = [];
+
+        foreach ($activeChecks as $check) {
+            $issues[$check] = [];
+        }
+
+        return $issues;
+    }
+
+    /**
+     * @param array<string, array<int, array<string, mixed>>> $issues
+     *
+     * @return array<string, int>
+     */
+    private function buildProductHealthTotals(array $issues): array
+    {
+        $totals = [];
+
+        foreach ($issues as $issueKey => $items) {
+            $totals[$issueKey] = \count($items);
+        }
+
+        $totals['totalIssues'] = $this->calculateTotalIssues($totals);
+
+        return $totals;
     }
 
     private function loadProducts(Context $context, int $limit, string $variantAuditMode): ProductCollection

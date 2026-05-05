@@ -16,6 +16,8 @@ import {
     goToTasks,
     goToSettings,
 } from '../../core/utils/navigation.util';
+import { DEFAULT_SCAN_OPTIONS } from '../../core/constants/scan-options.constant';
+import { loadScanOptions } from '../../core/utils/scan-options.util';
 
 Shopware.Component.register('esmx-shop-audit-reports', {
     template,
@@ -254,6 +256,39 @@ Shopware.Component.register('esmx-shop-audit-reports', {
 
             return `${first} – ${last}`;
         },
+
+        selectedReportScanOptions() {
+            return this.selectedReport?.summaryJson?.scanOptions ?? null;
+        },
+
+        hasSelectedReportScanOptions() {
+            return !!this.selectedReportScanOptions;
+        },
+
+        auditedParameterGroups() {
+            if (!this.hasSelectedReportScanOptions) {
+                return [];
+            }
+
+            return Object.keys(DEFAULT_SCAN_OPTIONS)
+                .filter((groupKey) => groupKey !== 'version')
+                .map((groupKey) => {
+                    const defaultGroup = DEFAULT_SCAN_OPTIONS[groupKey] || {};
+                    const reportGroup = this.selectedReportScanOptions[groupKey] || {};
+                    const checks = Object.keys(defaultGroup.checks || {}).map((checkKey) => ({
+                        key: checkKey,
+                        label: this.getScanOptionCheckLabel(groupKey, checkKey),
+                        selected: reportGroup.checks?.[checkKey] === true,
+                    }));
+
+                    return {
+                        key: groupKey,
+                        label: this.getScanOptionGroupLabel(groupKey),
+                        status: this.getAuditGroupStatus(checks),
+                        checks,
+                    };
+                });
+        },
     },
 
     created() {
@@ -336,7 +371,7 @@ Shopware.Component.register('esmx-shop-audit-reports', {
             this.isRunningScan = true;
             this.scanError = null;
 
-            this.esmxShopAuditApiService.runScan()
+            this.esmxShopAuditApiService.runScan(loadScanOptions())
                 .then(() => this.loadReports())
                 .catch((error) => {
                     console.error('EsmxShopAuditAi reports run scan error:', error);
@@ -469,6 +504,10 @@ Shopware.Component.register('esmx-shop-audit-reports', {
             return goToDashboard(this.$router);
         },
 
+        openScanOptionsModal() {
+            return goToDashboard(this.$router, { scanOptions: '1' });
+        },
+
         goToFindings() {
             return goToFindings(this.$router);
         },
@@ -499,6 +538,70 @@ Shopware.Component.register('esmx-shop-audit-reports', {
 
         getFindingSeverityLabel(severity) {
             return getSeverityLabel(this.$tc.bind(this), severity);
+        },
+
+        getScanOptionGroupLabel(groupKey) {
+            return this.$tc(`esmx-shop-audit-ai.dashboard.scanOptions.groups.${groupKey}`);
+        },
+
+        getScanOptionCheckLabel(groupKey, checkKey) {
+            const labelMap = {
+                productHealth: {
+                    missingCoverImage: 'missingCoverImage',
+                    inactiveProducts: 'inactiveProducts',
+                    outOfStockProducts: 'outOfStockProducts',
+                    missingCategory: 'missingCategory',
+                    missingManufacturer: 'missingManufacturer',
+                    missingPrice: 'missingPrice',
+                    missingTranslation: 'missingTranslation',
+                },
+                seo: {
+                    product_name: 'productName',
+                    product_description: 'productDescription',
+                    product_meta_title: 'productMetaTitle',
+                    product_meta_description: 'productMetaDescription',
+                    category_missing_meta_title: 'categoryMetaTitle',
+                    category_missing_meta_description: 'categoryMetaDescription',
+                    category_missing_description: 'categoryDescription',
+                },
+                brokenLinks: {
+                    product_description: 'brokenLinkProductDescriptions',
+                    category_description: 'brokenLinkCategoryDescriptions',
+                    cms_content: 'brokenLinkCmsPages',
+                    external_links: 'brokenLinkExternalLinks',
+                },
+                sales: {
+                    salesKpis: 'salesKpis',
+                    topSellingProducts: 'topSellingProducts',
+                    lowStockBestSellers: 'lowStockBestSellers',
+                },
+            };
+
+            const snippetKey = labelMap[groupKey]?.[checkKey];
+
+            if (!snippetKey) {
+                return checkKey;
+            }
+
+            return this.$tc(`esmx-shop-audit-ai.dashboard.scanOptions.checks.${snippetKey}`);
+        },
+
+        getAuditGroupStatus(checks) {
+            const selectedCount = checks.filter((check) => check.selected).length;
+
+            if (selectedCount === 0) {
+                return 'disabled';
+            }
+
+            if (selectedCount === checks.length) {
+                return 'enabled';
+            }
+
+            return 'partial';
+        },
+
+        getAuditGroupStatusLabel(status) {
+            return this.$tc(`esmx-shop-audit-ai.reports.auditedParameters.status.${status}`);
         },
 
         isReportSelected(reportId) {

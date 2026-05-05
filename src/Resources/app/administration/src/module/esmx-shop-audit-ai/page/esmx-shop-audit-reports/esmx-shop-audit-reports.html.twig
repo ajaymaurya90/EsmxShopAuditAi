@@ -35,20 +35,33 @@
             </mt-button>#}
 
             <div class="esmx-shop-audit__page-actions">
-                <mt-button
-                        variant="primary"
-                        size="default"
-                        :loading="isRunningScan"
-                        :disabled="isRunningScan"
-                        @click="runScan"
-                >
-                    <span v-if="isRunningScan" class="esmx-shop-audit__scan-status">
-                        {{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}
-                    </span>
-                    <span v-else>
-                        {{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
-                    </span>
-                </mt-button>
+                <div class="dashboard__scan-split-button">
+                    <mt-button
+                            variant="primary"
+                            size="default"
+                            :loading="isRunningScan"
+                            :disabled="isRunningScan"
+                            @click="runScan"
+                    >
+                        <span v-if="isRunningScan" class="esmx-shop-audit__scan-status">
+                            {{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}
+                        </span>
+                        <span v-else>
+                            {{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
+                        </span>
+                    </mt-button>
+
+                    <mt-button
+                            class="dashboard__scan-options-button"
+                            variant="primary"
+                            size="default"
+                            :disabled="isRunningScan"
+                            :title="$tc('esmx-shop-audit-ai.dashboard.scanOptions.openButton')"
+                            @click="openScanOptionsModal"
+                    >
+                        <mt-icon name="regular-chevron-down-s" size="16px"/>
+                    </mt-button>
+                </div>
             </div>
         </template>
 
@@ -334,6 +347,60 @@
                         <div class="esmx-shop-audit__stat-item">
                             <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.tasks') }}</div>
                             <div class="esmx-shop-audit__stat-value">{{ selectedReportTaskCount }}</div>
+                        </div>
+                    </div>
+
+                    <div class="reports__detail-section reports__audited-parameters">
+                        <div class="esmx-shop-audit__detail-section-heading">
+                            {{ $tc('esmx-shop-audit-ai.reports.auditedParameters.title') }}
+                        </div>
+
+                        <div
+                                v-if="!hasSelectedReportScanOptions"
+                                class="reports__audited-parameters-empty"
+                        >
+                            {{ $tc('esmx-shop-audit-ai.reports.auditedParameters.notRecorded') }}
+                        </div>
+
+                        <div
+                                v-else
+                                class="reports__audited-parameters-grid"
+                        >
+                            <section
+                                    v-for="group in auditedParameterGroups"
+                                    :key="group.key"
+                                    class="reports__audited-parameter-group"
+                            >
+                                <div class="reports__audited-parameter-group-header">
+                                    <strong>{{ group.label }}</strong>
+                                    <span
+                                            class="reports__audited-parameter-status"
+                                            :class="'is-' + group.status"
+                                    >
+                                        {{ getAuditGroupStatusLabel(group.status) }}
+                                    </span>
+                                </div>
+
+                                <div class="reports__audited-parameter-checks">
+                                    <div
+                                            v-for="check in group.checks"
+                                            :key="check.key"
+                                            class="reports__audited-parameter-check"
+                                            :class="{ 'is-disabled': !check.selected }"
+                                    >
+                                        <span
+                                                class="reports__audited-parameter-check-state"
+                                                :class="{ 'is-selected': check.selected }"
+                                        ></span>
+                                        <span>{{ check.label }}</span>
+                                        <span class="reports__audited-parameter-check-label">
+                                            {{ check.selected
+                                                ? $tc('esmx-shop-audit-ai.reports.auditedParameters.selected')
+                                                : $tc('esmx-shop-audit-ai.reports.auditedParameters.notSelected') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </section>
                         </div>
                     </div>
 

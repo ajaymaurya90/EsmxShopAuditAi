@@ -1,5 +1,8 @@
-export function goToDashboard(router) {
-    return router.push({ name: 'esmx.shop.audit.ai.index' });
+export function goToDashboard(router, query = {}) {
+    return router.push({
+        name: 'esmx.shop.audit.ai.index',
+        query,
+    });
 }
 
 export function goToFindings(router, query = {}) {

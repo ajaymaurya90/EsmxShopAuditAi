@@ -51,6 +51,13 @@
     color: #111827;
   }
 
+  .esmx-shop-audit__section-title-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
   .esmx-shop-audit__section-subtitle {
     font-size: 14px;
     line-height: 1.5;
@@ -58,16 +65,36 @@
     white-space: nowrap;
   }
 
-  .sw-page__smart-bar-actions .esmx-shop-audit__page-actions {
-    margin-left: 12px;
-  }
-
   .esmx-shop-audit__page-actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0;
     flex-wrap: wrap;
-    margin-left:8px;
+    margin-left: 0;
+  }
+
+  .dashboard__scan-split-button {
+    display: inline-flex;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .dashboard__scan-split-button > .mt-button {
+    margin-left: 0 !important;
+  }
+
+  .dashboard__scan-split-button > .mt-button:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .dashboard__scan-options-button {
+    min-width: 38px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 1px solid rgba(255, 255, 255, 0.28);
   }
 
   .esmx-shop-audit__scan-status {
@@ -164,6 +191,11 @@
   .esmx-shop-audit__severity-badge.severity-critical {
     background: #fee2e2;
     color: #991b1b;
+  }
+
+  .esmx-shop-audit__severity-badge.severity-not_available {
+    background: #f3f4f6;
+    color: #6b7280;
   }
 
   .esmx-shop-audit__stats-strip {

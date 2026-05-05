@@ -36,9 +36,10 @@
       "scanStatus": "Scan-Status",
       "highPriorityFindings": "Findings mit hoher Priorität",
 
-      "scanResultsTitle": "Shop-Scan-Ergebnisse",
+      "scanResultsTitle": "Aktuelle-Scan-Ergebnisse",
       "issueGroups": "Aktive Themengruppen",
       "issueGroupsSubtitle": "Prüfen Sie gruppierte Audit-Ergebnisse nach Schweregrad und Auswirkung.",
+      "noActiveIssueGroups": "Keine aktiven Themengruppen im letzten Scan.",
       "viewAll": "Alle anzeigen",
       "viewAllFindings": "Alle Findings anzeigen",
 
@@ -58,6 +59,10 @@
       "storeHealthInfo": "Die Shop-Gesundheit ist ein Gesamtqualitätswert von 0 bis 100. Sie wird auf Basis wichtiger Audit-Probleme berechnet, zum Beispiel nicht verfügbare Produkte, fehlende Preise, inaktive Produkte, fehlende Beschreibungen, fehlende Bilder, SEO-bezogene Lücken und kritische Probleme. Schwerwiegende und häufige Probleme verringern den Wert stärker. Um den Wert zu verbessern, sollten zuerst kritische Probleme und danach Inhalts- und SEO-Lücken behoben werden.",
       "nextBestActionTitle": "Nächste beste Aktion",
       "reviewNow": "Jetzt prüfen",
+      "healthScoreNotAvailable": "N/V",
+      "healthSummaryNotAvailable": "Im letzten Scan waren keine Audit-Prüfungen enthalten.",
+      "healthIncludedChecksInfo": "Der Wert basiert auf den Audit-Prüfungen, die im letzten Scan enthalten waren.",
+      "healthNoChecksAction": "Starten Sie einen Scan mit mindestens einer Audit-Prüfung.",
       "healthyHeadline": "Sehr gut — aktuell gibt es keine kritischen Probleme mit sofortigem Handlungsbedarf.",
       "headlineOutOfStock": "{count} Produkte sind nicht auf Lager und benötigen sofortige Aufmerksamkeit.",
       "headlineMissingPrice": "{count} Produkte haben keinen Preis und sollten zuerst korrigiert werden.",
@@ -73,7 +78,8 @@
       "healthStatus": {
         "good": "Gut",
         "warning": "Benötigt Aufmerksamkeit",
-        "critical": "Kritisch"
+        "critical": "Kritisch",
+        "not_available": "Nicht verfügbar"
       },
 
       "topTasksSubtitle": "Prüfen Sie die wichtigsten Audit-Aufgaben, um die Shop-Qualität zu verbessern.",
@@ -115,12 +121,88 @@
       "criticalIssues": "Kritische Probleme",
       "seoKpiTitle": "SEO-Qualitätsübersicht",
       "seoKpiSubtitle": "Überblick über die aktuelle SEO-Qualität der geprüften Produkte.",
+      "seoAuditNotIncluded": "Der SEO-Audit war im letzten Scan nicht enthalten.",
       "seoAverageScore": "Durchschnittlicher SEO-Score",
       "seoAverageScoreHint": "Gewichteter Score aus Meta-Titel, Meta-Beschreibung und Beschreibung.",
       "seoNeedsImprovement": "Verbesserungsbedarf",
       "seoNeedsImprovementHint": "Hier werden Produkte mit einem Score unter {threshold} gezählt.",
       "seoImprovementRate": "Verbesserungsquote",
-      "seoImprovementRateHint": "Anteil der geprüften Produkte unterhalb des SEO-Schwellenwerts."
+      "seoImprovementRateHint": "Anteil der geprüften Produkte unterhalb des SEO-Schwellenwerts.",
+      "scanOptions": {
+        "openButton": "Scan-Optionen öffnen",
+        "title": "Scan-Optionen",
+        "description": "Wählen Sie, welche Audit-Gruppen und Prüfungen für diesen Scan verwendet werden sollen.",
+        "configureTitle": "Scan konfigurieren",
+        "configureSubtitle": "Wählen Sie, welche Audit-Prüfungen in diesem Scan enthalten sein sollen.",
+        "summary": "{checks} Prüfung in {groups} Audit-Gruppe ausgewählt | {checks} Prüfungen in {groups} Audit-Gruppen ausgewählt",
+        "summaryChecks": "{count} Prüfung ausgewählt | {count} Prüfungen ausgewählt",
+        "summaryAcross": "in",
+        "summaryGroups": "{count} Audit-Gruppe | {count} Audit-Gruppen",
+        "selectAll": "Alle auswählen",
+        "reset": "Zurücksetzen",
+        "cancel": "Abbrechen",
+        "saveAndRun": "Speichern & Scan starten",
+        "groups": {
+          "productHealth": "Produktzustands-Audit",
+          "seo": "SEO-Audit",
+          "brokenLinks": "Broken-Link-Audit",
+          "sales": "Sales-Audit"
+        },
+        "checks": {
+          "missingCoverImage": "Fehlende Bilder",
+          "inactiveProducts": "Inaktive Produkte",
+          "outOfStockProducts": "Nicht auf Lager",
+          "missingCategory": "Fehlende Kategorie",
+          "missingManufacturer": "Fehlender Hersteller",
+          "missingPrice": "Fehlender Preis",
+          "missingTranslation": "Fehlende Übersetzungen",
+          "productName": "Produktname",
+          "productDescription": "Produktbeschreibung",
+          "productMetaTitle": "Produkt-Meta-Titel",
+          "productMetaDescription": "Produkt-Meta-Beschreibung",
+          "categoryMetaTitle": "Kategorie-Meta-Titel",
+          "categoryMetaDescription": "Kategorie-Meta-Beschreibung",
+          "categoryDescription": "Kategoriebeschreibung",
+          "brokenLinkProductDescriptions": "Produktbeschreibungen",
+          "brokenLinkCategoryDescriptions": "Kategoriebeschreibungen",
+          "brokenLinkCmsPages": "CMS-Seiten",
+          "brokenLinkExternalLinks": "Externe Links prüfen",
+          "salesKpis": "Sales-KPIs",
+          "topSellingProducts": "Topverkaufte Produkte",
+          "lowStockBestSellers": "Bestseller mit geringem Bestand"
+        }
+      }
+    },
+    "scanOptions": {
+      "groupTooltips": {
+        "productHealth": "Prüft Katalogvollständigkeit und operative Produktqualität, zum Beispiel Bilder, Bestand, Preise, Kategorien, Hersteller und Übersetzungen.",
+        "seo": "Prüft Produkt- und Kategorieinhalte, die Suchsichtbarkeit, Metadatenqualität und Inhaltsvollständigkeit beeinflussen.",
+        "brokenLinks": "Validiert Links in Produktbeschreibungen, Kategoriebeschreibungen und CMS-Inhalten.",
+        "sales": "Enthält Sales-KPIs und verkaufsbasierte Empfehlungen wie Top-Performer und Bestseller mit geringem Bestand."
+      },
+      "tooltips": {
+        "missingCoverImage": "Findet Produkte ohne Titelbild.",
+        "inactiveProducts": "Findet Produkte, die inaktiv und im Storefront verborgen sind.",
+        "outOfStockProducts": "Findet Produkte ohne verfügbaren Bestand.",
+        "missingCategory": "Findet Produkte, die keiner Kategorie zugewiesen sind.",
+        "missingManufacturer": "Findet Produkte ohne Herstellerzuweisung.",
+        "missingPrice": "Findet Produkte ohne nutzbaren Preis.",
+        "missingTranslation": "Findet Produkte mit fehlenden Sprachübersetzungen.",
+        "product_name": "Prüft, ob Produktnamen vorhanden und aussagekräftig sind.",
+        "product_description": "Prüft, ob Produktbeschreibungen vorhanden und lang genug sind.",
+        "product_meta_title": "Prüft Produkt-SEO-Meta-Titel auf fehlende oder schwache Werte.",
+        "product_meta_description": "Prüft Produkt-SEO-Meta-Beschreibungen auf fehlende oder schwache Werte.",
+        "category_missing_meta_title": "Prüft Kategorie-SEO-Meta-Titel auf fehlende Werte.",
+        "category_missing_meta_description": "Prüft Kategorie-SEO-Meta-Beschreibungen auf fehlende Werte.",
+        "category_missing_description": "Prüft Kategorien auf fehlende Beschreibungen.",
+        "product_description_links": "Prüft Links innerhalb von Produktbeschreibungen.",
+        "category_description_links": "Prüft Links innerhalb von Kategoriebeschreibungen.",
+        "cms_content": "Prüft Links innerhalb von CMS-Seiteninhalten.",
+        "external_links": "Prüft zusätzlich absolute externe URLs. Dadurch können Scans langsamer werden.",
+        "salesKpis": "Bezieht Sales-KPI-Metriken in den Scan-Kontext ein.",
+        "topSellingProducts": "Bezieht topverkaufte Produkte auf Basis aktueller Verkäufe ein.",
+        "lowStockBestSellers": "Bezieht Bestseller mit geringem Bestand ein."
+      }
     },
     "dashboardInsights": {
       "scannedProducts": "Geprüfte Produkte",
@@ -146,7 +228,8 @@
       "productDescription": "Beschreibungen fehlen oder sind zu kurz und können SEO-Qualität sowie Produktklarheit beeinträchtigen.",
       "categoryMissingMetaTitle": "Fehlende SEO-Meta-Titel bei Kategorien können die Kategoriesichtbarkeit schwächen.",
       "categoryMissingMetaDescription": "Fehlende Meta-Beschreibungen bei Kategorien können die SEO-Klickrate verringern.",
-      "categoryMissingDescription": "Wenig Kategorieinhalt kann SEO und Nutzerführung verschlechtern."
+      "categoryMissingDescription": "Wenig Kategorieinhalt kann SEO und Nutzerführung verschlechtern.",
+      "brokenLinks": "Defekte Links können Kunden und Suchmaschinen auf nicht verfügbare Seiten führen."
     },
     "grid": {
       "productName": "Produkt",
@@ -347,6 +430,17 @@
         "confirmButton": "Jetzt löschen",
         "success": "{count} Bericht wurde erfolgreich gelöscht. | {count} Berichte wurden erfolgreich gelöscht.",
         "error": "Die ausgewählten Berichte konnten nicht gelöscht werden."
+      },
+      "auditedParameters": {
+        "title": "Geprüfte Parameter",
+        "notRecorded": "Audit-Parameter wurden für diesen Bericht nicht gespeichert.",
+        "selected": "Ausgewählt",
+        "notSelected": "Nicht ausgewählt",
+        "status": {
+          "enabled": "Aktiviert",
+          "disabled": "Deaktiviert",
+          "partial": "Teilweise"
+        }
       }
     },
     "settings": {
@@ -386,23 +480,23 @@
         "checkMissingTranslations": {
           "label": "Fehlende Übersetzungen prüfen"
         },
-        "checkSeoFields": {
-          "label": "SEO-Felder prüfen"
-        },
-        "checkProductMetaDescription": {
-          "label": "Fehlende Produkt-Meta-Description prüfen"
-        },
-        "checkWeakProductTitle": {
-          "label": "Schwachen Produkttitel prüfen"
+        "checkProductName": {
+          "label": "Produktnamen prüfen"
         },
         "minProductTitleLength": {
-          "label": "Minimale Länge des Produkttitels"
+          "label": "Minimale Länge des Produktnamens"
         },
-        "checkShortProductDescription": {
-          "label": "Kurze Produktbeschreibung prüfen"
+        "checkProductDescription": {
+          "label": "Produktbeschreibung prüfen"
         },
         "minProductDescriptionLength": {
           "label": "Minimale Länge der Produktbeschreibung"
+        },
+        "checkProductMetaTitle": {
+          "label": "Produkt-Meta-Titel prüfen"
+        },
+        "checkProductMetaDescription": {
+          "label": "Produkt-Meta-Beschreibung prüfen"
         },
         "checkCategorySeo": {
           "label": "Kategorie-SEO-Felder prüfen"

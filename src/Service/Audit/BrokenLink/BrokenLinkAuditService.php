@@ -13,6 +13,8 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\System\Language\LanguageEntity;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class BrokenLinkAuditService
 {
@@ -30,18 +32,42 @@ class BrokenLinkAuditService
         private EntityRepository $cmsPageRepository,
 
         private BrokenLinkExtractor $extractor,
-        private BrokenLinkChecker $checker
+        private BrokenLinkChecker $checker,
+        private LoggerInterface $logger,
+        private RequestStack $requestStack
     ) {}
 
     /**
      * Main scan runner
      */
-    public function run(Context $context, int $limit = 500, int $timeout = 5, bool $checkExternal = false): array
+    public function run(
+        Context $context,
+        int $limit = 500,
+        int $timeout = 5,
+        bool $checkExternal = false,
+        ?array $scanOptions = null
+    ): array
     {
         $brokenLinks   = [];
         $checkedUrls   = [];   // Cache URL check results (avoid duplicate HTTP calls)
         $reportedItems = [];   // Prevent duplicate findings
         $totalChecked  = 0;
+        $enabledSources = $this->resolveEnabledSources($scanOptions);
+        $sourceStats = [
+            'product_description' => ['items' => 0, 'links' => 0],
+            'category_description' => ['items' => 0, 'links' => 0],
+            'cms_content' => ['items' => 0, 'links' => 0],
+        ];
+
+        $this->logger->info('Broken link audit source selection', [
+            'receivedBrokenLinksScanOptions' => $scanOptions['brokenLinks'] ?? null,
+            'enabledSources' => array_keys(array_filter($enabledSources)),
+            'sources' => $enabledSources,
+        ]);
+
+        if (!\in_array(true, $enabledSources, true)) {
+            return ['broken_links' => []];
+        }
 
         /**
          * Load all data ONCE (performance optimization)
@@ -68,32 +94,36 @@ class BrokenLinkAuditService
              * PRODUCTS
              * ==============================
              */
-            $productCriteria = new Criteria();
-            $productCriteria->setLimit($limit);
-            $productCriteria->addFilter(new EqualsFilter('product.active', true));
-            $productResult = $this->productRepository->search($productCriteria, $languageContext);
+            if ($enabledSources['product_description']) {
+                $productCriteria = new Criteria();
+                $productCriteria->setLimit($limit);
+                $productCriteria->addFilter(new EqualsFilter('product.active', true));
+                $productResult = $this->productRepository->search($productCriteria, $languageContext);
 
-            /** @var ProductEntity $product */
-            foreach ($productResult->getEntities() as $product) {
+                /** @var ProductEntity $product */
+                foreach ($productResult->getEntities() as $product) {
 
-                // IMPORTANT: now this is language-specific
-                $description = $product->getTranslation('description');
+                    // IMPORTANT: now this is language-specific
+                    $description = $product->getTranslation('description');
 
-                if (empty($description)) {
-                    continue;
-                }
+                    if (empty($description)) {
+                        continue;
+                    }
 
-                $links = $this->extractor->extractLinks($description);
+                    $links = $this->extractor->extractLinks($description);
+                    $sourceStats['product_description']['items']++;
+                    $sourceStats['product_description']['links'] += \count($links);
 
-                if (!$this->processLinks($links, [
-                    'languageId'   => $languageId,
-                    'languageName' => $languageName,
-                    'id'           => $product->getId(),
-                    'entity'       => 'product',
-                    'name'         => $product->getTranslation('name'),
-                    'source'       => 'product_description',
-                ], $brokenLinks, $checkedUrls, $reportedItems, $totalChecked, $limit, $timeout, $checkExternal)) {
-                    break;
+                    if (!$this->processLinks($links, [
+                        'languageId'   => $languageId,
+                        'languageName' => $languageName,
+                        'id'           => $product->getId(),
+                        'entity'       => 'product',
+                        'name'         => $product->getTranslation('name'),
+                        'source'       => 'product_description',
+                    ], $brokenLinks, $checkedUrls, $reportedItems, $totalChecked, $limit, $timeout, $checkExternal)) {
+                        break;
+                    }
                 }
             }
 
@@ -102,32 +132,36 @@ class BrokenLinkAuditService
              * CATEGORIES
              * ==============================
              */
-            $categoryCriteria = new Criteria();
-            $categoryCriteria->setLimit($limit);
-            $categoryCriteria->addAssociation('translations');
-            $categoryResult = $this->categoryRepository->search($categoryCriteria, $languageContext);
+            if ($enabledSources['category_description']) {
+                $categoryCriteria = new Criteria();
+                $categoryCriteria->setLimit($limit);
+                $categoryCriteria->addAssociation('translations');
+                $categoryResult = $this->categoryRepository->search($categoryCriteria, $languageContext);
 
-            /** @var CategoryEntity $category */
-            foreach ($categoryResult->getEntities() as $category) {
+                /** @var CategoryEntity $category */
+                foreach ($categoryResult->getEntities() as $category) {
 
-                $translated = $category->getTranslated();
-                $description = $translated['description'] ?? null;
+                    $translated = $category->getTranslated();
+                    $description = $translated['description'] ?? null;
 
-                if (empty($description)) {
-                    continue;
-                }
+                    if (empty($description)) {
+                        continue;
+                    }
 
-                $links = $this->extractor->extractLinks($description);
+                    $links = $this->extractor->extractLinks($description);
+                    $sourceStats['category_description']['items']++;
+                    $sourceStats['category_description']['links'] += \count($links);
 
-                if (!$this->processLinks($links, [
-                    'languageId'   => $languageId,
-                    'languageName' => $languageName,
-                    'id'           => $category->getId(),
-                    'entity'       => 'category',
-                    'name'         => $translated['name'] ?? $category->getId(),
-                    'source'       => 'category_description',
-                ], $brokenLinks, $checkedUrls, $reportedItems, $totalChecked, $limit, $timeout, $checkExternal)) {
-                    break;
+                    if (!$this->processLinks($links, [
+                        'languageId'   => $languageId,
+                        'languageName' => $languageName,
+                        'id'           => $category->getId(),
+                        'entity'       => 'category',
+                        'name'         => $translated['name'] ?? $category->getId(),
+                        'source'       => 'category_description',
+                    ], $brokenLinks, $checkedUrls, $reportedItems, $totalChecked, $limit, $timeout, $checkExternal)) {
+                        break;
+                    }
                 }
             }
 
@@ -136,77 +170,111 @@ class BrokenLinkAuditService
              * CMS PAGES
              * ==============================
              */
-            $cmsCriteria = new Criteria();
-            $cmsCriteria->setLimit($limit);
-            $cmsCriteria->addAssociation('sections.blocks.slots.translations');
-            $cmsPages = $this->cmsPageRepository->search($cmsCriteria, $context);
-            /** @var CmsPageEntity $page */
-            foreach ($cmsPages->getEntities() as $page) {
+            if ($enabledSources['cms_content']) {
+                $cmsCriteria = new Criteria();
+                $cmsCriteria->setLimit($limit);
+                $cmsCriteria->addAssociation('sections.blocks.slots.translations');
+                $cmsPages = $this->cmsPageRepository->search($cmsCriteria, $context);
+                /** @var CmsPageEntity $page */
+                foreach ($cmsPages->getEntities() as $page) {
 
-                $uniquePageUrls = [];
+                    $uniquePageUrls = [];
 
-                foreach ($page->getSections() ?? [] as $section) {
-                    foreach ($section->getBlocks() ?? [] as $block) {
-                        foreach ($block->getSlots() ?? [] as $slot) {
+                    foreach ($page->getSections() ?? [] as $section) {
+                        foreach ($section->getBlocks() ?? [] as $block) {
+                            foreach ($block->getSlots() ?? [] as $slot) {
 
-                            $config = $this->getSlotConfigForLanguage($slot, $languageId);
+                                $config = $this->getSlotConfigForLanguage($slot, $languageId);
 
-                            if (!$config) {
-                                continue;
-                            }
-
-                            foreach ($config as $field) {
-
-                                $value = $field['value'] ?? null;
-
-                                if (!is_string($value) || trim($value) === '') {
+                                if (!$config) {
                                     continue;
                                 }
 
-                                foreach ($this->extractor->extractLinks($value) as $url) {
+                                foreach ($config as $field) {
 
-                                    $normalized = $this->normalizeUrl($url);
+                                    $value = $field['value'] ?? null;
 
-                                    if ($normalized === '') {
+                                    if (!is_string($value) || trim($value) === '') {
                                         continue;
                                     }
 
-                                    // Deduplicate per page
-                                    $uniquePageUrls[$normalized] = $url;
+                                    foreach ($this->extractor->extractLinks($value) as $url) {
+
+                                        $normalized = $this->normalizeUrl($url);
+
+                                        if ($normalized === '') {
+                                            continue;
+                                        }
+
+                                        // Deduplicate per page
+                                        $uniquePageUrls[$normalized] = $url;
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                // Process unique URLs
-                foreach ($uniquePageUrls as $originalUrl) {
+                    // Process unique URLs
+                    if ($uniquePageUrls !== []) {
+                        $sourceStats['cms_content']['items']++;
+                        $sourceStats['cms_content']['links'] += \count($uniquePageUrls);
+                    }
 
-                    if (!$this->checkAndAppend(
-                        $originalUrl,
-                        [
-                            'languageId'   => $languageId,
-                            'languageName' => $languageName,
-                            'id'           => $page->getId(),
-                            'entity'       => 'cms_page',
-                            'name'         => $page->getName() ?? $page->getId(),
-                            'source'       => 'cms_content',
-                        ],
-                        $brokenLinks,
-                        $checkedUrls,
-                        $reportedItems,
-                        $totalChecked,
-                        $limit,
-                        $timeout,
-                        $checkExternal
-                    )) {
-                        break;
+                    foreach ($uniquePageUrls as $originalUrl) {
+
+                        if (!$this->checkAndAppend(
+                            $originalUrl,
+                            [
+                                'languageId'   => $languageId,
+                                'languageName' => $languageName,
+                                'id'           => $page->getId(),
+                                'entity'       => 'cms_page',
+                                'name'         => $page->getName() ?? $page->getId(),
+                                'source'       => 'cms_content',
+                            ],
+                            $brokenLinks,
+                            $checkedUrls,
+                            $reportedItems,
+                            $totalChecked,
+                            $limit,
+                            $timeout,
+                            $checkExternal
+                        )) {
+                            break;
+                        }
                     }
                 }
             }
         }
 
+        $this->logger->info('Broken link audit completed source scan', [
+            'enabledSources' => array_keys(array_filter($enabledSources)),
+            'sourceStats' => $sourceStats,
+            'totalChecked' => $totalChecked,
+            'brokenLinkCount' => \count($brokenLinks),
+        ]);
+
         return ['broken_links' => $brokenLinks];
+    }
+
+    private function resolveEnabledSources(?array $scanOptions): array
+    {
+        $checks = $scanOptions['brokenLinks']['checks'] ?? [];
+
+        return [
+            'product_description' => $this->isSourceEnabled($checks, 'product_description'),
+            'category_description' => $this->isSourceEnabled($checks, 'category_description'),
+            'cms_content' => $this->isSourceEnabled($checks, 'cms_content'),
+        ];
+    }
+
+    private function isSourceEnabled(array $checks, string $source): bool
+    {
+        if (!\array_key_exists($source, $checks)) {
+            return true;
+        }
+
+        return (bool) $checks[$source];
     }
 
     /**
@@ -256,20 +324,51 @@ class BrokenLinkAuditService
         bool $checkExternal
     ): bool {
         $normalized = $this->normalizeUrl($url);
+        $isExternal = $this->isExternalUrl($url);
 
         if ($normalized === '') {
+            $this->logger->debug('Broken link audit skipped empty normalized URL', [
+                'rawUrl' => $url,
+                'normalizedUrl' => $normalized,
+                'source' => $payload['source'] ?? null,
+                'entity' => $payload['entity'] ?? null,
+            ]);
+
             return true;
         }
 
-        $isExternal = filter_var($url, FILTER_VALIDATE_URL);
-
         if ($isExternal && !$checkExternal) {
+            $this->logger->debug('Broken link audit skipped external URL because external checks are disabled', [
+                'rawUrl' => $url,
+                'normalizedUrl' => $normalized,
+                'isExternal' => true,
+                'checkExternal' => $checkExternal,
+                'skipped_external_disabled' => true,
+                'totalCheckedIncremented' => false,
+                'source' => $payload['source'] ?? null,
+                'entity' => $payload['entity'] ?? null,
+            ]);
+
             return true;
         }
 
         if ($totalChecked >= $limit && !isset($checkedUrls[$normalized])) {
+            $this->logger->debug('Broken link audit stopped at configured link limit', [
+                'rawUrl' => $url,
+                'normalizedUrl' => $normalized,
+                'isExternal' => $isExternal,
+                'checkExternal' => $checkExternal,
+                'limit' => $limit,
+                'totalChecked' => $totalChecked,
+                'totalCheckedIncremented' => false,
+                'source' => $payload['source'] ?? null,
+                'entity' => $payload['entity'] ?? null,
+            ]);
+
             return false;
         }
+
+        $totalCheckedBefore = $totalChecked;
 
         if (!isset($checkedUrls[$normalized])) {
             $checkedUrls[$normalized] = $this->checker->check($url, $timeout);
@@ -277,6 +376,20 @@ class BrokenLinkAuditService
         }
 
         $check = $checkedUrls[$normalized];
+
+        $this->logger->debug('Broken link audit checked URL', [
+            'rawUrl' => $url,
+            'normalizedUrl' => $normalized,
+            'isExternal' => $isExternal,
+            'checkExternal' => $checkExternal,
+            'skipped_external_disabled' => false,
+            'totalCheckedIncremented' => $totalChecked > $totalCheckedBefore,
+            'totalChecked' => $totalChecked,
+            'status' => $check['status'] ?? null,
+            'error' => $check['error'] ?? null,
+            'source' => $payload['source'] ?? null,
+            'entity' => $payload['entity'] ?? null,
+        ]);
 
         if ($this->checker->isBroken($check)) {
 
@@ -301,6 +414,28 @@ class BrokenLinkAuditService
         }
 
         return true;
+    }
+
+    private function isExternalUrl(string $url): bool
+    {
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            return false;
+        }
+
+        $host = parse_url($url, PHP_URL_HOST);
+
+        if (!\is_string($host) || $host === '') {
+            return false;
+        }
+
+        $currentRequest = $this->requestStack->getCurrentRequest();
+        $currentHost = $currentRequest?->getHost();
+
+        if (!\is_string($currentHost) || $currentHost === '') {
+            return true;
+        }
+
+        return mb_strtolower($host) !== mb_strtolower($currentHost);
     }
 
     /**

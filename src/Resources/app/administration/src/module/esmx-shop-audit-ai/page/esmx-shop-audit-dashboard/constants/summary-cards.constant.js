@@ -113,5 +113,13 @@ export function buildSummaryCards(tc, totals = {}) {
             count: totals.category_missing_description || 0,
             severity: 'low',
         },
+        {
+            key: 'broken_links',
+            code: 'broken_links',
+            label: tc('esmx-shop-audit-ai.findingTitles.broken_links'),
+            impact: tc('esmx-shop-audit-ai.dashboardImpact.brokenLinks'),
+            count: totals.broken_links || 0,
+            severity: 'high',
+        },
     ];
 }

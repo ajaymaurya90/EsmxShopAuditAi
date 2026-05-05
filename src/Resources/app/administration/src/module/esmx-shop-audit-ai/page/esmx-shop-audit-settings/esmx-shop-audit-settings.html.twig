@@ -1,186 +1,135 @@
 {% block esmx_shop_audit_settings %}
-    <sw-page class="esmx-shop-audit-settings">
-        <template #smart-bar-header>
-            <h2>{{ pageTitle }}</h2>
-        </template>
+	<sw-page class="esmx-shop-audit esmx-shop-audit-settings">
+		<template #smart-bar-header>
+			<h2>{{ pageTitle }}</h2>
+		</template>
 
-        <template #smart-bar-actions>
-            <mt-button size="default" @click="goToDashboard">
-                {{ $tc('esmx-shop-audit-ai.navigation.dashboard') }}
-            </mt-button>
+		<template #smart-bar-actions>
+			<mt-button size="default" @click="goToDashboard">
+				{{ $tc('esmx-shop-audit-ai.navigation.dashboard') }}
+			</mt-button>
 
-            <mt-button size="default" @click="goToFindings">
-                {{ $tc('esmx-shop-audit-ai.navigation.findings') }}
-            </mt-button>
+			<mt-button size="default" @click="goToFindings">
+				{{ $tc('esmx-shop-audit-ai.navigation.findings') }}
+			</mt-button>
 
-            <mt-button size="default" @click="goToTasks">
-                {{ $tc('esmx-shop-audit-ai.navigation.tasks') }}
-            </mt-button>
+			<mt-button size="default" @click="goToTasks">
+				{{ $tc('esmx-shop-audit-ai.navigation.tasks') }}
+			</mt-button>
 
-            <mt-button size="default" @click="goToReports">
-                {{ $tc('esmx-shop-audit-ai.navigation.reports') }}
-            </mt-button>
+			<mt-button size="default" @click="goToReports">
+				{{ $tc('esmx-shop-audit-ai.navigation.reports') }}
+			</mt-button>
 
-            <mt-button variant="primary" size="default">
-                {{ $tc('esmx-shop-audit-ai.navigation.settings') }}
-            </mt-button>
+			<mt-button variant="primary" size="default">
+				{{ $tc('esmx-shop-audit-ai.navigation.settings') }}
+			</mt-button>
 
-            <div class="esmx-shop-audit-dashboard__actions" style="margin-left: 8px;">
-                <mt-button
-                        variant="primary"
-                        size="default"
-                        disabled
-                        :title="$tc('esmx-shop-audit-ai.settings.scanDisabledHint')"
-                >
-                    {{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
-                </mt-button>
-            </div>
-        </template>
+			<div class="esmx-shop-audit__page-actions">
+				<div class="dashboard__scan-split-button">
+					<mt-button variant="primary" size="default" disabled :title="$tc('esmx-shop-audit-ai.settings.scanDisabledHint')">
+						{{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
+					</mt-button>
 
-        <template #content>
-            <sw-card-view>
-                <mt-banner v-if="loadError" variant="danger">
-                    {{ loadError }}
-                </mt-banner>
+					<mt-button class="dashboard__scan-options-button" variant="primary" size="default" disabled :title="$tc('esmx-shop-audit-ai.settings.scanDisabledHint')">
+						<mt-icon name="regular-chevron-down-s" size="16px"/>
+					</mt-button>
+				</div>
+			</div>
+		</template>
 
-                <mt-card>
-                    <div class="esmx-shop-audit-settings__header">
-                        <div class="esmx-shop-audit-settings__title">
-                            {{ $tc('esmx-shop-audit-ai.settings.headline') }}
-                        </div>
+		<template #content>
+			<sw-card-view>
+				<mt-banner v-if="loadError" variant="danger">
+					{{ loadError }}
+				</mt-banner>
 
-                        <mt-button
-                                variant="primary"
-                                size="small"
-                                :loading="isSaving"
-                                :disabled="isLoading || isSaving"
-                                @click="saveSettings"
-                        >
-                            {{ $tc('esmx-shop-audit-ai.settings.saveButton') }}
-                        </mt-button>
-                    </div>
+				<mt-card>
+					<div class="esmx-shop-audit-settings__header">
+						<div class="esmx-shop-audit-settings__title">
+							{{ $tc('esmx-shop-audit-ai.settings.headline') }}
+						</div>
 
-                    <p class="esmx-shop-audit-settings__description">
-                        {{ $tc('esmx-shop-audit-ai.settings.description') }}
-                    </p>
+						<mt-button variant="primary" size="small" :loading="isSaving" :disabled="isLoading || isSaving" @click="saveSettings">
+							{{ $tc('esmx-shop-audit-ai.settings.saveButton') }}
+						</mt-button>
+					</div>
 
-                    <div v-if="isLoading">
-                        {{ $tc('esmx-shop-audit-ai.settings.loading') }}
-                    </div>
+					<p class="esmx-shop-audit-settings__description">
+						{{ $tc('esmx-shop-audit-ai.settings.description') }}
+					</p>
 
-                    <div v-else class="esmx-shop-audit-settings__form">
-                        <mt-card style="margin-bottom: 20px;">
-                            <template #headline>
-                                {{ $tc('esmx-shop-audit-ai.settings.sections.general') }}
-                            </template>
+					<div v-if="isLoading">
+						{{ $tc('esmx-shop-audit-ai.settings.loading') }}
+					</div>
 
-                            <div class="esmx-shop-audit-settings__grid">
-                                <div>
-                                    <sw-switch-field
-                                            v-model:value="config.enableAudit"
-                                            :label="$tc('esmx-shop-audit-ai.settings.fields.enableAudit.label')"
-                                            :helpText="$tc('esmx-shop-audit-ai.settings.fields.enableAudit.helpText')"
-                                    />
-                                </div>
+					<div v-else class="esmx-shop-audit-settings__form">
+						<mt-card style="margin-bottom: 20px;">
+							<template #headline>
+								{{ $tc('esmx-shop-audit-ai.settings.sections.general') }}
+							</template>
 
-                                <div>
-                                    <sw-number-field
-                                            v-model:value="config.auditProductLimit"
-                                            numberType="int"
-                                            :min="1"
-                                            :label="$tc('esmx-shop-audit-ai.settings.fields.auditProductLimit.label')"
-                                            :helpText="$tc('esmx-shop-audit-ai.settings.fields.auditProductLimit.helpText')"
-                                    />
-                                </div>
+							<div class="esmx-shop-audit-settings__grid">
+								<div>
+									<sw-switch-field v-model:value="config.enableAudit" :label="$tc('esmx-shop-audit-ai.settings.fields.enableAudit.label')" :helptext="$tc('esmx-shop-audit-ai.settings.fields.enableAudit.helpText')"/>
+								</div>
 
-                                <div>
-                                    <mt-select
-                                            v-model="config.variantAuditMode"
-                                            :label="$tc('esmx-shop-audit-ai.settings.fields.variantAuditMode.label')"
-                                            :options="variantAuditModeOptions"
-                                            :helpText="$tc('esmx-shop-audit-ai.settings.fields.variantAuditMode.helpText')"
-                                    />
-                                </div>
-                            </div>
-                        </mt-card>
+								<div>
+									<sw-number-field v-model:value="config.auditProductLimit" numbertype="int" :min="1" :label="$tc('esmx-shop-audit-ai.settings.fields.auditProductLimit.label')" :helptext="$tc('esmx-shop-audit-ai.settings.fields.auditProductLimit.helpText')"/>
+								</div>
 
-                        <mt-card>
-                            <template #headline>
-                                {{ $tc('esmx-shop-audit-ai.settings.sections.scanOptions') }}
-                            </template>
+								<div>
+									<mt-select v-model="config.variantAuditMode" :label="$tc('esmx-shop-audit-ai.settings.fields.variantAuditMode.label')" :options="variantAuditModeOptions" :helptext="$tc('esmx-shop-audit-ai.settings.fields.variantAuditMode.helpText')"/>
+								</div>
+							</div>
+						</mt-card>
 
-                            <div class="esmx-shop-audit-settings__grid">
-                                <div>
-                                    <sw-switch-field
-                                            v-model:value="config.checkMissingManufacturer"
-                                            :label="$tc('esmx-shop-audit-ai.settings.fields.checkMissingManufacturer.label')"
-                                    />
-                                </div>
+						<mt-card>
+							<template #headline>
+								{{ $tc('esmx-shop-audit-ai.settings.sections.scanOptions') }}
+							</template>
 
-                                <div>
-                                    <sw-switch-field
-                                            v-model:value="config.checkMissingTranslations"
-                                            :label="$tc('esmx-shop-audit-ai.settings.fields.checkMissingTranslations.label')"
-                                    />
-                                </div>
+							<div class="esmx-shop-audit-settings__grid">
+								<div>
+									<sw-switch-field v-model:value="config.checkMissingManufacturer" :label="$tc('esmx-shop-audit-ai.settings.fields.checkMissingManufacturer.label')"/>
+								</div>
 
-                                <div>
-                                    <sw-switch-field
-                                            v-model:value="config.checkSeoFields"
-                                            :label="$tc('esmx-shop-audit-ai.settings.fields.checkSeoFields.label')"
-                                    />
-                                </div>
+								<div>
+									<sw-switch-field v-model:value="config.checkMissingTranslations" :label="$tc('esmx-shop-audit-ai.settings.fields.checkMissingTranslations.label')"/>
+								</div>
 
-                                <div>
-                                    <sw-switch-field
-                                            v-model:value="config.checkProductMetaDescription"
-                                            :label="$tc('esmx-shop-audit-ai.settings.fields.checkProductMetaDescription.label')"
-                                    />
-                                </div>
+								<div>
+									<sw-switch-field v-model:value="config.checkProductName" :label="$tc('esmx-shop-audit-ai.settings.fields.checkProductName.label')"/>
+								</div>
 
-                                <div>
-                                    <sw-switch-field
-                                            v-model:value="config.checkWeakProductTitle"
-                                            :label="$tc('esmx-shop-audit-ai.settings.fields.checkWeakProductTitle.label')"
-                                    />
-                                </div>
+								<div>
+									<sw-number-field v-model:value="config.minProductTitleLength" numbertype="int" :min="1" :label="$tc('esmx-shop-audit-ai.settings.fields.minProductTitleLength.label')"/>
+								</div>
 
-                                <div>
-                                    <sw-number-field
-                                            v-model:value="config.minProductTitleLength"
-                                            numberType="int"
-                                            :min="1"
-                                            :label="$tc('esmx-shop-audit-ai.settings.fields.minProductTitleLength.label')"
-                                    />
-                                </div>
+								<div>
+									<sw-switch-field v-model:value="config.checkProductDescription" :label="$tc('esmx-shop-audit-ai.settings.fields.checkProductDescription.label')"/>
+								</div>
 
-                                <div>
-                                    <sw-switch-field
-                                            v-model:value="config.checkShortProductDescription"
-                                            :label="$tc('esmx-shop-audit-ai.settings.fields.checkShortProductDescription.label')"
-                                    />
-                                </div>
+								<div>
+									<sw-number-field v-model:value="config.minProductDescriptionLength" numbertype="int" :min="1" :label="$tc('esmx-shop-audit-ai.settings.fields.minProductDescriptionLength.label')"/>
+								</div>
 
-                                <div>
-                                    <sw-number-field
-                                            v-model:value="config.minProductDescriptionLength"
-                                            numberType="int"
-                                            :min="1"
-                                            :label="$tc('esmx-shop-audit-ai.settings.fields.minProductDescriptionLength.label')"
-                                    />
-                                </div>
+								<div>
+									<sw-switch-field v-model:value="config.checkProductMetaTitle" :label="$tc('esmx-shop-audit-ai.settings.fields.checkProductMetaTitle.label')"/>
+								</div>
 
-                                <div>
-                                    <sw-switch-field
-                                            v-model:value="config.checkCategorySeo"
-                                            :label="$tc('esmx-shop-audit-ai.settings.fields.checkCategorySeo.label')"
-                                    />
-                                </div>
-                            </div>
-                        </mt-card>
-                    </div>
-                </mt-card>
-            </sw-card-view>
-        </template>
-    </sw-page>
+								<div>
+									<sw-switch-field v-model:value="config.checkProductMetaDescription" :label="$tc('esmx-shop-audit-ai.settings.fields.checkProductMetaDescription.label')"/>
+								</div>
+
+								<div>
+									<sw-switch-field v-model:value="config.checkCategorySeo" :label="$tc('esmx-shop-audit-ai.settings.fields.checkCategorySeo.label')"/>
+								</div>
+							</div>
+						</mt-card>
+					</div>
+				</mt-card>
+			</sw-card-view>
+		</template>
+	</sw-page>
 {% endblock %}

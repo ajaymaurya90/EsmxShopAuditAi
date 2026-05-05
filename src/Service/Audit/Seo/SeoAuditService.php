@@ -24,20 +24,36 @@ class SeoAuditService
         $this->rules = is_array($rules) ? $rules : iterator_to_array($rules);
     }
 
-    public function run(Context $context): SeoAuditResult
+    /**
+     * @param array<int, string>|null $enabledRuleCodes Null keeps the historical full SEO scan behavior.
+     */
+    public function run(Context $context, ?array $enabledRuleCodes = null): SeoAuditResult
     {
         $issues = [];
         $sharedProducts = null;
         $scoreResults = null;
         $executedRules = 0;
         $variantMode = $this->productSeoAuditDataProvider->getVariantAuditMode();
+        $enabledRuleCodeMap = $enabledRuleCodes === null ? null : array_fill_keys($enabledRuleCodes, true);
+        $executedRuleCodes = [];
+        $skippedByScanOptions = [];
+        $skippedBySystemConfig = [];
 
         foreach ($this->rules as $rule) {
+            $ruleCode = $rule->getCode();
+
+            if ($enabledRuleCodeMap !== null && !isset($enabledRuleCodeMap[$ruleCode])) {
+                $skippedByScanOptions[] = $ruleCode;
+                continue;
+            }
+
             if (!$rule->isEnabled()) {
+                $skippedBySystemConfig[] = $ruleCode;
                 continue;
             }
 
             $executedRules++;
+            $executedRuleCodes[] = $ruleCode;
 
             if ($rule instanceof ProductSeoAuditRuleInterface) {
                 $sharedProducts ??= $this->productSeoAuditDataProvider->loadProducts($context);
@@ -56,7 +72,7 @@ class SeoAuditService
                 continue;
             }
 
-            $issues[$rule->getCode()] = [
+            $issues[$ruleCode] = [
                 'title' => $rule->getTitle(),
                 'severity' => $rule->getSeverity(),
                 'entity' => $rule->getEntity(),
@@ -77,6 +93,10 @@ class SeoAuditService
 
         $this->logger->info('EsmxShopAuditAi SEO audit completed', [
             'variantMode' => $variantMode,
+            'enabledSeoChecks' => $enabledRuleCodes,
+            'executedSeoRules' => $executedRuleCodes,
+            'skippedSeoRulesByScanOptions' => array_values(array_unique($skippedByScanOptions)),
+            'skippedSeoRulesBySystemConfig' => array_values(array_unique($skippedBySystemConfig)),
             'executedRules' => $executedRules,
             'issueGroups' => $result->getIssueGroupCount(),
             'affectedItems' => $result->getAffectedItemCount(),

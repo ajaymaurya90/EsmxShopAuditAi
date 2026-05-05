@@ -26,14 +26,20 @@
 			</mt-button>
 
 			<div class="esmx-shop-audit__page-actions">
-				<mt-button variant="primary" size="default" :loading="isRunningScan" :disabled="isRunningScan" @click="runScan">
-					<span v-if="isRunningScan" class="esmx-shop-audit__scan-status">
-						{{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}
-					</span>
-					<span v-else>
-						{{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
-					</span>
-				</mt-button>
+				<div class="dashboard__scan-split-button">
+					<mt-button variant="primary" size="default" :loading="isRunningScan" :disabled="isRunningScan" @click="runScan">
+						<span v-if="isRunningScan" class="esmx-shop-audit__scan-status">
+							{{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}
+						</span>
+						<span v-else>
+							{{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
+						</span>
+					</mt-button>
+
+					<mt-button class="dashboard__scan-options-button" variant="primary" size="default" :disabled="isRunningScan" :title="$tc('esmx-shop-audit-ai.dashboard.scanOptions.openButton')" @click="openScanOptionsModal">
+						<mt-icon name="regular-chevron-down-s" size="16px"/>
+					</mt-button>
+				</div>
 			</div>
 		</template>
 

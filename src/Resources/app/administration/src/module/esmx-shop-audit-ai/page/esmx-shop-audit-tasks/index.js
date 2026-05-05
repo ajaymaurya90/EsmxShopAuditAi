@@ -15,6 +15,7 @@ import {
     goToReports,
     goToSettings,
 } from '../../core/utils/navigation.util';
+import { loadScanOptions } from '../../core/utils/scan-options.util';
 
 Shopware.Component.register('esmx-shop-audit-tasks', {
     template,
@@ -324,7 +325,7 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             this.isRunningScan = true;
             this.scanError = null;
 
-            this.esmxShopAuditApiService.runScan()
+            this.esmxShopAuditApiService.runScan(loadScanOptions())
                 .then(() => this.loadPageData())
                 .catch((error) => {
                     console.error('EsmxShopAuditAi tasks run scan error:', error);
@@ -345,6 +346,10 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
 
         goToDashboard() {
             return goToDashboard(this.$router);
+        },
+
+        openScanOptionsModal() {
+            return goToDashboard(this.$router, { scanOptions: '1' });
         },
 
         goToFindings() {

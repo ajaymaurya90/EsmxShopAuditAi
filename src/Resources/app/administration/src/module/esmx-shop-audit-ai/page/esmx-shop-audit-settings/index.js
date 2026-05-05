@@ -1,4 +1,5 @@
 import template from './esmx-shop-audit-settings.html.twig';
+import '../../shared/esmx-shop-audit-shared.scss';
 import './esmx-shop-audit-settings.scss'
 
 const { Criteria } = Shopware.Data;
@@ -24,11 +25,11 @@ Shopware.Component.register('esmx-shop-audit-settings', {
                 variantAuditMode: 'effective',
                 checkMissingManufacturer: true,
                 checkMissingTranslations: true,
-                checkSeoFields: true,
+                checkProductName: true,
+                checkProductDescription: true,
+                checkProductMetaTitle: true,
                 checkProductMetaDescription: true,
-                checkWeakProductTitle: true,
                 minProductTitleLength: 20,
-                checkShortProductDescription: true,
                 minProductDescriptionLength: 80,
                 checkCategorySeo: true,
             },
@@ -71,11 +72,11 @@ Shopware.Component.register('esmx-shop-audit-settings', {
 
                     this.config.checkMissingManufacturer = this.getBoolConfig(values, 'checkMissingManufacturer', true);
                     this.config.checkMissingTranslations = this.getBoolConfig(values, 'checkMissingTranslations', true);
-                    this.config.checkSeoFields = this.getBoolConfig(values, 'checkSeoFields', true);
+                    this.config.checkProductName = this.getBoolConfig(values, 'checkProductName', true);
+                    this.config.checkProductDescription = this.getBoolConfig(values, 'checkProductDescription', true);
+                    this.config.checkProductMetaTitle = this.getBoolConfig(values, 'checkProductMetaTitle', true);
                     this.config.checkProductMetaDescription = this.getBoolConfig(values, 'checkProductMetaDescription', true);
-                    this.config.checkWeakProductTitle = this.getBoolConfig(values, 'checkWeakProductTitle', true);
                     this.config.minProductTitleLength = this.getIntConfig(values, 'minProductTitleLength', 20);
-                    this.config.checkShortProductDescription = this.getBoolConfig(values, 'checkShortProductDescription', true);
                     this.config.minProductDescriptionLength = this.getIntConfig(values, 'minProductDescriptionLength', 80);
                     this.config.checkCategorySeo = this.getBoolConfig(values, 'checkCategorySeo', true);
                 })
@@ -98,11 +99,11 @@ Shopware.Component.register('esmx-shop-audit-settings', {
 
                 [`${this.configDomain}.checkMissingManufacturer`]: !!this.config.checkMissingManufacturer,
                 [`${this.configDomain}.checkMissingTranslations`]: !!this.config.checkMissingTranslations,
-                [`${this.configDomain}.checkSeoFields`]: !!this.config.checkSeoFields,
+                [`${this.configDomain}.checkProductName`]: !!this.config.checkProductName,
+                [`${this.configDomain}.checkProductDescription`]: !!this.config.checkProductDescription,
+                [`${this.configDomain}.checkProductMetaTitle`]: !!this.config.checkProductMetaTitle,
                 [`${this.configDomain}.checkProductMetaDescription`]: !!this.config.checkProductMetaDescription,
-                [`${this.configDomain}.checkWeakProductTitle`]: !!this.config.checkWeakProductTitle,
                 [`${this.configDomain}.minProductTitleLength`]: Number(this.config.minProductTitleLength) || 20,
-                [`${this.configDomain}.checkShortProductDescription`]: !!this.config.checkShortProductDescription,
                 [`${this.configDomain}.minProductDescriptionLength`]: Number(this.config.minProductDescriptionLength) || 80,
                 [`${this.configDomain}.checkCategorySeo`]: !!this.config.checkCategorySeo,
             };

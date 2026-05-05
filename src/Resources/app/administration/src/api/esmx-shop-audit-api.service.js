@@ -21,11 +21,12 @@ export default class EsmxShopAuditApiService extends ApiService {
     }
 
     // Trigger a new shop audit scan from the backend
-    runScan() {
+    runScan(scanOptions = null) {
         const apiRoute = `${this.getApiBasePath()}/run-scan`;
+        const payload = scanOptions ? { scanOptions } : {};
 
         return this.httpClient
-            .post(apiRoute, {}, {
+            .post(apiRoute, payload, {
                 headers: this.getBasicHeaders(),
             })
             .then((response) => ApiService.handleResponse(response));

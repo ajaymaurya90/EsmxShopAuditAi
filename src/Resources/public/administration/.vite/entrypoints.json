@@ -3,11 +3,11 @@
   "entryPoints": {
     "esmx-shop-audit-ai": {
       "css": [
-        "/bundles/esmxshopauditai/administration/assets/esmx-shop-audit-ai-BqQ0tShm.css"
+        "/bundles/esmxshopauditai/administration/assets/esmx-shop-audit-ai-DwqD8nMV.css"
       ],
       "dynamic": [],
       "js": [
-        "/bundles/esmxshopauditai/administration/assets/esmx-shop-audit-ai-hf6M4SZR.js"
+        "/bundles/esmxshopauditai/administration/assets/esmx-shop-audit-ai-3A5B_jzI.js"
       ],
       "legacy": false,
       "preload": []

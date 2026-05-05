@@ -20,6 +20,7 @@ import {
   SEVERITY_WEIGHT,
   DEFAULT_SEVERITY_WEIGHT,
 } from "../../core/constants/severity.constant";
+import { loadScanOptions } from "../../core/utils/scan-options.util";
 
 Shopware.Component.register("esmx-shop-audit-findings", {
   template,
@@ -300,7 +301,7 @@ Shopware.Component.register("esmx-shop-audit-findings", {
       this.scanError = null;
 
       this.esmxShopAuditApiService
-        .runScan()
+        .runScan(loadScanOptions())
         .then(() => this.loadPageData())
         .catch((error) => {
           console.error("EsmxShopAuditAi findings run scan error:", error);
@@ -450,6 +451,10 @@ Shopware.Component.register("esmx-shop-audit-findings", {
 
     goToDashboard() {
       return goToDashboard(this.$router);
+    },
+
+    openScanOptionsModal() {
+      return goToDashboard(this.$router, { scanOptions: "1" });
     },
 
     goToTasks() {

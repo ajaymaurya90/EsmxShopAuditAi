@@ -25,12 +25,14 @@ class ManualScanRunner
         private readonly EntityRepository $taskRepository,
         private readonly LoggerInterface $logger,
         private readonly BrokenLinkAuditService $brokenLinkAuditService,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ScanOptionsResolver $scanOptionsResolver
     ) {}
 
-    public function run(Context $context): string
+    public function run(Context $context, ?array $scanOptions = null): string
     {
         $auditSummary = [];
+        $resolvedScanOptions = $this->scanOptionsResolver->resolve($scanOptions);
         $scanId = Uuid::randomHex();
         $startedAt = new \DateTimeImmutable();
 
@@ -42,7 +44,9 @@ class ManualScanRunner
                 'scannedProducts' => 0,
                 'totalFindings' => 0,
                 'highPriorityFindings' => 0,
-                'summaryJson' => null,
+                'summaryJson' => [
+                    'scanOptions' => $resolvedScanOptions,
+                ],
             ],
         ], $context);
 
@@ -52,9 +56,46 @@ class ManualScanRunner
         ]);
 
         try {
-            $auditSummary = $this->productAuditService->buildProductAuditSummary($context);
-            $seoAuditResult = $this->seoAuditService->run($context);
-            $auditSummary = $this->productAuditService->mergeSeoAuditResultIntoSummary($auditSummary, $seoAuditResult);
+            $productHealthOptions = $resolvedScanOptions['productHealth'] ?? null;
+            $enabledProductHealthChecks = $this->resolveEnabledChecks($productHealthOptions);
+
+            if (($productHealthOptions['enabled'] ?? true) && $enabledProductHealthChecks !== []) {
+                $this->logger->info('EsmxShopAuditAi product health audit starting with scan options', [
+                    'scanId' => $scanId,
+                    'enabledProductHealthChecks' => $enabledProductHealthChecks,
+                    'productHealthScanOptions' => $productHealthOptions,
+                ]);
+
+                $auditSummary = $this->productAuditService->buildProductAuditSummary($context, $enabledProductHealthChecks);
+            } else {
+                $this->logger->info('EsmxShopAuditAi product health audit skipped by scan options', [
+                    'scanId' => $scanId,
+                    'productHealthScanOptions' => $productHealthOptions,
+                    'enabledProductHealthChecks' => $enabledProductHealthChecks,
+                ]);
+
+                $auditSummary = $this->buildEmptyAuditSummary();
+            }
+
+            $seoOptions = $resolvedScanOptions['seo'] ?? null;
+            $enabledSeoChecks = $this->resolveEnabledChecks($seoOptions);
+
+            if (($seoOptions['enabled'] ?? true) && $enabledSeoChecks !== []) {
+                $this->logger->info('EsmxShopAuditAi SEO audit starting with scan options', [
+                    'scanId' => $scanId,
+                    'enabledSeoChecks' => $enabledSeoChecks,
+                    'seoScanOptions' => $seoOptions,
+                ]);
+
+                $seoAuditResult = $this->seoAuditService->run($context, $enabledSeoChecks);
+                $auditSummary = $this->productAuditService->mergeSeoAuditResultIntoSummary($auditSummary, $seoAuditResult);
+            } else {
+                $this->logger->info('EsmxShopAuditAi SEO audit skipped by scan options', [
+                    'scanId' => $scanId,
+                    'seoScanOptions' => $seoOptions,
+                    'enabledSeoChecks' => $enabledSeoChecks,
+                ]);
+            }
 
             // Broken Link Audit Integration
             $enabledValue = $this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkAuditEnabled');
@@ -63,9 +104,25 @@ class ManualScanRunner
             if ($brokenLinkEnabled) {
                 $maxLinks = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkMaxLinks') ?? 100);
                 $timeout = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkTimeout') ?? 5);
-                $checkExternal = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkCheckExternal') ?? false);
+                $checkExternalFromConfig = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkCheckExternal') ?? false);
+                $checkExternal = $resolvedScanOptions['brokenLinks']['checks']['external_links'] ?? $checkExternalFromConfig;
 
-                $brokenLinkResult = $this->brokenLinkAuditService->run($context, $maxLinks, $timeout, $checkExternal);
+                $this->logger->info('Broken link audit starting with scan options', [
+                    'scanId' => $scanId,
+                    'brokenLinksScanOptions' => $resolvedScanOptions['brokenLinks'] ?? null,
+                    'maxLinks' => $maxLinks,
+                    'timeout' => $timeout,
+                    'checkExternal' => $checkExternal,
+                    'checkExternalFromConfig' => $checkExternalFromConfig,
+                ]);
+
+                $brokenLinkResult = $this->brokenLinkAuditService->run(
+                    $context,
+                    $maxLinks,
+                    $timeout,
+                    $checkExternal,
+                    $resolvedScanOptions
+                );
 
                 // Merge into audit summary
                 $existingBrokenLinks = $auditSummary['issues']['broken_links'] ?? [];
@@ -110,6 +167,7 @@ class ManualScanRunner
                         'totals' => $auditSummary['totals'] ?? [],
                         'findingCount' => \count($findings),
                         'taskCount' => \count($tasks),
+                        'scanOptions' => $resolvedScanOptions,
                     ],
                 ],
             ], $context);
@@ -134,6 +192,7 @@ class ManualScanRunner
                     'finishedAt' => $finishedAt,
                     'summaryJson' => [
                         'meta' => $auditSummary['meta'] ?? [],
+                        'scanOptions' => $resolvedScanOptions,
                         'error' => $exception->getMessage(),
                     ],
                 ],
@@ -164,5 +223,41 @@ class ManualScanRunner
         }
 
         return $count;
+    }
+
+    private function resolveEnabledChecks(?array $groupOptions): array
+    {
+        $checks = $groupOptions['checks'] ?? [];
+
+        if (!\is_array($checks)) {
+            return [];
+        }
+
+        return array_values(array_keys(array_filter(
+            $checks,
+            static fn ($enabled): bool => $enabled === true
+        )));
+    }
+
+    private function buildEmptyAuditSummary(): array
+    {
+        return [
+            'meta' => [
+                'scannedProducts' => 0,
+                'productLimit' => 0,
+                'variantAuditMode' => null,
+                'seo' => [
+                    'totalProducts' => 0,
+                    'productsNeedingImprovement' => 0,
+                    'averageOverallScore' => 0,
+                    'improvementThreshold' => 0,
+                    'improvementRate' => 0.0,
+                ],
+            ],
+            'totals' => [
+                'totalIssues' => 0,
+            ],
+            'issues' => [],
+        ];
     }
 }
