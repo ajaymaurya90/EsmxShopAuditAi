@@ -82,6 +82,17 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
       return this.dashboard?.insights ?? {};
     },
 
+    entityStats() {
+      return (
+        this.dashboard?.scanAudit?.entityStats ??
+        this.dashboard?.insights?.latestSummary?.entityStats ?? {
+          products: { affected: 0, scanned: 0 },
+          categories: { affected: 0, scanned: 0 },
+          cmsPages: { affected: 0, scanned: 0 },
+        }
+      );
+    },
+
     topTasks() {
       return this.insights.topTasks ?? [];
     },
@@ -105,24 +116,30 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
     scanOverviewStats() {
       return [
         {
-          key: "scannedProducts",
-          label: this.$tc(
-            "esmx-shop-audit-ai.dashboardInsights.scannedProducts",
-          ),
-          value: this.latestScan?.scannedProducts || 0,
-        },
-        {
           key: "affectedProducts",
           label: this.$tc(
             "esmx-shop-audit-ai.dashboardInsights.affectedProducts",
           ),
-          // TODO: Consider splitting into per-entity counts.
-          value: this.insights.affectedProducts || 0,
+          value: this.formatEntityStat(this.entityStats.products),
+        },
+        {
+          key: "affectedCategories",
+          label: this.$tc(
+            "esmx-shop-audit-ai.dashboardInsights.affectedCategories",
+          ),
+          value: this.formatEntityStat(this.entityStats.categories),
+        },
+        {
+          key: "affectedCmsPages",
+          label: this.$tc(
+            "esmx-shop-audit-ai.dashboardInsights.affectedCmsPages",
+          ),
+          value: this.formatEntityStat(this.entityStats.cmsPages),
         },
         {
           key: "totalIssues",
-          label: this.$tc("esmx-shop-audit-ai.dashboard.totalIssues"),
-          value: this.totals.totalIssues || 0,
+          label: this.$tc("esmx-shop-audit-ai.dashboardInsights.detectedIssues"),
+          value: `${this.totals.totalIssues || 0} / ${this.activeSummaryCards.length}`,
         },
         {
           key: "criticalIssues",
@@ -130,11 +147,6 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
             "esmx-shop-audit-ai.dashboardInsights.criticalIssues",
           ),
           value: this.criticalIssuesCount,
-        },
-        {
-          key: "issueGroups",
-          label: this.$tc("esmx-shop-audit-ai.dashboard.issueGroups"),
-          value: this.activeSummaryCards.length,
         },
         {
           key: "openTasks",
@@ -667,6 +679,10 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
   },
 
   methods: {
+    formatEntityStat(stat = {}) {
+      return `${Number(stat.affected || 0)} / ${Number(stat.scanned || 0)}`;
+    },
+
     initializeDashboard() {
       this.loadError = null;
       this.scanError = null;

@@ -207,7 +207,10 @@
     },
     "dashboardInsights": {
       "scannedProducts": "Geprüfte Produkte",
-      "affectedProducts": "Betroffene Entitäten",
+      "affectedProducts": "Betroffene Produkte",
+      "affectedCategories": "Betroffene Kategorien",
+      "affectedCmsPages": "Betroffene CMS-Seiten",
+      "detectedIssues": "Erkannte Probleme",
       "criticalIssues": "Kritische Probleme",
       "openTasks": "Offene Tasks",
       "topTasksHeadline": "Wichtigste Aufgaben",

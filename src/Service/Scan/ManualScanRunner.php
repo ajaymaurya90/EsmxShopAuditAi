@@ -27,12 +27,18 @@ class ManualScanRunner
         private readonly BrokenLinkAuditService $brokenLinkAuditService,
         private readonly SystemConfigService $systemConfigService,
         private readonly ScanOptionsResolver $scanOptionsResolver,
-        private readonly ScanCapabilitiesResolver $scanCapabilitiesResolver
+        private readonly ScanCapabilitiesResolver $scanCapabilitiesResolver,
+        private readonly EntityStatsBuilder $entityStatsBuilder
     ) {}
 
     public function run(Context $context, ?array $scanOptions = null): string
     {
         $auditSummary = [];
+        $scanStats = [
+            'products' => 0,
+            'categories' => 0,
+            'cmsPages' => 0,
+        ];
         $scanCapabilities = $this->scanCapabilitiesResolver->resolve();
         $resolvedScanOptions = $this->scanCapabilitiesResolver->applyToScanOptions(
             $this->scanOptionsResolver->resolve($scanOptions),
@@ -74,6 +80,10 @@ class ManualScanRunner
                 ]);
 
                 $auditSummary = $this->productAuditService->buildProductAuditSummary($context, $enabledProductHealthChecks);
+                $scanStats['products'] = max(
+                    $scanStats['products'],
+                    (int) ($auditSummary['meta']['scannedProducts'] ?? 0)
+                );
             } else {
                 $this->logger->info('EsmxShopAuditAi product health audit skipped by scan options', [
                     'scanId' => $scanId,
@@ -96,6 +106,10 @@ class ManualScanRunner
 
                 $seoAuditResult = $this->seoAuditService->run($context, $enabledSeoChecks);
                 $auditSummary = $this->productAuditService->mergeSeoAuditResultIntoSummary($auditSummary, $seoAuditResult);
+                $seoStats = $seoAuditResult->getStats();
+
+                $scanStats['products'] = max($scanStats['products'], (int) ($seoStats['productsScanned'] ?? 0));
+                $scanStats['categories'] = max($scanStats['categories'], (int) ($seoStats['categoriesScanned'] ?? 0));
             } else {
                 $this->logger->info('EsmxShopAuditAi SEO audit skipped by scan options', [
                     'scanId' => $scanId,
@@ -131,6 +145,11 @@ class ManualScanRunner
                     $checkExternal,
                     $resolvedScanOptions
                 );
+                $brokenLinkStats = \is_array($brokenLinkResult['stats'] ?? null) ? $brokenLinkResult['stats'] : [];
+
+                $scanStats['products'] = max($scanStats['products'], (int) ($brokenLinkStats['productsScanned'] ?? 0));
+                $scanStats['categories'] = max($scanStats['categories'], (int) ($brokenLinkStats['categoriesScanned'] ?? 0));
+                $scanStats['cmsPages'] = max($scanStats['cmsPages'], (int) ($brokenLinkStats['cmsPagesScanned'] ?? 0));
 
                 // Merge into audit summary
                 $existingBrokenLinks = $auditSummary['issues']['broken_links'] ?? [];
@@ -142,9 +161,11 @@ class ManualScanRunner
                 ));
 
                 $auditSummary['totals']['broken_links'] = \count($auditSummary['issues']['broken_links']);
+                $auditSummary['totals']['totalIssues'] = $this->productAuditService->calculateTotalIssues($auditSummary['totals'] ?? []);
 
                 $this->logger->info('Broken link audit result', [
                     'count' => count($brokenLinkResult['broken_links'] ?? []),
+                    'stats' => $brokenLinkStats,
                 ]);
             } else {
                 $this->logger->info('Broken link audit skipped by scan options or plugin settings', [
@@ -157,6 +178,7 @@ class ManualScanRunner
 
 
             $findings = $this->findingBuilder->build($scanId, $auditSummary);
+            $entityStats = $this->entityStatsBuilder->build($auditSummary, $scanStats);
             $tasks = $this->taskBuilder->build($scanId, $findings);
             $highPriorityFindings = $this->countHighPriorityFindings($findings);
             $finishedAt = new \DateTimeImmutable();
@@ -180,6 +202,7 @@ class ManualScanRunner
                     'summaryJson' => [
                         'meta' => $auditSummary['meta'] ?? [],
                         'totals' => $auditSummary['totals'] ?? [],
+                        'entityStats' => $entityStats,
                         'findingCount' => \count($findings),
                         'taskCount' => \count($tasks),
                         'scanOptions' => $resolvedScanOptions,
@@ -192,6 +215,7 @@ class ManualScanRunner
                 'scanId' => $scanId,
                 'finishedAt' => $finishedAt->format(DATE_ATOM),
                 'scannedProducts' => (int) ($auditSummary['meta']['scannedProducts'] ?? 0),
+                'entityStats' => $entityStats,
                 'findingCount' => \count($findings),
                 'taskCount' => \count($tasks),
                 'highPriorityFindings' => $highPriorityFindings,

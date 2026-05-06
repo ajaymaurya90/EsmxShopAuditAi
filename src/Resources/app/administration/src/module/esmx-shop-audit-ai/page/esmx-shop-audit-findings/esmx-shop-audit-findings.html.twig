@@ -1,7 +1,7 @@
 {% block esmx_shop_audit_findings %}
 	<sw-page class="esmx-shop-audit findings">
 		<template #smart-bar-header>
-			<h2>{{ pageTitle }}</h2>
+			<h2>{{ $tc('esmx-shop-audit-ai.general.mainMenuItemGeneral') }}</h2>
 		</template>
 
 		<template #smart-bar-actions>
@@ -146,16 +146,16 @@
 								</div>
 							</div>
 
-								<div class="findings__table-header">
-									<button type="button" class="findings__header-button findings__col findings__col--audit-group" @click="toggleSort('auditGroup')">
-										<span>{{ $tc('esmx-shop-audit-ai.findings.columns.auditGroup') }}</span>
-										<mt-icon v-if="isSortedBy('auditGroup')" :name="sortIconMap[sortDirection]" size="16px"/>
-									</button>
+							<div class="findings__table-header">
+								<button type="button" class="findings__header-button findings__col findings__col--audit-group" @click="toggleSort('auditGroup')">
+									<span>{{ $tc('esmx-shop-audit-ai.findings.columns.auditGroup') }}</span>
+									<mt-icon v-if="isSortedBy('auditGroup')" :name="sortIconMap[sortDirection]" size="16px"/>
+								</button>
 
-									<button type="button" class="findings__header-button findings__col findings__col--title" @click="toggleSort('title')">
-										<span>{{ $tc('esmx-shop-audit-ai.findings.columns.issueTitle') }}</span>
-										<mt-icon v-if="isSortedBy('title')" :name="sortIconMap[sortDirection]" size="16px"/>
-									</button>
+								<button type="button" class="findings__header-button findings__col findings__col--title" @click="toggleSort('title')">
+									<span>{{ $tc('esmx-shop-audit-ai.findings.columns.issueTitle') }}</span>
+									<mt-icon v-if="isSortedBy('title')" :name="sortIconMap[sortDirection]" size="16px"/>
+								</button>
 
 								<button type="button" class="findings__header-button findings__col findings__col--category" @click="toggleSort('category')">
 									<span>{{ $tc('esmx-shop-audit-ai.findings.columns.category') }}</span>
@@ -178,22 +178,22 @@
 							</div>
 						</div>
 
-							<div class="findings__table-body">
-								<div v-for="finding in sortedFindings" :key="finding.id" class="findings__table-row">
-									<div class="findings__col findings__col--audit-group">
-										<div class="findings__row-label">
-											{{ $tc('esmx-shop-audit-ai.findings.columns.auditGroup') }}
-										</div>
-										<div class="findings__audit-group-pill">
-											<mt-icon :name="getAuditGroupIcon(finding)" size="16px"/>
-											<span>{{ getAuditGroupLabel(finding) }}</span>
-										</div>
+						<div class="findings__table-body">
+							<div v-for="finding in sortedFindings" :key="finding.id" class="findings__table-row">
+								<div class="findings__col findings__col--audit-group">
+									<div class="findings__row-label">
+										{{ $tc('esmx-shop-audit-ai.findings.columns.auditGroup') }}
 									</div>
+									<div class="findings__audit-group-pill">
+										<mt-icon :name="getAuditGroupIcon(finding)" size="16px"/>
+										<span>{{ getAuditGroupLabel(finding) }}</span>
+									</div>
+								</div>
 
-									<div class="findings__col findings__col--title">
-										<div class="findings__row-label">
-											{{ $tc('esmx-shop-audit-ai.findings.columns.issueTitle') }}
-										</div>
+								<div class="findings__col findings__col--title">
+									<div class="findings__row-label">
+										{{ $tc('esmx-shop-audit-ai.findings.columns.issueTitle') }}
+									</div>
 									<div class="findings__cell-title">
 										{{ getFindingTitleByCode(finding.code, finding.title) }}
 									</div>
@@ -278,16 +278,7 @@
 						<div class="findings__detail-body">
 							<template v-if="getFindingItems(finding).length">
 
-								<sw-data-grid
-									:data-source="getPaginatedFindingItems(finding)"
-									:columns="getFindingColumns(finding)"
-									:identifier="'id'"
-									:show-selection="false"
-									:show-actions="true"
-									:sort-by="getDetailSortBy(finding.id)"
-									:sort-direction="getDetailSortDirection(finding.id).toUpperCase()"
-									@column-sort="onDetailSortChange(finding.id, $event)"
-								>
+								<sw-data-grid :data-source="getPaginatedFindingItems(finding)" :columns="getFindingColumns(finding)" :identifier="'id'" :show-selection="false" :show-actions="true" :sort-by="getDetailSortBy(finding.id)" :sort-direction="getDetailSortDirection(finding.id).toUpperCase()" @column-sort="onDetailSortChange(finding.id, $event)">
 
 
 									<template #column-url="{ item }">

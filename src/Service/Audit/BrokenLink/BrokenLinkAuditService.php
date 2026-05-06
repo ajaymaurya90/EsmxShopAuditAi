@@ -58,6 +58,11 @@ class BrokenLinkAuditService
             'category_description' => ['items' => 0, 'links' => 0],
             'cms_content' => ['items' => 0, 'links' => 0],
         ];
+        $scannedEntities = [
+            'products' => [],
+            'categories' => [],
+            'cmsPages' => [],
+        ];
 
         $this->logger->info('Broken link audit source selection', [
             'receivedBrokenLinksScanOptions' => $scanOptions['brokenLinks'] ?? null,
@@ -66,7 +71,14 @@ class BrokenLinkAuditService
         ]);
 
         if (!\in_array(true, $enabledSources, true)) {
-            return ['broken_links' => []];
+            return [
+                'broken_links' => [],
+                'stats' => [
+                    'productsScanned' => 0,
+                    'categoriesScanned' => 0,
+                    'cmsPagesScanned' => 0,
+                ],
+            ];
         }
 
         /**
@@ -102,6 +114,9 @@ class BrokenLinkAuditService
 
                 /** @var ProductEntity $product */
                 foreach ($productResult->getEntities() as $product) {
+                    if ($product->getId() !== null) {
+                        $scannedEntities['products'][$product->getId()] = true;
+                    }
 
                     // IMPORTANT: now this is language-specific
                     $description = $product->getTranslation('description');
@@ -140,6 +155,9 @@ class BrokenLinkAuditService
 
                 /** @var CategoryEntity $category */
                 foreach ($categoryResult->getEntities() as $category) {
+                    if ($category->getId() !== null) {
+                        $scannedEntities['categories'][$category->getId()] = true;
+                    }
 
                     $translated = $category->getTranslated();
                     $description = $translated['description'] ?? null;
@@ -177,6 +195,9 @@ class BrokenLinkAuditService
                 $cmsPages = $this->cmsPageRepository->search($cmsCriteria, $context);
                 /** @var CmsPageEntity $page */
                 foreach ($cmsPages->getEntities() as $page) {
+                    if ($page->getId() !== null) {
+                        $scannedEntities['cmsPages'][$page->getId()] = true;
+                    }
 
                     $uniquePageUrls = [];
 
@@ -252,9 +273,21 @@ class BrokenLinkAuditService
             'sourceStats' => $sourceStats,
             'totalChecked' => $totalChecked,
             'brokenLinkCount' => \count($brokenLinks),
+            'stats' => [
+                'productsScanned' => \count($scannedEntities['products']),
+                'categoriesScanned' => \count($scannedEntities['categories']),
+                'cmsPagesScanned' => \count($scannedEntities['cmsPages']),
+            ],
         ]);
 
-        return ['broken_links' => $brokenLinks];
+        return [
+            'broken_links' => $brokenLinks,
+            'stats' => [
+                'productsScanned' => \count($scannedEntities['products']),
+                'categoriesScanned' => \count($scannedEntities['categories']),
+                'cmsPagesScanned' => \count($scannedEntities['cmsPages']),
+            ],
+        ];
     }
 
     private function resolveEnabledSources(?array $scanOptions): array

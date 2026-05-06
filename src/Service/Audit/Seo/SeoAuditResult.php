@@ -6,10 +6,12 @@ final class SeoAuditResult
 {
     /**
      * @param array<string, array<string, mixed>> $issues
+     * @param array<string, int> $stats
      */
     public function __construct(
         private readonly array $issues,
-        private readonly SeoAuditKpiResult $kpi
+        private readonly SeoAuditKpiResult $kpi,
+        private readonly array $stats = []
     ) {
     }
 
@@ -24,6 +26,14 @@ final class SeoAuditResult
     public function getKpi(): SeoAuditKpiResult
     {
         return $this->kpi;
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public function getStats(): array
+    {
+        return $this->stats;
     }
 
     public function hasIssues(): bool
@@ -56,6 +66,7 @@ final class SeoAuditResult
         return [
             'issues' => $this->issues,
             'kpi' => $this->kpi->toArray(),
+            'stats' => $this->stats,
         ];
     }
 }

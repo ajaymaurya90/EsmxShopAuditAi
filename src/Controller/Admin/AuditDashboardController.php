@@ -26,24 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['api']])]
 class AuditDashboardController extends AbstractController
 {
-    private const PRODUCT_ISSUE_KEYS = [
-        'missingCoverImage',
-        'inactiveProducts',
-        'outOfStockProducts',
-        'missingCategory',
-        'missingManufacturer',
-        'missingPrice',
-        'missingTranslation',
-        'product_name',
-        'product_description',
-        'product_meta_title',
-        'product_meta_description',
-        'category_missing_meta_title',
-        'category_missing_meta_description',
-        'category_missing_description',
-        'broken_links',
-    ];
-
     private const TASK_IMPACT_WEIGHTS = [
         'review_product_names' => 2.0,
         'review_product_descriptions' => 2.0,
@@ -152,6 +134,7 @@ class AuditDashboardController extends AbstractController
         $scanAudit = [
             'meta' => \is_array($summaryJson['meta'] ?? null) ? $summaryJson['meta'] : [],
             'totals' => \is_array($summaryJson['totals'] ?? null) ? $summaryJson['totals'] : [],
+            'entityStats' => \is_array($summaryJson['entityStats'] ?? null) ? $summaryJson['entityStats'] : $this->buildEmptyEntityStats(),
             'issues' => [],
             'scanOptions' => \is_array($summaryJson['scanOptions'] ?? null) ? $summaryJson['scanOptions'] : null,
         ];
@@ -183,7 +166,6 @@ class AuditDashboardController extends AbstractController
         $topFindings = [];
         $criticalIssues = 0;
         $highIssues = 0;
-        $affectedProducts = [];
 
         foreach ($allFindings as $finding) {
             /** @var FindingEntity $finding */
@@ -191,20 +173,6 @@ class AuditDashboardController extends AbstractController
             $items = $this->extractPayloadItems($payload);
 
             $scanAudit['issues'][(string) $finding->getCode()] = $items;
-
-            foreach ($items as $item) {
-                if (!\is_array($item)) {
-                    continue;
-                }
-
-                if (!$this->isProductFindingItem($finding, $item)) {
-                    continue;
-                }
-
-                if (!empty($item['id'])) {
-                    $affectedProducts[(string) $item['id']] = true;
-                }
-            }
 
             if ($finding->getSeverity() === 'critical') {
                 $criticalIssues++;
@@ -243,6 +211,7 @@ class AuditDashboardController extends AbstractController
             'findingCount' => $summaryJson['findingCount'] ?? 0,
             'meta' => $scanAudit['meta'],
             'totals' => $scanAudit['totals'],
+            'entityStats' => $scanAudit['entityStats'],
             'scanOptions' => $scanAudit['scanOptions'],
         ];
 
@@ -261,7 +230,7 @@ class AuditDashboardController extends AbstractController
                 'topTasks' => $topTasks,
                 'topFindings' => $topFindings,
                 'latestSummary' => $latestSummary,
-                'affectedProducts' => \count($affectedProducts),
+                'affectedProducts' => (int) ($scanAudit['entityStats']['products']['affected'] ?? 0),
                 'criticalIssues' => $criticalIssues,
                 'highIssues' => $highIssues,
             ],
@@ -666,17 +635,6 @@ class AuditDashboardController extends AbstractController
         return [];
     }
 
-    private function isProductFindingItem(FindingEntity $finding, array $item): bool
-    {
-        $entity = (string) ($item['entity'] ?? $item['entityType'] ?? $finding->getEntity() ?? '');
-
-        if ($entity === 'product') {
-            return true;
-        }
-
-        return \in_array((string) $finding->getCode(), self::PRODUCT_ISSUE_KEYS, true);
-    }
-
     private function buildEmptyDashboardAudit(): array
     {
         return [
@@ -694,7 +652,26 @@ class AuditDashboardController extends AbstractController
                 'totalIssues' => 0,
             ],
             'issues' => [],
+            'entityStats' => $this->buildEmptyEntityStats(),
             'scanOptions' => null,
+        ];
+    }
+
+    private function buildEmptyEntityStats(): array
+    {
+        return [
+            'products' => [
+                'affected' => 0,
+                'scanned' => 0,
+            ],
+            'categories' => [
+                'affected' => 0,
+                'scanned' => 0,
+            ],
+            'cmsPages' => [
+                'affected' => 0,
+                'scanned' => 0,
+            ],
         ];
     }
 

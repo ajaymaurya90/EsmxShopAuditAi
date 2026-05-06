@@ -7,6 +7,9 @@ use EsmxShopAuditAi\Service\Audit\Seo\Rule\ProductSeoQualityRuleInterface;
 use EsmxShopAuditAi\Service\Audit\Seo\Rule\SeoAuditRuleInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 class SeoAuditService
 {
@@ -19,6 +22,7 @@ class SeoAuditService
         private readonly ProductSeoAuditDataProvider $productSeoAuditDataProvider,
         private readonly SeoScoringService $seoScoringService,
         private readonly LoggerInterface $logger,
+        private readonly EntityRepository $categoryRepository,
         iterable $rules
     ) {
         $this->rules = is_array($rules) ? $rules : iterator_to_array($rules);
@@ -38,6 +42,7 @@ class SeoAuditService
         $executedRuleCodes = [];
         $skippedByScanOptions = [];
         $skippedBySystemConfig = [];
+        $categoryRulesExecuted = false;
 
         foreach ($this->rules as $rule) {
             $ruleCode = $rule->getCode();
@@ -65,6 +70,10 @@ class SeoAuditService
                     $items = $rule->auditProducts($sharedProducts);
                 }
             } else {
+                if ($rule->getEntity() === 'category') {
+                    $categoryRulesExecuted = true;
+                }
+
                 $items = $rule->audit($context);
             }
 
@@ -88,7 +97,11 @@ class SeoAuditService
 
         $result = new SeoAuditResult(
             issues: $issues,
-            kpi: $this->seoScoringService->buildKpiResult($scoreResults)
+            kpi: $this->seoScoringService->buildKpiResult($scoreResults),
+            stats: [
+                'productsScanned' => $sharedProducts?->count() ?? 0,
+                'categoriesScanned' => $categoryRulesExecuted ? $this->countScannedCategories($context) : 0,
+            ]
         );
 
         $this->logger->info('EsmxShopAuditAi SEO audit completed', [
@@ -103,8 +116,18 @@ class SeoAuditService
             'totalProducts' => $result->getKpi()->getTotalProducts(),
             'productsNeedingImprovement' => $result->getKpi()->getProductsNeedingImprovement(),
             'averageOverallScore' => $result->getKpi()->getAverageOverallScore(),
+            'stats' => $result->getStats(),
         ]);
 
         return $result;
+    }
+
+    private function countScannedCategories(Context $context): int
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(100);
+        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
+
+        return $this->categoryRepository->search($criteria, $context)->getEntities()->count();
     }
 }

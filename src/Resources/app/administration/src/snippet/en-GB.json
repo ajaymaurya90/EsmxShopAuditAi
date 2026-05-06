@@ -209,7 +209,10 @@
     },
     "dashboardInsights": {
       "scannedProducts": "Scanned products",
-      "affectedProducts": "Affected entities",
+      "affectedProducts": "Affected products",
+      "affectedCategories": "Affected categories",
+      "affectedCmsPages": "Affected CMS pages",
+      "detectedIssues": "Detected issues",
       "criticalIssues": "Critical issues",
       "openTasks": "Open tasks",
       "topTasksHeadline": "Top tasks",

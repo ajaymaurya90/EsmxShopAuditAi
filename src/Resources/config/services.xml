@@ -29,6 +29,8 @@
 
         <service id="EsmxShopAuditAi\Service\Scan\TaskBuilder" />
 
+        <service id="EsmxShopAuditAi\Service\Scan\EntityStatsBuilder" />
+
         <service id="EsmxShopAuditAi\Service\Scan\ScanOptionsResolver" />
 
         <service id="EsmxShopAuditAi\Service\Scan\ScanCapabilitiesResolver" />
@@ -46,6 +48,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <argument type="service" id="EsmxShopAuditAi\Service\Scan\ScanOptionsResolver" />
             <argument type="service" id="EsmxShopAuditAi\Service\Scan\ScanCapabilitiesResolver" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Scan\EntityStatsBuilder" />
         </service>
 
         <service id="EsmxShopAuditAi\Service\Task\TaskAutoFixService" public="false">
@@ -82,6 +85,7 @@
             <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\ProductSeoAuditDataProvider" />
             <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\SeoScoringService" />
             <argument type="service" id="logger" />
+            <argument type="service" id="category.repository" />
             <argument type="tagged_iterator" tag="esmx_shop_audit_ai.seo_rule" />
         </service>
 
