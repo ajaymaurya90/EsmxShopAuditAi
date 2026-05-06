@@ -31,6 +31,8 @@
 
         <service id="EsmxShopAuditAi\Service\Scan\ScanOptionsResolver" />
 
+        <service id="EsmxShopAuditAi\Service\Scan\ScanCapabilitiesResolver" />
+
         <service id="EsmxShopAuditAi\Service\Scan\ManualScanRunner">
             <argument type="service" id="EsmxShopAuditAi\Service\Audit\ProductAuditService" />
             <argument type="service" id="EsmxShopAuditAi\Service\Audit\Seo\SeoAuditService" />
@@ -43,6 +45,7 @@
             <argument type="service" id="EsmxShopAuditAi\Service\Audit\BrokenLink\BrokenLinkAuditService" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <argument type="service" id="EsmxShopAuditAi\Service\Scan\ScanOptionsResolver" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Scan\ScanCapabilitiesResolver" />
         </service>
 
         <service id="EsmxShopAuditAi\Service\Task\TaskAutoFixService" public="false">
@@ -61,6 +64,7 @@
             <argument type="service" id="esmx_shop_audit_finding.repository" />
             <argument type="service" id="esmx_shop_audit_task.repository" />
             <argument type="service" id="EsmxShopAuditAi\Service\Task\TaskAutoFixService" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Scan\ScanCapabilitiesResolver" />
             <tag name="controller.service_arguments" />
         </service>
 

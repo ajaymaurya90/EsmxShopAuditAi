@@ -22,10 +22,6 @@
 				{{ $tc('esmx-shop-audit-ai.navigation.reports') }}
 			</mt-button>
 
-			<mt-button size="default" @click="goToSettings">
-				{{ $tc('esmx-shop-audit-ai.navigation.settings') }}
-			</mt-button>
-
 			<div class="esmx-shop-audit__page-actions">
 				<div class="dashboard__scan-split-button">
 					<mt-button variant="primary" size="default" :loading="isRunningScan" :disabled="isRunningScan" @click="runScan">
@@ -114,7 +110,7 @@
 									<span class="esmx-shop-audit__info-trigger" @mouseenter="activeWidgetTooltip = 'storeHealth'" @mouseleave="activeWidgetTooltip = null">
 										<mt-icon name="regular-info-circle" size="16px" class="esmx-shop-audit__info-icon"/>
 
-										<span v-if="activeWidgetTooltip === 'storeHealth'" class="esmx-shop-audit__tooltip esmx-shop-audit__tooltip--light">
+										<span v-if="activeWidgetTooltip === 'storeHealth'" class="esmx-shop-audit__tooltip">
 											<div class="esmx-shop-audit__health-tooltip">
 												<strong>{{ $tc('esmx-shop-audit-ai.dashboard.storeHealthFormulaTitle') }}</strong>
 
@@ -472,14 +468,15 @@
 					</div>
 
 					<div class="scan-options__groups">
-						<section v-for="group in scanOptionGroups" :key="group.key" class="scan-options__group" :class="{
-								                                    'is-partial': isScanOptionGroupPartiallyChecked(group.key),
-								                                    'is-collapsed': isScanOptionGroupCollapsed(group.key)
-								                                }">
+							<section v-for="group in scanOptionGroups" :key="group.key" class="scan-options__group" :class="{
+								'is-partial': isScanOptionGroupPartiallyChecked(group.key),
+								'is-collapsed': isScanOptionGroupCollapsed(group.key),
+								'is-disabled': !isScanOptionGroupGloballyEnabled(group.key)
+							}">
 							<div class="scan-options__group-header">
 								<div class="scan-options__group-title">
 									<label class="scan-options__group-label">
-										<input class="scan-options__checkbox" :ref="'scanOptionGroupCheckbox-' + group.key" type="checkbox" :checked="isScanOptionGroupFullyChecked(group.key)" :indeterminate.prop="isScanOptionGroupPartiallyChecked(group.key)" @change="onScanOptionGroupToggle(group.key)">
+										<input class="scan-options__checkbox" :ref="'scanOptionGroupCheckbox-' + group.key" type="checkbox" :checked="isScanOptionGroupFullyChecked(group.key)" :indeterminate.prop="isScanOptionGroupPartiallyChecked(group.key)" :disabled="!isScanOptionGroupGloballyEnabled(group.key)" @change="onScanOptionGroupToggle(group.key)">
 
 										<span class="scan-options__group-icon" aria-hidden="true">
 											<mt-icon :name="getScanOptionGroupIcon(group.key)" size="18px"/>
@@ -502,10 +499,14 @@
 							</div>
 
 							<div v-show="!isScanOptionGroupCollapsed(group.key)" class="scan-options__group-body">
+								<div v-if="!isScanOptionGroupGloballyEnabled(group.key)" class="scan-options__disabled-message">
+									{{ $tc('esmx-shop-audit-ai.dashboard.scanOptions.disabledInSettings') }}
+								</div>
+
 								<div class="scan-options__grid">
 									<div v-for="check in group.checks" :key="check.key" class="scan-options__check">
 										<label class="scan-options__check-label">
-											<input class="scan-options__checkbox" type="checkbox" :checked="scanOptionsDraft[group.key].checks[check.key]" @change="onScanOptionCheckToggle(group.key, check.key, $event)">
+											<input class="scan-options__checkbox" type="checkbox" :checked="scanOptionsDraft[group.key].checks[check.key]" :disabled="!isScanOptionGroupGloballyEnabled(group.key)" @change="onScanOptionCheckToggle(group.key, check.key, $event)">
 											<span>{{ check.label }}</span>
 										</label>
 

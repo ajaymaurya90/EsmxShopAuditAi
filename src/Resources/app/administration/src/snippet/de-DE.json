@@ -74,10 +74,12 @@
       "nextActionSeo": "Fehlende SEO-Meta-Titel korrigieren",
       "healthSummaryGood": "Ihr Shop ist insgesamt in gutem Zustand. Kleinere Qualitätslücken können weiter verbessert werden.",
       "healthSummaryWarning": "Ihr Shop hat mehrere Probleme, die die Leistung beeinträchtigen können und bald geprüft werden sollten.",
+      "healthSummaryNeedsImprovement": "Der Shop-Gesundheitswert ist niedrig, es wurden jedoch keine Findings mit hoher oder kritischer Priorität gefunden.",
       "healthSummaryCritical": "Ihr Shop hat kritische Probleme, die sich direkt auf Umsatz oder Kundenerlebnis auswirken können.",
       "healthStatus": {
         "good": "Gut",
-        "warning": "Benötigt Aufmerksamkeit",
+        "needs_attention": "Benötigt Aufmerksamkeit",
+        "needs_improvement": "Verbesserung nötig",
         "critical": "Kritisch",
         "not_available": "Nicht verfügbar"
       },
@@ -142,6 +144,7 @@
         "reset": "Zurücksetzen",
         "cancel": "Abbrechen",
         "saveAndRun": "Speichern & Scan starten",
+        "disabledInSettings": "In den Plugin-Einstellungen deaktiviert",
         "groups": {
           "productHealth": "Produktzustands-Audit",
           "seo": "SEO-Audit",
@@ -166,7 +169,6 @@
           "brokenLinkProductDescriptions": "Produktbeschreibungen",
           "brokenLinkCategoryDescriptions": "Kategoriebeschreibungen",
           "brokenLinkCmsPages": "CMS-Seiten",
-          "brokenLinkExternalLinks": "Externe Links prüfen",
           "salesKpis": "Sales-KPIs",
           "topSellingProducts": "Topverkaufte Produkte",
           "lowStockBestSellers": "Bestseller mit geringem Bestand"
@@ -198,7 +200,6 @@
         "product_description_links": "Prüft Links innerhalb von Produktbeschreibungen.",
         "category_description_links": "Prüft Links innerhalb von Kategoriebeschreibungen.",
         "cms_content": "Prüft Links innerhalb von CMS-Seiteninhalten.",
-        "external_links": "Prüft zusätzlich absolute externe URLs. Dadurch können Scans langsamer werden.",
         "salesKpis": "Bezieht Sales-KPI-Metriken in den Scan-Kontext ein.",
         "topSellingProducts": "Bezieht topverkaufte Produkte auf Basis aktueller Verkäufe ein.",
         "lowStockBestSellers": "Bezieht Bestseller mit geringem Bestand ein."
@@ -206,7 +207,7 @@
     },
     "dashboardInsights": {
       "scannedProducts": "Geprüfte Produkte",
-      "affectedProducts": "Betroffene Produkte",
+      "affectedProducts": "Betroffene Entitäten",
       "criticalIssues": "Kritische Probleme",
       "openTasks": "Offene Tasks",
       "topTasksHeadline": "Wichtigste Aufgaben",
@@ -247,8 +248,7 @@
       "dashboard": "Dashboard",
       "findings": "Probleme",
       "tasks": "Aufgaben",
-      "reports": "Berichte",
-      "settings": "Einstellungen"
+      "reports": "Berichte"
     },
     "findings": {
       "pageTitle": "Probleme",
@@ -268,7 +268,9 @@
       "emptyState": "Noch keine Findings verfügbar.",
       "loadError": "Die Findings-Seite konnte nicht geladen werden.",
       "columns": {
-        "title": "Titel",
+        "title": "Problemtitel",
+        "auditGroup": "Audit-Gruppe",
+        "issueTitle": "Problemtitel",
         "severity": "Priorität",
         "entity": "Entität",
         "affectedCount": "Anzahl betroffen",
@@ -279,6 +281,12 @@
         "status": "Status",
         "url": "URL",
         "action": ""
+      },
+      "auditGroups": {
+        "productHealth": "Produktzustand",
+        "seo": "SEO",
+        "brokenLinks": "Defekter Link",
+        "sales": "Sales"
       },
       "defaultImpact": "Kann die Shop-Qualität oder das Kundenerlebnis beeinträchtigen.",
       "unknownCategory": "Unbekannt",
@@ -440,66 +448,6 @@
           "enabled": "Aktiviert",
           "disabled": "Deaktiviert",
           "partial": "Teilweise"
-        }
-      }
-    },
-    "settings": {
-      "pageTitle": "Einstellungen",
-      "headline": "Plugin-Einstellungen",
-      "description": "Verwalten Sie die Audit-Konfiguration für Esmx Shop Audit AI direkt in diesem Modul.",
-      "loading": "Einstellungen werden geladen...",
-      "saveButton": "Einstellungen speichern",
-      "saveSuccess": "Einstellungen wurden erfolgreich gespeichert.",
-      "saveError": "Einstellungen konnten nicht gespeichert werden.",
-      "loadError": "Einstellungen konnten nicht geladen werden.",
-      "scanDisabledHint": "Scan kann nur im Dashboard gestartet werden",
-      "sections": {
-        "general": "Allgemeine Einstellungen",
-        "scanOptions": "Scan-Optionen"
-      },
-      "fields": {
-        "enableAudit": {
-          "label": "Audit-Prüfungen aktivieren",
-          "helpText": "Audit-Prüfungen für das Plugin aktivieren oder deaktivieren."
-        },
-        "auditProductLimit": {
-          "label": "Produktlimit pro Audit-Lauf",
-          "helpText": "Maximale Anzahl von Produkten pro Scan."
-        },
-        "variantAuditMode": {
-          "label": "Modus für Variantenprüfung",
-          "helpText": "Wählen Sie, ob effektive Storefront-Daten oder rohe Varianten-Datensätze geprüft werden sollen.",
-          "options": {
-            "effective": "Effektive Storefront-Daten prüfen",
-            "raw": "Rohe Varianten-Datensätze prüfen"
-          }
-        },
-        "checkMissingManufacturer": {
-          "label": "Fehlenden Hersteller prüfen"
-        },
-        "checkMissingTranslations": {
-          "label": "Fehlende Übersetzungen prüfen"
-        },
-        "checkProductName": {
-          "label": "Produktnamen prüfen"
-        },
-        "minProductTitleLength": {
-          "label": "Minimale Länge des Produktnamens"
-        },
-        "checkProductDescription": {
-          "label": "Produktbeschreibung prüfen"
-        },
-        "minProductDescriptionLength": {
-          "label": "Minimale Länge der Produktbeschreibung"
-        },
-        "checkProductMetaTitle": {
-          "label": "Produkt-Meta-Titel prüfen"
-        },
-        "checkProductMetaDescription": {
-          "label": "Produkt-Meta-Beschreibung prüfen"
-        },
-        "checkCategorySeo": {
-          "label": "Kategorie-SEO-Felder prüfen"
         }
       }
     },

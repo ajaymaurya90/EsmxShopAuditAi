@@ -14,7 +14,6 @@ import {
     goToDashboard,
     goToFindings,
     goToTasks,
-    goToSettings,
 } from '../../core/utils/navigation.util';
 import { DEFAULT_SCAN_OPTIONS } from '../../core/constants/scan-options.constant';
 import { loadScanOptions } from '../../core/utils/scan-options.util';
@@ -516,10 +515,6 @@ Shopware.Component.register('esmx-shop-audit-reports', {
             return goToTasks(this.$router);
         },
 
-        goToSettings() {
-            return goToSettings(this.$router);
-        },
-
         getFindingTitleByCode(code, fallbackTitle = '') {
             return getFindingTitleByCode(this.$tc.bind(this), code, fallbackTitle);
         },
@@ -568,7 +563,6 @@ Shopware.Component.register('esmx-shop-audit-reports', {
                     product_description: 'brokenLinkProductDescriptions',
                     category_description: 'brokenLinkCategoryDescriptions',
                     cms_content: 'brokenLinkCmsPages',
-                    external_links: 'brokenLinkExternalLinks',
                 },
                 sales: {
                     salesKpis: 'salesKpis',

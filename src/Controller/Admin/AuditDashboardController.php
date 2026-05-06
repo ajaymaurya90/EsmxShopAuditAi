@@ -8,6 +8,7 @@ use EsmxShopAuditAi\Core\Content\Scan\ScanEntity;
 use EsmxShopAuditAi\Service\Audit\ProductAuditService;
 use EsmxShopAuditAi\Service\Audit\Seo\SeoAuditService;
 use EsmxShopAuditAi\Service\Insights\Sales\SalesInsightService;
+use EsmxShopAuditAi\Service\Scan\ScanCapabilitiesResolver;
 use EsmxShopAuditAi\Service\Scan\ManualScanRunner;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -110,6 +111,7 @@ class AuditDashboardController extends AbstractController
         private readonly EntityRepository $findingRepository,
         private readonly EntityRepository $taskRepository,
         private readonly TaskAutoFixService $taskAutoFixService,
+        private readonly ScanCapabilitiesResolver $scanCapabilitiesResolver,
     ) {
     }
 
@@ -122,6 +124,7 @@ class AuditDashboardController extends AbstractController
     {
         $latestScan = $this->getLatestScanEntity($context);
         $salesInsights = $this->salesInsightService->getInsights($context);
+        $scanCapabilities = $this->scanCapabilitiesResolver->resolve();
 
         if ($latestScan === null) {
             $emptyAudit = $this->buildEmptyDashboardAudit();
@@ -137,9 +140,11 @@ class AuditDashboardController extends AbstractController
                     'latestSummary' => null,
                     'affectedProducts' => 0,
                     'criticalIssues' => 0,
+                    'highIssues' => 0,
                 ],
                 'salesInsights' => $salesInsights,
                 'health' => $this->calculateHealthScore($emptyAudit['totals'], 0, null),
+                'scanCapabilities' => $scanCapabilities,
             ]);
         }
 
@@ -177,6 +182,7 @@ class AuditDashboardController extends AbstractController
 
         $topFindings = [];
         $criticalIssues = 0;
+        $highIssues = 0;
         $affectedProducts = [];
 
         foreach ($allFindings as $finding) {
@@ -200,9 +206,15 @@ class AuditDashboardController extends AbstractController
                 }
             }
 
-            if (\in_array($finding->getSeverity(), ['high', 'critical'], true)) {
+            if ($finding->getSeverity() === 'critical') {
                 $criticalIssues++;
+            }
 
+            if ($finding->getSeverity() === 'high') {
+                $highIssues++;
+            }
+
+            if (\in_array($finding->getSeverity(), ['high', 'critical'], true)) {
                 if (\count($topFindings) < 3) {
                     $topFindings[] = [
                         'id' => $finding->getId(),
@@ -251,9 +263,11 @@ class AuditDashboardController extends AbstractController
                 'latestSummary' => $latestSummary,
                 'affectedProducts' => \count($affectedProducts),
                 'criticalIssues' => $criticalIssues,
+                'highIssues' => $highIssues,
             ],
             'salesInsights' => $salesInsights,
             'health' => $health,
+            'scanCapabilities' => $scanCapabilities,
         ]);
     }
 

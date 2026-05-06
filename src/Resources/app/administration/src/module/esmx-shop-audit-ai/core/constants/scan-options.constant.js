@@ -32,7 +32,6 @@ export const DEFAULT_SCAN_OPTIONS = {
             product_description: true,
             category_description: true,
             cms_content: true,
-            external_links: false,
         },
     },
     sales: {
@@ -82,7 +81,6 @@ export const SCAN_OPTION_TOOLTIP_KEYS = {
         product_description: 'product_description_links',
         category_description: 'category_description_links',
         cms_content: 'cms_content',
-        external_links: 'external_links',
     },
     sales: {
         salesKpis: 'salesKpis',

@@ -6,7 +6,6 @@ import {
   goToReports,
   goToFindings,
   goToTasks,
-  goToSettings,
 } from "../../core/utils/navigation.util";
 import {
   formatLatestScanDate,
@@ -25,6 +24,7 @@ import {
 import {
   loadScanOptions,
   normalizeScanOptions,
+  applyScanCapabilities,
   saveScanOptions,
 } from "../../core/utils/scan-options.util";
 import {
@@ -86,6 +86,18 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
       return this.insights.topTasks ?? [];
     },
 
+    scanCapabilities() {
+      return this.dashboard?.scanCapabilities ?? {
+        enabled: true,
+        groups: {
+          productHealth: { enabled: true },
+          seo: { enabled: true },
+          brokenLinks: { enabled: true },
+          sales: { enabled: true },
+        },
+      };
+    },
+
     openTaskCount() {
       return this.insights.openTaskCount ?? 0;
     },
@@ -104,6 +116,7 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
           label: this.$tc(
             "esmx-shop-audit-ai.dashboardInsights.affectedProducts",
           ),
+          // TODO: Consider splitting into per-entity counts.
           value: this.insights.affectedProducts || 0,
         },
         {
@@ -180,6 +193,10 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
 
     criticalIssuesCount() {
       return this.insights.criticalIssues || 0;
+    },
+
+    highIssuesCount() {
+      return this.insights.highIssues || 0;
     },
 
     dashboardHeadline() {
@@ -282,21 +299,30 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
         return "not_available";
       }
 
-      if (this.healthScore >= 85) {
-        return "good";
+      if (this.criticalIssuesCount > 0) {
+        return "critical";
       }
 
-      if (this.healthScore >= 60) {
-        return "warning";
+      if (this.highIssuesCount > 0) {
+        return "needs_attention";
       }
 
-      return "critical";
+      if (this.healthScore < 70) {
+        return "needs_improvement";
+      }
+
+      return "good";
     },
 
     healthStatusLabel() {
       const labels = {
         good: this.$tc("esmx-shop-audit-ai.dashboard.healthStatus.good"),
-        warning: this.$tc("esmx-shop-audit-ai.dashboard.healthStatus.warning"),
+        needs_attention: this.$tc(
+          "esmx-shop-audit-ai.dashboard.healthStatus.needs_attention",
+        ),
+        needs_improvement: this.$tc(
+          "esmx-shop-audit-ai.dashboard.healthStatus.needs_improvement",
+        ),
         critical: this.$tc(
           "esmx-shop-audit-ai.dashboard.healthStatus.critical",
         ),
@@ -319,8 +345,12 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
         return this.$tc("esmx-shop-audit-ai.dashboard.healthSummaryGood");
       }
 
-      if (this.healthStatus === "warning") {
+      if (this.healthStatus === "needs_attention") {
         return this.$tc("esmx-shop-audit-ai.dashboard.healthSummaryWarning");
+      }
+
+      if (this.healthStatus === "needs_improvement") {
+        return this.$tc("esmx-shop-audit-ai.dashboard.healthSummaryNeedsImprovement");
       }
 
       return this.$tc("esmx-shop-audit-ai.dashboard.healthSummaryCritical");
@@ -343,8 +373,12 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
 
       let color = "#10b981";
 
-      if (this.healthStatus === "warning") {
+      if (this.healthStatus === "needs_attention") {
         color = "#f59e0b";
+      }
+
+      if (this.healthStatus === "needs_improvement") {
+        color = "#fbbf24";
       }
 
       if (this.healthStatus === "critical") {
@@ -552,12 +586,6 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
                 "esmx-shop-audit-ai.dashboard.scanOptions.checks.brokenLinkCmsPages",
               ),
             },
-            {
-              key: "external_links",
-              label: this.$tc(
-                "esmx-shop-audit-ai.dashboard.scanOptions.checks.brokenLinkExternalLinks",
-              ),
-            },
           ],
         },
         {
@@ -688,7 +716,9 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
     },
 
     runScan() {
-      return this.executeRunScan(loadScanOptions());
+      return this.executeRunScan(
+        applyScanCapabilities(loadScanOptions(), this.scanCapabilities),
+      );
     },
 
     executeRunScan(scanOptions = null) {
@@ -719,7 +749,10 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
     },
 
     openScanOptionsModal() {
-      this.scanOptionsDraft = normalizeScanOptions(loadScanOptions());
+      this.scanOptionsDraft = applyScanCapabilities(
+        normalizeScanOptions(loadScanOptions()),
+        this.scanCapabilities,
+      );
       this.collapsedScanOptionGroups = {};
       this.isScanOptionsModalOpen = true;
     },
@@ -735,16 +768,26 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
 
     selectAllScanOptions() {
       this.scanOptionGroups.forEach((group) => {
+        if (!this.isScanOptionGroupGloballyEnabled(group.key)) {
+          this.setScanOptionGroupEnabled(group.key, false);
+          return;
+        }
+
         this.setScanOptionGroupEnabled(group.key, true);
       });
     },
 
     resetScanOptionsDraft() {
-      this.scanOptionsDraft = normalizeScanOptions(DEFAULT_SCAN_OPTIONS);
+      this.scanOptionsDraft = applyScanCapabilities(
+        normalizeScanOptions(DEFAULT_SCAN_OPTIONS),
+        this.scanCapabilities,
+      );
     },
 
     saveAndRunScanWithOptions() {
-      const savedOptions = saveScanOptions(this.scanOptionsDraft);
+      const savedOptions = saveScanOptions(
+        applyScanCapabilities(this.scanOptionsDraft, this.scanCapabilities),
+      );
       this.isScanOptionsModalOpen = false;
       this.scanOptionsDraft = null;
 
@@ -779,6 +822,10 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
         return;
       }
 
+      if (!this.isScanOptionGroupGloballyEnabled(groupKey)) {
+        enabled = false;
+      }
+
       this.scanOptionsDraft[groupKey].enabled = enabled;
 
       Object.keys(this.scanOptionsDraft[groupKey].checks || {}).forEach(
@@ -789,6 +836,10 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
     },
 
     onScanOptionGroupToggle(groupKey) {
+      if (!this.isScanOptionGroupGloballyEnabled(groupKey)) {
+        return;
+      }
+
       this.setScanOptionGroupEnabled(
         groupKey,
         !this.isScanOptionGroupChecked(groupKey),
@@ -797,6 +848,11 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
 
     onScanOptionCheckToggle(groupKey, checkKey, value) {
       if (!this.scanOptionsDraft?.[groupKey]?.checks) {
+        return;
+      }
+
+      if (!this.isScanOptionGroupGloballyEnabled(groupKey)) {
+        this.setScanOptionGroupEnabled(groupKey, false);
         return;
       }
 
@@ -815,6 +871,11 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
 
     isScanOptionGroupCollapsed(groupKey) {
       return this.collapsedScanOptionGroups[groupKey] === true;
+    },
+
+    isScanOptionGroupGloballyEnabled(groupKey) {
+      return this.scanCapabilities?.enabled !== false
+        && this.scanCapabilities?.groups?.[groupKey]?.enabled !== false;
     },
 
     getScanOptionGroupIcon(groupKey) {
@@ -844,10 +905,6 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
 
     goToReports() {
       return goToReports(this.$router);
-    },
-
-    goToSettings() {
-      return goToSettings(this.$router);
     },
 
     goToTaskFilter(task) {

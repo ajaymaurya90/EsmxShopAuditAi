@@ -40,7 +40,7 @@ class CategoryMissingMetaTitleRule implements SeoAuditRuleInterface
 
     public function isEnabled(): bool
     {
-        return (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkCategorySeo') ?? true);
+        return true;
     }
 
     public function audit(Context $context): array

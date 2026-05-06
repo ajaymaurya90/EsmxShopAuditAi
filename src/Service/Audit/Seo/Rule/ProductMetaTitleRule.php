@@ -45,9 +45,7 @@ class ProductMetaTitleRule extends AbstractScoredProductSeoAuditRule
 
     public function isEnabled(): bool
     {
-        return (bool) ($this->systemConfigService->get(
-            'EsmxShopAuditAi.config.checkProductMetaTitle'
-        ) ?? true);
+        return true;
     }
 
     public function auditProducts(ProductCollection $products): array

@@ -2,7 +2,6 @@ import './page/esmx-shop-audit-dashboard';
 import './page/esmx-shop-audit-findings';
 import './page/esmx-shop-audit-tasks';
 import './page/esmx-shop-audit-reports';
-import './page/esmx-shop-audit-settings';
 
 Shopware.Module.register('esmx-shop-audit-ai', {
     type: 'plugin',
@@ -28,10 +27,6 @@ Shopware.Module.register('esmx-shop-audit-ai', {
         reports: {
             component: 'esmx-shop-audit-reports',
             path: 'reports'
-        },
-        settings: {
-            component: 'esmx-shop-audit-settings',
-            path: 'settings'
         }
     },
 

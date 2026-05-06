@@ -26,13 +26,18 @@ class ManualScanRunner
         private readonly LoggerInterface $logger,
         private readonly BrokenLinkAuditService $brokenLinkAuditService,
         private readonly SystemConfigService $systemConfigService,
-        private readonly ScanOptionsResolver $scanOptionsResolver
+        private readonly ScanOptionsResolver $scanOptionsResolver,
+        private readonly ScanCapabilitiesResolver $scanCapabilitiesResolver
     ) {}
 
     public function run(Context $context, ?array $scanOptions = null): string
     {
         $auditSummary = [];
-        $resolvedScanOptions = $this->scanOptionsResolver->resolve($scanOptions);
+        $scanCapabilities = $this->scanCapabilitiesResolver->resolve();
+        $resolvedScanOptions = $this->scanCapabilitiesResolver->applyToScanOptions(
+            $this->scanOptionsResolver->resolve($scanOptions),
+            $scanCapabilities
+        );
         $scanId = Uuid::randomHex();
         $startedAt = new \DateTimeImmutable();
 
@@ -46,13 +51,15 @@ class ManualScanRunner
                 'highPriorityFindings' => 0,
                 'summaryJson' => [
                     'scanOptions' => $resolvedScanOptions,
+                    'scanCapabilities' => $scanCapabilities,
                 ],
             ],
         ], $context);
 
         $this->logger->info('EsmxShopAuditAi scan started', [
-            'scanId' => $scanId,
-            'startedAt' => $startedAt->format(DATE_ATOM),
+                'scanId' => $scanId,
+                'startedAt' => $startedAt->format(DATE_ATOM),
+                'scanCapabilities' => $scanCapabilities,
         ]);
 
         try {
@@ -98,22 +105,23 @@ class ManualScanRunner
             }
 
             // Broken Link Audit Integration
-            $enabledValue = $this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkAuditEnabled');
-            $brokenLinkEnabled = $enabledValue === null ? true : (bool) $enabledValue;
+            $brokenLinkOptions = $resolvedScanOptions['brokenLinks'] ?? null;
+            $enabledBrokenLinkChecks = $this->resolveEnabledChecks($brokenLinkOptions);
+            $brokenLinkEnabled = (bool) ($scanCapabilities['groups']['brokenLinks']['enabled'] ?? true);
 
-            if ($brokenLinkEnabled) {
+            if ($brokenLinkEnabled && ($brokenLinkOptions['enabled'] ?? true) && $enabledBrokenLinkChecks !== []) {
                 $maxLinks = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkMaxLinks') ?? 100);
                 $timeout = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkTimeout') ?? 5);
-                $checkExternalFromConfig = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkCheckExternal') ?? false);
-                $checkExternal = $resolvedScanOptions['brokenLinks']['checks']['external_links'] ?? $checkExternalFromConfig;
+                $checkExternalValue = $this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkCheckExternal');
+                $checkExternal = $checkExternalValue === null ? true : (bool) $checkExternalValue;
 
                 $this->logger->info('Broken link audit starting with scan options', [
                     'scanId' => $scanId,
                     'brokenLinksScanOptions' => $resolvedScanOptions['brokenLinks'] ?? null,
+                    'enabledBrokenLinkChecks' => $enabledBrokenLinkChecks,
                     'maxLinks' => $maxLinks,
                     'timeout' => $timeout,
                     'checkExternal' => $checkExternal,
-                    'checkExternalFromConfig' => $checkExternalFromConfig,
                 ]);
 
                 $brokenLinkResult = $this->brokenLinkAuditService->run(
@@ -137,6 +145,13 @@ class ManualScanRunner
 
                 $this->logger->info('Broken link audit result', [
                     'count' => count($brokenLinkResult['broken_links'] ?? []),
+                ]);
+            } else {
+                $this->logger->info('Broken link audit skipped by scan options or plugin settings', [
+                    'scanId' => $scanId,
+                    'brokenLinksScanOptions' => $brokenLinkOptions,
+                    'enabledBrokenLinkChecks' => $enabledBrokenLinkChecks,
+                    'brokenLinkCapabilityEnabled' => $brokenLinkEnabled,
                 ]);
             }
 
@@ -168,6 +183,7 @@ class ManualScanRunner
                         'findingCount' => \count($findings),
                         'taskCount' => \count($tasks),
                         'scanOptions' => $resolvedScanOptions,
+                        'scanCapabilities' => $scanCapabilities,
                     ],
                 ],
             ], $context);
@@ -193,6 +209,7 @@ class ManualScanRunner
                     'summaryJson' => [
                         'meta' => $auditSummary['meta'] ?? [],
                         'scanOptions' => $resolvedScanOptions,
+                        'scanCapabilities' => $scanCapabilities,
                         'error' => $exception->getMessage(),
                     ],
                 ],

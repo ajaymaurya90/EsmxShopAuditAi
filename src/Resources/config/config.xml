@@ -21,12 +21,6 @@
             <label lang="de-DE">Produktlimit pro Audit-Lauf</label>
             <defaultValue>100</defaultValue>
         </input-field>
-    </card>
-
-    <card>
-        <title>Esmx Shop Audit AI</title>
-        <title lang="de-DE">Esmx Shop Audit AI</title>
-
         <input-field type="single-select">
             <name>variantAuditMode</name>
 
@@ -56,48 +50,25 @@
     </card>
 
     <card>
-        <title>Scan options</title>
-        <title lang="de-DE">Scan-Optionen</title>
+        <title>Product Health Audit</title>
+        <title lang="de-DE">Produktzustands-Audit</title>
 
         <input-field type="bool">
-            <name>checkMissingManufacturer</name>
-            <label>Check missing manufacturer</label>
-            <label lang="de-DE">Fehlenden Hersteller prüfen</label>
+            <name>productHealthAuditEnabled</name>
+            <label>Enable product health audit</label>
+            <label lang="de-DE">Produktzustands-Audit aktivieren</label>
             <defaultValue>true</defaultValue>
         </input-field>
+    </card>
+
+    <card>
+        <title>SEO Audit</title>
+        <title lang="de-DE">SEO-Audit</title>
 
         <input-field type="bool">
-            <name>checkMissingTranslations</name>
-            <label>Check missing translations</label>
-            <label lang="de-DE">Fehlende Übersetzungen prüfen</label>
-            <defaultValue>true</defaultValue>
-        </input-field>
-
-        <input-field type="bool">
-            <name>checkProductName</name>
-            <label>Check product name</label>
-            <label lang="de-DE">Produktnamen prüfen</label>
-            <defaultValue>true</defaultValue>
-        </input-field>
-
-        <input-field type="bool">
-            <name>checkProductDescription</name>
-            <label>Check product description</label>
-            <label lang="de-DE">Produktbeschreibung prüfen</label>
-            <defaultValue>true</defaultValue>
-        </input-field>
-
-        <input-field type="bool">
-            <name>checkProductMetaTitle</name>
-            <label>Check product meta title</label>
-            <label lang="de-DE">Produkt-Meta-Titel prüfen</label>
-            <defaultValue>true</defaultValue>
-        </input-field>
-
-        <input-field type="bool">
-            <name>checkProductMetaDescription</name>
-            <label>Check product meta description</label>
-            <label lang="de-DE">Produkt-Meta-Beschreibung prüfen</label>
+            <name>seoAuditEnabled</name>
+            <label>Enable SEO audit</label>
+            <label lang="de-DE">SEO-Audit aktivieren</label>
             <defaultValue>true</defaultValue>
         </input-field>
 
@@ -115,45 +86,83 @@
             <defaultValue>80</defaultValue>
         </input-field>
 
-        <input-field type="bool">
-            <name>checkCategorySeo</name>
-            <label>Check category SEO fields</label>
-            <label lang="de-DE">Kategorie-SEO-Felder prüfen</label>
-            <defaultValue>true</defaultValue>
+        <input-field type="int">
+            <name>seoMetaTitleMinLength</name>
+            <label>SEO meta title minimum length</label>
+            <label lang="de-DE">Minimale Länge des SEO-Meta-Titels</label>
+            <defaultValue>30</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>seoMetaTitleMaxLength</name>
+            <label>SEO meta title maximum length</label>
+            <label lang="de-DE">Maximale Länge des SEO-Meta-Titels</label>
+            <defaultValue>65</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>seoMetaDescriptionMinLength</name>
+            <label>SEO meta description minimum length</label>
+            <label lang="de-DE">Minimale Länge der SEO-Meta-Beschreibung</label>
+            <defaultValue>80</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>seoMetaDescriptionMaxLength</name>
+            <label>SEO meta description maximum length</label>
+            <label lang="de-DE">Maximale Länge der SEO-Meta-Beschreibung</label>
+            <defaultValue>160</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>seoImprovementThreshold</name>
+            <label>SEO improvement threshold</label>
+            <label lang="de-DE">SEO-Verbesserungsschwelle</label>
+            <defaultValue>70</defaultValue>
         </input-field>
     </card>
 
     <card>
-    <title>Broken Link Audit</title>
-    <title lang="de-DE">Broken-Link-Prüfung</title>
+        <title>Broken Link Audit</title>
+        <title lang="de-DE">Broken-Link-Prüfung</title>
 
-    <input-field type="bool">
-        <name>brokenLinkAuditEnabled</name>
-        <label>Enable broken link detection</label>
-        <label lang="de-DE">Broken-Link-Erkennung aktivieren</label>
-        <defaultValue>true</defaultValue>
-    </input-field>
+        <input-field type="bool">
+            <name>brokenLinkAuditEnabled</name>
+            <label>Enable broken link detection</label>
+            <label lang="de-DE">Broken-Link-Erkennung aktivieren</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
 
-    <input-field type="bool">
-        <name>brokenLinkCheckExternal</name>
-        <label>Check external links</label>
-        <label lang="de-DE">Externe Links prüfen</label>
-        <defaultValue>false</defaultValue>
-    </input-field>
+        <input-field type="bool">
+            <name>brokenLinkCheckExternal</name>
+            <label>Check external links</label>
+            <label lang="de-DE">Externe Links prüfen</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
 
-    <input-field type="int">
-        <name>brokenLinkMaxLinks</name>
-        <label>Maximum links per scan</label>
-        <label lang="de-DE">Maximale Links pro Scan</label>
-        <defaultValue>100</defaultValue>
-    </input-field>
+        <input-field type="int">
+            <name>brokenLinkMaxLinks</name>
+            <label>Maximum links per scan</label>
+            <label lang="de-DE">Maximale Links pro Scan</label>
+            <defaultValue>100</defaultValue>
+        </input-field>
 
-    <input-field type="int">
-        <name>brokenLinkTimeout</name>
-        <label>HTTP request timeout (seconds)</label>
-        <label lang="de-DE">HTTP-Timeout (Sekunden)</label>
-        <defaultValue>5</defaultValue>
-    </input-field>
+        <input-field type="int">
+            <name>brokenLinkTimeout</name>
+            <label>HTTP request timeout (seconds)</label>
+            <label lang="de-DE">HTTP-Timeout (Sekunden)</label>
+            <defaultValue>5</defaultValue>
+        </input-field>
+    </card>
+    <card>
+        <title>Sales Audit</title>
+        <title lang="de-DE">Sales-Audit</title>
 
-</card>
+        <input-field type="bool">
+            <name>salesAuditEnabled</name>
+            <label>Enable sales audit</label>
+            <label lang="de-DE">Sales-Audit aktivieren</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+    </card>
 </config>

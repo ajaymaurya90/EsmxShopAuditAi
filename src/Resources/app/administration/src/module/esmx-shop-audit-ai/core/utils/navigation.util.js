@@ -22,7 +22,3 @@ export function goToTasks(router, query = {}) {
 export function goToReports(router) {
     return router.push({ name: 'esmx.shop.audit.ai.reports' });
 }
-
-export function goToSettings(router) {
-    return router.push({ name: 'esmx.shop.audit.ai.settings' });
-}

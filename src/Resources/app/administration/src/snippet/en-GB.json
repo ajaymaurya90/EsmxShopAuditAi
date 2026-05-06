@@ -76,10 +76,12 @@
       "nextActionSeo": "Fix missing SEO meta titles",
       "healthSummaryGood": "Your store is in good condition overall. Keep improving smaller quality gaps.",
       "healthSummaryWarning": "Your store has several issues that may affect performance and should be reviewed soon.",
+      "healthSummaryNeedsImprovement": "Your store health score is low, but no high or critical findings were found.",
       "healthSummaryCritical": "Your store has critical problems that can directly impact sales or customer experience.",
       "healthStatus": {
         "good": "Good",
-        "warning": "Needs attention",
+        "needs_attention": "Needs attention",
+        "needs_improvement": "Needs improvement",
         "critical": "Critical",
         "not_available": "Not available"
       },
@@ -144,6 +146,7 @@
         "reset": "Reset",
         "cancel": "Cancel",
         "saveAndRun": "Save & Run Scan",
+        "disabledInSettings": "Disabled in plugin settings",
         "groups": {
           "productHealth": "Product Health Audit",
           "seo": "SEO Audit",
@@ -168,7 +171,6 @@
           "brokenLinkProductDescriptions": "Product descriptions",
           "brokenLinkCategoryDescriptions": "Category descriptions",
           "brokenLinkCmsPages": "CMS pages",
-          "brokenLinkExternalLinks": "Check external links",
           "salesKpis": "Sales KPIs",
           "topSellingProducts": "Top selling products",
           "lowStockBestSellers": "Low stock best sellers"
@@ -200,7 +202,6 @@
         "product_description_links": "Checks links found inside product descriptions.",
         "category_description_links": "Checks links found inside category descriptions.",
         "cms_content": "Checks links found inside CMS page content.",
-        "external_links": "Also checks absolute external URLs. This can make scans slower.",
         "salesKpis": "Includes sales KPI metrics in the scan context.",
         "topSellingProducts": "Includes top selling products based on recent sales.",
         "lowStockBestSellers": "Includes best-selling products with low stock."
@@ -208,7 +209,7 @@
     },
     "dashboardInsights": {
       "scannedProducts": "Scanned products",
-      "affectedProducts": "Affected products",
+      "affectedProducts": "Affected entities",
       "criticalIssues": "Critical issues",
       "openTasks": "Open tasks",
       "topTasksHeadline": "Top tasks",
@@ -249,8 +250,7 @@
       "dashboard": "Dashboard",
       "findings": "Findings",
       "tasks": "Tasks",
-      "reports": "Reports",
-      "settings": "Settings"
+      "reports": "Reports"
     },
     "findings": {
       "pageTitle": "Findings",
@@ -271,7 +271,9 @@
       "emptyState": "No findings available yet.",
       "loadError": "The findings page could not be loaded.",
       "columns": {
-        "title": "Title",
+        "title": "Issue title",
+        "auditGroup": "Audit group",
+        "issueTitle": "Issue title",
         "severity": "Severity",
         "entity": "Entity",
         "affectedCount": "Count",
@@ -282,6 +284,12 @@
         "status": "Status",
         "url": "URL",
         "action": ""
+      },
+      "auditGroups": {
+        "productHealth": "Product Health",
+        "seo": "SEO",
+        "brokenLinks": "Broken Link",
+        "sales": "Sales"
       },
       "defaultImpact": "May reduce store quality or customer experience.",
       "unknownCategory": "Unknown",
@@ -447,66 +455,6 @@
           "enabled": "Enabled",
           "disabled": "Disabled",
           "partial": "Partial"
-        }
-      }
-    },
-    "settings": {
-      "pageTitle": "Settings",
-      "headline": "Plugin settings",
-      "description": "Manage the audit configuration for Esmx Shop Audit AI directly in this module.",
-      "loading": "Loading settings...",
-      "saveButton": "Save settings",
-      "saveSuccess": "Settings saved successfully.",
-      "saveError": "Settings could not be saved.",
-      "loadError": "Settings could not be loaded.",
-      "scanDisabledHint": "Run scan from Dashboard page",
-      "sections": {
-        "general": "General settings",
-        "scanOptions": "Scan options"
-      },
-      "fields": {
-        "enableAudit": {
-          "label": "Enable audit checks",
-          "helpText": "Enable or disable audit checks for the plugin."
-        },
-        "auditProductLimit": {
-          "label": "Product audit limit per run",
-          "helpText": "Maximum number of products scanned in one run."
-        },
-        "variantAuditMode": {
-          "label": "Variant audit mode",
-          "helpText": "Choose whether to audit effective storefront data or raw variant records.",
-          "options": {
-            "effective": "Audit effective storefront data",
-            "raw": "Audit raw variant records"
-          }
-        },
-        "checkMissingManufacturer": {
-          "label": "Check missing manufacturer"
-        },
-        "checkMissingTranslations": {
-          "label": "Check missing translations"
-        },
-        "checkProductName": {
-          "label": "Check product name"
-        },
-        "minProductTitleLength": {
-          "label": "Minimum product title length"
-        },
-        "checkProductDescription": {
-          "label": "Check product description"
-        },
-        "minProductDescriptionLength": {
-          "label": "Minimum product description length"
-        },
-        "checkProductMetaTitle": {
-          "label": "Check product meta title"
-        },
-        "checkProductMetaDescription": {
-          "label": "Check product meta description"
-        },
-        "checkCategorySeo": {
-          "label": "Check category SEO fields"
         }
       }
     },

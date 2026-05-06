@@ -40,8 +40,6 @@ class ProductAuditService
         $variantAuditMode = $this->getVariantAuditMode();
 
         $enableAudit = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.enableAudit') ?? true);
-        $checkMissingManufacturer = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkMissingManufacturer') ?? true);
-        $checkMissingTranslations = (bool) ($this->systemConfigService->get('EsmxShopAuditAi.config.checkMissingTranslations') ?? true);
         $activeChecks = $this->resolveActiveProductHealthChecks($enabledChecks);
 
         if ($enableAudit !== true) {
@@ -75,7 +73,7 @@ class ProductAuditService
         }
 
         $products = $this->loadProducts($context, $limit, $variantAuditMode);
-        $languages = \in_array('missingTranslation', $activeChecks, true) && $checkMissingTranslations
+        $languages = \in_array('missingTranslation', $activeChecks, true)
             ? $this->loadLanguages($context)
             : null;
 
@@ -105,7 +103,6 @@ class ProductAuditService
 
             if (
                 \in_array('missingManufacturer', $activeChecks, true) &&
-                $checkMissingManufacturer &&
                 $product->getManufacturerId() === null
             ) {
                 $issues['missingManufacturer'][] = $this->buildProductPayload($product);
@@ -115,7 +112,7 @@ class ProductAuditService
                 $issues['missingPrice'][] = $this->buildProductPayload($product);
             }
 
-            if (\in_array('missingTranslation', $activeChecks, true) && $checkMissingTranslations && $languages !== null) {
+            if (\in_array('missingTranslation', $activeChecks, true) && $languages !== null) {
                 $missingLanguages = $this->getMissingTranslationLanguages($product, $languages, $variantAuditMode);
 
                 if ($missingLanguages !== []) {

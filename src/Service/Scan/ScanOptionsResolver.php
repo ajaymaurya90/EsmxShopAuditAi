@@ -38,7 +38,6 @@ class ScanOptionsResolver
                 'product_description' => true,
                 'category_description' => true,
                 'cms_content' => true,
-                'external_links' => false,
             ],
         ],
         'sales' => [

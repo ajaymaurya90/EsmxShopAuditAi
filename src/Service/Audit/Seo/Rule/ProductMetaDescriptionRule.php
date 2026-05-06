@@ -45,9 +45,7 @@ class ProductMetaDescriptionRule extends AbstractScoredProductSeoAuditRule
 
     public function isEnabled(): bool
     {
-        return (bool) ($this->systemConfigService->get(
-            'EsmxShopAuditAi.config.checkProductMetaDescription'
-        ) ?? true);
+        return true;
     }
 
     public function auditProducts(ProductCollection $products): array

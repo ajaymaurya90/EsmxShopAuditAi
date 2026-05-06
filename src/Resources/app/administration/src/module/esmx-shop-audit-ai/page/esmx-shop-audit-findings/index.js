@@ -13,7 +13,6 @@ import {
   goToDashboard,
   goToTasks,
   goToReports,
-  goToSettings,
 } from "../../core/utils/navigation.util";
 import {
   SEVERITY_ORDER,
@@ -21,6 +20,30 @@ import {
   DEFAULT_SEVERITY_WEIGHT,
 } from "../../core/constants/severity.constant";
 import { loadScanOptions } from "../../core/utils/scan-options.util";
+
+const PRODUCT_HEALTH_FINDING_CODES = [
+  "missing_cover_image",
+  "inactive_products",
+  "out_of_stock_products",
+  "missing_category",
+  "missing_manufacturer",
+  "missing_price",
+  "missing_translation",
+];
+
+const SEO_FINDING_CODES = [
+  "product_name",
+  "product_description",
+  "product_meta_title",
+  "product_meta_description",
+  "category_missing_meta_title",
+  "category_missing_meta_description",
+  "category_missing_description",
+];
+
+const BROKEN_LINK_FINDING_CODES = ["broken_links"];
+
+const SALES_FINDING_CODES = [];
 
 Shopware.Component.register("esmx-shop-audit-findings", {
   template,
@@ -146,6 +169,12 @@ Shopware.Component.register("esmx-shop-audit-findings", {
         let result = 0;
 
         switch (this.sortBy) {
+          case "auditGroup":
+            result = this.getAuditGroupLabel(a).localeCompare(
+              this.getAuditGroupLabel(b),
+            );
+            break;
+
           case "title":
             result = this.getFindingTitleByCode(a.code, a.title).localeCompare(
               this.getFindingTitleByCode(b.code, b.title),
@@ -365,7 +394,11 @@ Shopware.Component.register("esmx-shop-audit-findings", {
 
       this.sortBy = column;
 
-      if (column === "title" || column === "category") {
+      if (
+        column === "auditGroup" ||
+        column === "title" ||
+        column === "category"
+      ) {
         this.sortDirection = "asc";
         return;
       }
@@ -394,6 +427,54 @@ Shopware.Component.register("esmx-shop-audit-findings", {
       };
 
       return labels[normalized] || entity;
+    },
+
+    getAuditGroupKey(finding) {
+      const code = String(finding?.code || "").toLowerCase().trim();
+
+      if (PRODUCT_HEALTH_FINDING_CODES.includes(code)) {
+        return "productHealth";
+      }
+
+      if (SEO_FINDING_CODES.includes(code)) {
+        return "seo";
+      }
+
+      if (BROKEN_LINK_FINDING_CODES.includes(code)) {
+        return "brokenLinks";
+      }
+
+      if (SALES_FINDING_CODES.includes(code)) {
+        return "sales";
+      }
+
+      return "productHealth";
+    },
+
+    getAuditGroupLabel(finding) {
+      const labels = {
+        productHealth: this.$tc(
+          "esmx-shop-audit-ai.findings.auditGroups.productHealth",
+        ),
+        seo: this.$tc("esmx-shop-audit-ai.findings.auditGroups.seo"),
+        brokenLinks: this.$tc(
+          "esmx-shop-audit-ai.findings.auditGroups.brokenLinks",
+        ),
+        sales: this.$tc("esmx-shop-audit-ai.findings.auditGroups.sales"),
+      };
+
+      return labels[this.getAuditGroupKey(finding)] || labels.productHealth;
+    },
+
+    getAuditGroupIcon(finding) {
+      const icons = {
+        productHealth: "regular-products",
+        seo: "regular-search",
+        brokenLinks: "regular-link-horizontal-slash",
+        sales: "regular-chart-bar",
+      };
+
+      return icons[this.getAuditGroupKey(finding)] || "regular-check-circle";
     },
 
     getImpactLabel(code) {
@@ -463,10 +544,6 @@ Shopware.Component.register("esmx-shop-audit-findings", {
 
     goToReports() {
       return goToReports(this.$router);
-    },
-
-    goToSettings() {
-      return goToSettings(this.$router);
     },
 
     getFindingItems(finding) {

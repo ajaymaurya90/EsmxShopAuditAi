@@ -13,7 +13,6 @@ import {
     goToDashboard,
     goToFindings,
     goToReports,
-    goToSettings,
 } from '../../core/utils/navigation.util';
 import { loadScanOptions } from '../../core/utils/scan-options.util';
 
@@ -358,10 +357,6 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
 
         goToReports() {
             return goToReports(this.$router);
-        },
-
-        goToSettings() {
-            return goToSettings(this.$router);
         },
 
         getPriorityVariant(priority) {

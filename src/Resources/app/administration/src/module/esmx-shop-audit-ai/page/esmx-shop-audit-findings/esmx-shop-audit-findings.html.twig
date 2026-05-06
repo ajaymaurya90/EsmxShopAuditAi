@@ -21,10 +21,6 @@
 				{{ $tc('esmx-shop-audit-ai.navigation.reports') }}
 			</mt-button>
 
-			<mt-button size="default" @click="goToSettings">
-				{{ $tc('esmx-shop-audit-ai.navigation.settings') }}
-			</mt-button>
-
 			<div class="esmx-shop-audit__page-actions">
 				<div class="dashboard__scan-split-button">
 					<mt-button variant="primary" size="default" :loading="isRunningScan" :disabled="isRunningScan" @click="runScan">
@@ -150,11 +146,16 @@
 								</div>
 							</div>
 
-							<div class="findings__table-header">
-								<button type="button" class="findings__header-button findings__col findings__col--title" @click="toggleSort('title')">
-									<span>{{ $tc('esmx-shop-audit-ai.findings.columns.title') }}</span>
-									<mt-icon v-if="isSortedBy('title')" :name="sortIconMap[sortDirection]" size="16px"/>
-								</button>
+								<div class="findings__table-header">
+									<button type="button" class="findings__header-button findings__col findings__col--audit-group" @click="toggleSort('auditGroup')">
+										<span>{{ $tc('esmx-shop-audit-ai.findings.columns.auditGroup') }}</span>
+										<mt-icon v-if="isSortedBy('auditGroup')" :name="sortIconMap[sortDirection]" size="16px"/>
+									</button>
+
+									<button type="button" class="findings__header-button findings__col findings__col--title" @click="toggleSort('title')">
+										<span>{{ $tc('esmx-shop-audit-ai.findings.columns.issueTitle') }}</span>
+										<mt-icon v-if="isSortedBy('title')" :name="sortIconMap[sortDirection]" size="16px"/>
+									</button>
 
 								<button type="button" class="findings__header-button findings__col findings__col--category" @click="toggleSort('category')">
 									<span>{{ $tc('esmx-shop-audit-ai.findings.columns.category') }}</span>
@@ -177,12 +178,22 @@
 							</div>
 						</div>
 
-						<div class="findings__table-body">
-							<div v-for="finding in sortedFindings" :key="finding.id" class="findings__table-row">
-								<div class="findings__col findings__col--title">
-									<div class="findings__row-label">
-										{{ $tc('esmx-shop-audit-ai.findings.columns.title') }}
+							<div class="findings__table-body">
+								<div v-for="finding in sortedFindings" :key="finding.id" class="findings__table-row">
+									<div class="findings__col findings__col--audit-group">
+										<div class="findings__row-label">
+											{{ $tc('esmx-shop-audit-ai.findings.columns.auditGroup') }}
+										</div>
+										<div class="findings__audit-group-pill">
+											<mt-icon :name="getAuditGroupIcon(finding)" size="16px"/>
+											<span>{{ getAuditGroupLabel(finding) }}</span>
+										</div>
 									</div>
+
+									<div class="findings__col findings__col--title">
+										<div class="findings__row-label">
+											{{ $tc('esmx-shop-audit-ai.findings.columns.issueTitle') }}
+										</div>
 									<div class="findings__cell-title">
 										{{ getFindingTitleByCode(finding.code, finding.title) }}
 									</div>

@@ -11,6 +11,31 @@ function hasEnabledChecks(checks = {}) {
     return Object.values(checks).some((enabled) => enabled === true);
 }
 
+export function applyScanCapabilities(options, capabilities = null) {
+    const normalized = normalizeScanOptions(options);
+    const groups = capabilities?.groups || {};
+
+    Object.keys(normalized).forEach((groupKey) => {
+        if (groupKey === 'version') {
+            return;
+        }
+
+        const groupEnabled = groups[groupKey]?.enabled !== false && capabilities?.enabled !== false;
+
+        if (groupEnabled) {
+            return;
+        }
+
+        normalized[groupKey].enabled = false;
+
+        Object.keys(normalized[groupKey].checks || {}).forEach((checkKey) => {
+            normalized[groupKey].checks[checkKey] = false;
+        });
+    });
+
+    return normalized;
+}
+
 export function normalizeScanOptions(options = null) {
     const normalized = cloneOptions(DEFAULT_SCAN_OPTIONS);
 
