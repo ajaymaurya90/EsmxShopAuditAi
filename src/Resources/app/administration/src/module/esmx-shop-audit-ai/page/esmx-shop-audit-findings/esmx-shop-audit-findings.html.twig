@@ -53,7 +53,7 @@
 					</mt-banner>
 				</template>
 
-				<mt-card class="esmx-shop-audit__overview-card">
+				<mt-card class="esmx-shop-audit__overview-card" position-identifier="findings-overview-card">
 					<div class="esmx-shop-audit__section-header">
 						<div class="esmx-shop-audit__section-title">
 							{{ $tc('esmx-shop-audit-ai.findings.overviewTitle') }}
@@ -108,7 +108,7 @@
 					</div>
 				</mt-card>
 
-				<mt-card class="esmx-shop-audit__table-card findings__table-card">
+				<mt-card class="esmx-shop-audit__table-card findings__table-card" position-identifier="findings-table-card">
 					<template #headline>
 						{{ $tc('esmx-shop-audit-ai.findings.gridHeadline') }}
 					</template>
@@ -256,7 +256,7 @@
 				</mt-card>
 
 				<div v-for="finding in sortedFindings" :key="`section-${finding.id}`" :id="`finding-section-${finding.code}`" class="findings__detail-section">
-					<mt-card class="findings__detail-card">
+					<mt-card class="findings__detail-card" position-identifier="finding-detail-card-{{ finding.id }}">
 						<div class="findings__detail-header">
 							<div class="findings__detail-header-main">
 								<div class="findings__detail-title">

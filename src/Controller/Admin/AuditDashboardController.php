@@ -40,6 +40,12 @@ class AuditDashboardController extends AbstractController
         'complete_product_translations' => 1.5,
     ];
 
+    private const BROKEN_LINK_SOURCE_LABELS = [
+        'product_description' => 'Product description',
+        'category_description' => 'Category description',
+        'cms_content' => 'CMS page content',
+    ];
+
     private const HEALTH_SCORE_RULES = [
         'outOfStockProducts' => ['weight' => 3, 'max' => 30],
         'missingPrice' => ['weight' => 4, 'max' => 25],
@@ -790,11 +796,22 @@ class AuditDashboardController extends AbstractController
 
     private function resolveTaskItemIdentifier(array $item): string
     {
+        if (!empty($item['url']) && !empty($item['source'])) {
+            return sprintf(
+                '%s: %s',
+                self::BROKEN_LINK_SOURCE_LABELS[(string) $item['source']] ?? $this->formatReadableIdentifier((string) $item['source']),
+                (string) $item['url']
+            );
+        }
+
+        if (!empty($item['url'])) {
+            return (string) $item['url'];
+        }
+
         $candidates = [
             'productNumber',
             'identifier',
             'number',
-            'id',
         ];
 
         foreach ($candidates as $key) {
@@ -804,6 +821,11 @@ class AuditDashboardController extends AbstractController
         }
 
         return '-';
+    }
+
+    private function formatReadableIdentifier(string $value): string
+    {
+        return ucwords(str_replace('_', ' ', $value));
     }
 
     private function resolveTaskItemIssue(array $item, TaskEntity $task): string

@@ -1,558 +1,418 @@
 {% block esmx_shop_audit_reports %}
-    <sw-page class="esmx-shop-audit reports">
-        <template #smart-bar-header>
-            <h2>{{ $tc('esmx-shop-audit-ai.general.mainMenuItemGeneral') }}</h2>
-        </template>
+	<sw-page class="esmx-shop-audit reports">
+		<template #smart-bar-header>
+			<h2>{{ $tc('esmx-shop-audit-ai.general.mainMenuItemGeneral') }}</h2>
+		</template>
 
-        <template #smart-bar-actions>
-            <mt-button size="default" @click="goToDashboard">
-                {{ $tc('esmx-shop-audit-ai.navigation.dashboard') }}
-            </mt-button>
+		<template #smart-bar-actions>
+			<mt-button size="default" @click="goToDashboard">
+				{{ $tc('esmx-shop-audit-ai.navigation.dashboard') }}
+			</mt-button>
 
-            <mt-button size="default" @click="goToFindings">
-                {{ $tc('esmx-shop-audit-ai.navigation.findings') }}
-            </mt-button>
+			<mt-button size="default" @click="goToFindings">
+				{{ $tc('esmx-shop-audit-ai.navigation.findings') }}
+			</mt-button>
 
-            <mt-button size="default" @click="goToTasks">
-                {{ $tc('esmx-shop-audit-ai.navigation.tasks') }}
-            </mt-button>
+			<mt-button size="default" @click="goToTasks">
+				{{ $tc('esmx-shop-audit-ai.navigation.tasks') }}
+			</mt-button>
 
-            <mt-button variant="primary" size="default">
-                {{ $tc('esmx-shop-audit-ai.navigation.reports') }}
-            </mt-button>
+			<mt-button variant="primary" size="default">
+				{{ $tc('esmx-shop-audit-ai.navigation.reports') }}
+			</mt-button>
 
-            {#<mt-button
-                    variant="primary"
-                    size="default"
-                    :disabled="isLoading || isRunningScan"
-                    @click="loadReports"
-            >
-                {{ $tc('esmx-shop-audit-ai.general.refresh') }}
-            </mt-button>#}
+			{#<mt-button
+																																	                    variant="primary"
+																																	                    size="default"
+																																	                    :disabled="isLoading || isRunningScan"
+																																	                    @click="loadReports"
+																																	            >
+																																	                {{ $tc('esmx-shop-audit-ai.general.refresh') }}
+																																	            </mt-button>#}
 
-            <div class="esmx-shop-audit__page-actions">
-                <div class="dashboard__scan-split-button">
-                    <mt-button
-                            variant="primary"
-                            size="default"
-                            :loading="isRunningScan"
-                            :disabled="isRunningScan"
-                            @click="runScan"
-                    >
-                        <span v-if="isRunningScan" class="esmx-shop-audit__scan-status">
-                            {{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}
-                        </span>
-                        <span v-else>
-                            {{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
-                        </span>
-                    </mt-button>
+			<div class="esmx-shop-audit__page-actions">
+				<div class="dashboard__scan-split-button">
+					<mt-button variant="primary" size="default" :loading="isRunningScan" :disabled="isRunningScan" @click="runScan">
+						<span v-if="isRunningScan" class="esmx-shop-audit__scan-status">
+							{{ $tc('esmx-shop-audit-ai.dashboard.scanRunning') }}
+						</span>
+						<span v-else>
+							{{ $tc('esmx-shop-audit-ai.dashboard.scanStart') }}
+						</span>
+					</mt-button>
 
-                    <mt-button
-                            class="dashboard__scan-options-button"
-                            variant="primary"
-                            size="default"
-                            :disabled="isRunningScan"
-                            :title="$tc('esmx-shop-audit-ai.dashboard.scanOptions.openButton')"
-                            @click="openScanOptionsModal"
-                    >
-                        <mt-icon name="regular-chevron-down-s" size="16px"/>
-                    </mt-button>
-                </div>
-            </div>
-        </template>
+					<mt-button class="dashboard__scan-options-button" variant="primary" size="default" :disabled="isRunningScan" :title="$tc('esmx-shop-audit-ai.dashboard.scanOptions.openButton')" @click="openScanOptionsModal">
+						<mt-icon name="regular-chevron-down-s" size="16px"/>
+					</mt-button>
+				</div>
+			</div>
+		</template>
 
-        <template #content>
-            <sw-card-view class="esmx-shop-audit__page-view">
-                <template v-if="loadError">
-                    <mt-banner variant="danger">
-                        {{ loadError }}
-                    </mt-banner>
-                </template>
+		<template #content>
+			<sw-card-view class="esmx-shop-audit__page-view">
+				<template v-if="loadError">
+					<mt-banner variant="danger">
+						{{ loadError }}
+					</mt-banner>
+				</template>
 
-                <template v-if="scanError">
-                    <mt-banner variant="danger">
-                        {{ scanError }}
-                    </mt-banner>
-                </template>
+				<template v-if="scanError">
+					<mt-banner variant="danger">
+						{{ scanError }}
+					</mt-banner>
+				</template>
 
-                <mt-card class="esmx-shop-audit__overview-card">
-                    <div class="esmx-shop-audit__section-header">
-                        <div class="esmx-shop-audit__section-title">
-                            {{ $tc('esmx-shop-audit-ai.reports.overviewTitle') }}
-                        </div>
+				<mt-card class="esmx-shop-audit__overview-card" position-identifier="reports-overview-card">
+					<div class="esmx-shop-audit__section-header">
+						<div class="esmx-shop-audit__section-title">
+							{{ $tc('esmx-shop-audit-ai.reports.overviewTitle') }}
+						</div>
 
-                        <div class="esmx-shop-audit__section-header-meta">
-                            <div
-                                    v-if="formattedLatestScanDate"
-                                    class="esmx-shop-audit__section-subtitle"
-                            >
-                                {{ $tc('esmx-shop-audit-ai.dashboard.lastScanLabel') }}: {{ formattedLatestScanDate }}
-                            </div>
+						<div class="esmx-shop-audit__section-header-meta">
+							<div v-if="formattedLatestScanDate" class="esmx-shop-audit__section-subtitle">
+								{{ $tc('esmx-shop-audit-ai.dashboard.lastScanLabel') }}:
+								{{ formattedLatestScanDate }}
+							</div>
 
-                            <span
-                                    class="esmx-shop-audit__info-trigger"
-                                    @mouseenter="activeWidgetTooltip = 'reportsOverview'"
-                                    @mouseleave="activeWidgetTooltip = null"
-                            >
-                                <mt-icon
-                                        name="regular-info-circle"
-                                        size="16px"
-                                        class="esmx-shop-audit__info-icon"
-                                />
+							<span class="esmx-shop-audit__info-trigger" @mouseenter="activeWidgetTooltip = 'reportsOverview'" @mouseleave="activeWidgetTooltip = null">
+								<mt-icon name="regular-info-circle" size="16px" class="esmx-shop-audit__info-icon"/>
 
-                                <span
-                                        v-if="activeWidgetTooltip === 'reportsOverview'"
-                                        class="esmx-shop-audit__tooltip"
-                                >
-                                    {{ $tc('esmx-shop-audit-ai.reports.overviewTooltip') }}
-                                </span>
-                            </span>
-                        </div>
-                    </div>
+								<span v-if="activeWidgetTooltip === 'reportsOverview'" class="esmx-shop-audit__tooltip">
+									{{ $tc('esmx-shop-audit-ai.reports.overviewTooltip') }}
+								</span>
+							</span>
+						</div>
+					</div>
 
-                    <div class="esmx-shop-audit__stats-strip">
-                        <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.totalReports') }}</div>
-                            <div class="esmx-shop-audit__stat-value">{{ totalReports }}</div>
-                        </div>
+					<div class="esmx-shop-audit__stats-strip">
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.totalReports') }}</div>
+							<div class="esmx-shop-audit__stat-value">{{ totalReports }}</div>
+						</div>
 
-                        <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.completed') }}</div>
-                            <div class="esmx-shop-audit__stat-value">{{ completedReportsCount }}</div>
-                        </div>
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.completed') }}</div>
+							<div class="esmx-shop-audit__stat-value">{{ completedReportsCount }}</div>
+						</div>
 
-                        <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.latestFindings') }}</div>
-                            <div class="esmx-shop-audit__stat-value">{{ latestFindingsCount }}</div>
-                        </div>
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.latestFindings') }}</div>
+							<div class="esmx-shop-audit__stat-value">{{ latestFindingsCount }}</div>
+						</div>
 
-                        <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.latestHighPriority') }}</div>
-                            <div class="esmx-shop-audit__stat-value">{{ latestHighPriorityCount }}</div>
-                        </div>
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.latestHighPriority') }}</div>
+							<div class="esmx-shop-audit__stat-value">{{ latestHighPriorityCount }}</div>
+						</div>
 
-                        <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.findingsVsPrevious') }}</div>
-                            <div
-                                    class="esmx-shop-audit__stat-value reports__delta-value"
-                                    :class="getDeltaClass(latestFindingsDelta)"
-                            >
-                                {{ formatDelta(latestFindingsDelta) }}
-                            </div>
-                        </div>
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.findingsVsPrevious') }}</div>
+							<div class="esmx-shop-audit__stat-value reports__delta-value" :class="getDeltaClass(latestFindingsDelta)">
+								{{ formatDelta(latestFindingsDelta) }}
+							</div>
+						</div>
 
-                        <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.avgFindingsPerScan') }}</div>
-                            <div class="esmx-shop-audit__stat-value">{{ averageFindingsPerScan }}</div>
-                        </div>
-                    </div>
-                </mt-card>
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.avgFindingsPerScan') }}</div>
+							<div class="esmx-shop-audit__stat-value">{{ averageFindingsPerScan }}</div>
+						</div>
+					</div>
+				</mt-card>
 
-                <mt-card class="esmx-shop-audit__table-card">
-                    <template #headline>
-                        {{ $tc('esmx-shop-audit-ai.reports.historyHeadline') }}
-                    </template>
+				<mt-card class="esmx-shop-audit__table-card" position-identifier="reports-table-card">
+					<template #headline>
+						{{ $tc('esmx-shop-audit-ai.reports.historyHeadline') }}
+					</template>
 
-                    <div class="esmx-shop-audit__table-topbar">
-                        <div class="esmx-shop-audit__table-meta">
-                            {{ historySummaryText }}
-                        </div>
+					<div class="esmx-shop-audit__table-topbar">
+						<div class="esmx-shop-audit__table-meta">
+							{{ historySummaryText }}
+						</div>
 
-                        <div class="reports__bulk-actions">
-                            <mt-checkbox
-                                    :checked="allVisibleReportsSelected"
-                                    @change="toggleSelectAllVisibleReports"
-                            />
+						<div class="reports__bulk-actions">
+							<mt-checkbox :checked="allVisibleReportsSelected" @change="toggleSelectAllVisibleReports"/>
 
-                            <span class="reports__bulk-label">
-                                {{ $tc('esmx-shop-audit-ai.reports.delete.selectAllVisible') }}
-                            </span>
+							<span class="reports__bulk-label">
+								{{ $tc('esmx-shop-audit-ai.reports.delete.selectAllVisible') }}
+							</span>
 
-                            <mt-button
-                                    v-if="hasSelectedReports"
-                                    variant="critical"
-                                    size="small"
-                                    :loading="isDeletingReports"
-                                    :disabled="isDeletingReports"
-                                    @click="openDeleteReportsModal"
-                            >
-                                {{ $tc('esmx-shop-audit-ai.reports.delete.buttonWithCount', selectedReportsCount, {
+							<mt-button v-if="hasSelectedReports" variant="critical" size="small" :loading="isDeletingReports" :disabled="isDeletingReports" @click="openDeleteReportsModal">
+								{{ $tc('esmx-shop-audit-ai.reports.delete.buttonWithCount', selectedReportsCount, {
                                     count: selectedReportsCount
                                 }) }}
-                            </mt-button>
-                        </div>
-                    </div>
+							</mt-button>
+						</div>
+					</div>
 
-                    <template v-if="paginatedReports.length">
-                        <div class="reports__history-list">
-                            <div class="reports__history-header">
-                                <div>{{ $tc('esmx-shop-audit-ai.reports.table.select') }}</div>
-                                <div>{{ $tc('esmx-shop-audit-ai.reports.table.date') }}</div>
-                                <div>{{ $tc('esmx-shop-audit-ai.reports.table.status') }}</div>
-                                <div>{{ $tc('esmx-shop-audit-ai.reports.table.products') }}</div>
-                                <div>{{ $tc('esmx-shop-audit-ai.reports.table.totalFindings') }}</div>
-                                <div>{{ $tc('esmx-shop-audit-ai.reports.table.highPriority') }}</div>
-                                <div>{{ $tc('esmx-shop-audit-ai.reports.table.action') }}</div>
-                            </div>
+					<template v-if="paginatedReports.length">
+						<div class="reports__history-list">
+							<div class="reports__history-header">
+								<div>{{ $tc('esmx-shop-audit-ai.reports.table.select') }}</div>
+								<div>{{ $tc('esmx-shop-audit-ai.reports.table.date') }}</div>
+								<div>{{ $tc('esmx-shop-audit-ai.reports.table.status') }}</div>
+								<div>{{ $tc('esmx-shop-audit-ai.reports.table.products') }}</div>
+								<div>{{ $tc('esmx-shop-audit-ai.reports.table.totalFindings') }}</div>
+								<div>{{ $tc('esmx-shop-audit-ai.reports.table.highPriority') }}</div>
+								<div>{{ $tc('esmx-shop-audit-ai.reports.table.action') }}</div>
+							</div>
 
-                            <div
-                                    v-for="report in paginatedReports"
-                                    :key="report.id"
-                                    class="reports__history-row"
-                                    :class="{ 'is-selected': isSelectedReport(report) }"
-                                    @click="onClickReportRow(report)"
-                            >
-                                <div @click.stop>
-                                    <div class="reports__row-label">
-                                        {{ $tc('esmx-shop-audit-ai.reports.table.select') }}
-                                    </div>
+							<div v-for="report in paginatedReports" :key="report.id" class="reports__history-row" :class="{ 'is-selected': isSelectedReport(report) }" @click="onClickReportRow(report)">
+								<div @click.stop>
+									<div class="reports__row-label">
+										{{ $tc('esmx-shop-audit-ai.reports.table.select') }}
+									</div>
 
-                                    <mt-checkbox
-                                            :checked="isReportSelected(report.id)"
-                                            @change="toggleReportSelection(report.id)"
-                                    />
-                                </div>
+									<mt-checkbox :checked="isReportSelected(report.id)" @change="toggleReportSelection(report.id)"/>
+								</div>
 
-                                <div>
-                                    <div class="reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.date') }}</div>
-                                    <strong>{{ formatDate(report.finishedAt || report.startedAt) }}</strong>
-                                </div>
+								<div>
+									<div class="reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.date') }}</div>
+									<strong>{{ formatDate(report.finishedAt || report.startedAt) }}</strong>
+								</div>
 
-                                <div>
-                                    <div class="reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.status') }}</div>
-                                    <mt-badge :variant="getStatusVariant(report.status)">
-                                        {{ getStatusLabel(report.status) }}
-                                    </mt-badge>
-                                </div>
+								<div>
+									<div class="reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.status') }}</div>
+									<mt-badge :variant="getStatusVariant(report.status)">
+										{{ getStatusLabel(report.status) }}
+									</mt-badge>
+								</div>
 
-                                <div>
-                                    <div class="reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.products') }}</div>
-                                    {{ report.scannedProducts }}
-                                </div>
+								<div>
+									<div class="reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.products') }}</div>
+									{{ report.scannedProducts }}
+								</div>
 
-                                <div>
-                                    <div class="reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.totalFindings') }}</div>
-                                    <strong>{{ report.totalFindings }}</strong>
-                                </div>
+								<div>
+									<div class="reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.totalFindings') }}</div>
+									<strong>{{ report.totalFindings }}</strong>
+								</div>
 
-                                <div>
-                                    <div class="reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.highPriority') }}</div>
-                                    <strong>{{ report.highPriorityFindings }}</strong>
-                                </div>
+								<div>
+									<div class="reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.highPriority') }}</div>
+									<strong>{{ report.highPriorityFindings }}</strong>
+								</div>
 
-                                <div @click.stop>
-                                    <div class="reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.action') }}</div>
-                                    <mt-button
-                                            size="small"
-                                            variant="secondary"
-                                            @click.stop="onClickReportRow(report)"
-                                    >
-                                        {{ $tc('esmx-shop-audit-ai.reports.table.view') }}
-                                    </mt-button>
-                                </div>
-                            </div>
-                        </div>
+								<div @click.stop>
+									<div class="reports__row-label">{{ $tc('esmx-shop-audit-ai.reports.table.action') }}</div>
+									<mt-button size="small" variant="secondary" @click.stop="onClickReportRow(report)">
+										{{ $tc('esmx-shop-audit-ai.reports.table.view') }}
+									</mt-button>
+								</div>
+							</div>
+						</div>
 
-                        <div
-                                v-if="historyTotalPages > 1"
-                                class="reports__pagination"
-                        >
-                            <div class="reports__pagination-meta">
-                                {{ $tc('esmx-shop-audit-ai.general.page') }}
-                                <strong>{{ historyPage }}</strong>
-                                {{ $tc('esmx-shop-audit-ai.general.of') }}
-                                <strong>{{ historyTotalPages }}</strong>
-                            </div>
+						<div v-if="historyTotalPages > 1" class="reports__pagination">
+							<div class="reports__pagination-meta">
+								{{ $tc('esmx-shop-audit-ai.general.page') }}
+								<strong>{{ historyPage }}</strong>
+								{{ $tc('esmx-shop-audit-ai.general.of') }}
+								<strong>{{ historyTotalPages }}</strong>
+							</div>
 
-                            <div class="reports__pagination-actions">
-                                <mt-button
-                                        size="small"
-                                        variant="secondary"
-                                        :disabled="historyPage <= 1"
-                                        @click="goToHistoryPrevPage"
-                                >
-                                    {{ $tc('esmx-shop-audit-ai.general.previous') }}
-                                </mt-button>
+							<div class="reports__pagination-actions">
+								<mt-button size="small" variant="secondary" :disabled="historyPage <= 1" @click="goToHistoryPrevPage">
+									{{ $tc('esmx-shop-audit-ai.general.previous') }}
+								</mt-button>
 
-                                <mt-button
-                                        size="small"
-                                        variant="secondary"
-                                        :disabled="historyPage >= historyTotalPages"
-                                        @click="goToHistoryNextPage"
-                                >
-                                    {{ $tc('esmx-shop-audit-ai.general.next') }}
-                                </mt-button>
-                            </div>
-                        </div>
-                    </template>
+								<mt-button size="small" variant="secondary" :disabled="historyPage >= historyTotalPages" @click="goToHistoryNextPage">
+									{{ $tc('esmx-shop-audit-ai.general.next') }}
+								</mt-button>
+							</div>
+						</div>
+					</template>
 
-                    <template v-else>
-                        <p>{{ $tc('esmx-shop-audit-ai.reports.emptyState') }}</p>
-                    </template>
-                </mt-card>
+					<template v-else>
+						<p>{{ $tc('esmx-shop-audit-ai.reports.emptyState') }}</p>
+					</template>
+				</mt-card>
 
-                <mt-card
-                        v-if="selectedReport"
-                        id="selected-report-detail"
-                        class="esmx-shop-audit__table-card reports__detail-card"
-                >
-                    <template #headline>
-                        {{ $tc('esmx-shop-audit-ai.reports.selectedReportDetailTitle') }}
-                    </template>
+				<mt-card v-if="selectedReport" id="selected-report-detail" class="esmx-shop-audit__table-card reports__detail-card" position-identifier="selected_report_detail-card">
+					<template #headline>
+						{{ $tc('esmx-shop-audit-ai.reports.selectedReportDetailTitle') }}
+					</template>
 
-                    <div class="esmx-shop-audit__section-header reports__detail-summary-header">
-                        <div class="esmx-shop-audit__section-title">
-                            {{ $tc('esmx-shop-audit-ai.reports.selectedReportSummaryTitle') }}
-                        </div>
+					<div class="esmx-shop-audit__section-header reports__detail-summary-header">
+						<div class="esmx-shop-audit__section-title">
+							{{ $tc('esmx-shop-audit-ai.reports.selectedReportSummaryTitle') }}
+						</div>
 
-                        <div class="esmx-shop-audit__section-header-meta">
-                            <div class="esmx-shop-audit__section-subtitle">
-                                {{ formatDate(selectedReport.finishedAt || selectedReport.startedAt) }}
-                            </div>
-                        </div>
-                    </div>
+						<div class="esmx-shop-audit__section-header-meta">
+							<div class="esmx-shop-audit__section-subtitle">
+								{{ formatDate(selectedReport.finishedAt || selectedReport.startedAt) }}
+							</div>
+						</div>
+					</div>
 
-                    <div class="esmx-shop-audit__stats-strip">
-                        <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.table.status') }}</div>
-                            <div class="esmx-shop-audit__stat-value reports__small-stat">
-                                {{ getStatusLabel(selectedReport.status) }}
-                            </div>
-                        </div>
+					<div class="esmx-shop-audit__stats-strip">
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.table.status') }}</div>
+							<div class="esmx-shop-audit__stat-value reports__small-stat">
+								{{ getStatusLabel(selectedReport.status) }}
+							</div>
+						</div>
 
-                        <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.columns.scannedProducts') }}</div>
-                            <div class="esmx-shop-audit__stat-value">{{ selectedReport.scannedProducts }}</div>
-                        </div>
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.columns.scannedProducts') }}</div>
+							<div class="esmx-shop-audit__stat-value">{{ selectedReport.scannedProducts }}</div>
+						</div>
 
-                        <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.columns.totalFindings') }}</div>
-                            <div class="esmx-shop-audit__stat-value">{{ selectedReport.totalFindings }}</div>
-                        </div>
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.columns.totalFindings') }}</div>
+							<div class="esmx-shop-audit__stat-value">{{ selectedReport.totalFindings }}</div>
+						</div>
 
-                        <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.columns.highPriorityFindings') }}</div>
-                            <div class="esmx-shop-audit__stat-value">{{ selectedReport.highPriorityFindings }}</div>
-                        </div>
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.columns.highPriorityFindings') }}</div>
+							<div class="esmx-shop-audit__stat-value">{{ selectedReport.highPriorityFindings }}</div>
+						</div>
 
-                        <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.findingGroups') }}</div>
-                            <div class="esmx-shop-audit__stat-value">{{ selectedReportFindingGroupsCount }}</div>
-                        </div>
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.findingGroups') }}</div>
+							<div class="esmx-shop-audit__stat-value">{{ selectedReportFindingGroupsCount }}</div>
+						</div>
 
-                        <div class="esmx-shop-audit__stat-item">
-                            <div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.tasks') }}</div>
-                            <div class="esmx-shop-audit__stat-value">{{ selectedReportTaskCount }}</div>
-                        </div>
-                    </div>
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.tasks') }}</div>
+							<div class="esmx-shop-audit__stat-value">{{ selectedReportTaskCount }}</div>
+						</div>
+					</div>
 
-                    <div class="reports__detail-section reports__audited-parameters">
-                        <div class="esmx-shop-audit__detail-section-heading">
-                            {{ $tc('esmx-shop-audit-ai.reports.auditedParameters.title') }}
-                        </div>
+					<div class="reports__detail-section reports__audited-parameters">
+						<div class="esmx-shop-audit__detail-section-heading">
+							{{ $tc('esmx-shop-audit-ai.reports.auditedParameters.title') }}
+						</div>
 
-                        <div
-                                v-if="!hasSelectedReportScanOptions"
-                                class="reports__audited-parameters-empty"
-                        >
-                            {{ $tc('esmx-shop-audit-ai.reports.auditedParameters.notRecorded') }}
-                        </div>
+						<div v-if="!hasSelectedReportScanOptions" class="reports__audited-parameters-empty">
+							{{ $tc('esmx-shop-audit-ai.reports.auditedParameters.notRecorded') }}
+						</div>
 
-                        <div
-                                v-else
-                                class="reports__audited-parameters-grid"
-                        >
-                            <section
-                                    v-for="group in auditedParameterGroups"
-                                    :key="group.key"
-                                    class="reports__audited-parameter-group"
-                            >
-                                <div class="reports__audited-parameter-group-header">
-                                    <strong>{{ group.label }}</strong>
-                                    <span
-                                            class="reports__audited-parameter-status"
-                                            :class="'is-' + group.status"
-                                    >
-                                        {{ getAuditGroupStatusLabel(group.status) }}
-                                    </span>
-                                </div>
+						<div v-else class="reports__audited-parameters-grid">
+							<section v-for="group in auditedParameterGroups" :key="group.key" class="reports__audited-parameter-group">
+								<div class="reports__audited-parameter-group-header">
+									<strong>{{ group.label }}</strong>
+									<span class="reports__audited-parameter-status" :class="'is-' + group.status">
+										{{ getAuditGroupStatusLabel(group.status) }}
+									</span>
+								</div>
 
-                                <div class="reports__audited-parameter-checks">
-                                    <div
-                                            v-for="check in group.checks"
-                                            :key="check.key"
-                                            class="reports__audited-parameter-check"
-                                            :class="{ 'is-disabled': !check.selected }"
-                                    >
-                                        <span
-                                                class="reports__audited-parameter-check-state"
-                                                :class="{ 'is-selected': check.selected }"
-                                        ></span>
-                                        <span>{{ check.label }}</span>
-                                        <span class="reports__audited-parameter-check-label">
-                                            {{ check.selected
+								<div class="reports__audited-parameter-checks">
+									<div v-for="check in group.checks" :key="check.key" class="reports__audited-parameter-check" :class="{ 'is-disabled': !check.selected }">
+										<span class="reports__audited-parameter-check-state" :class="{ 'is-selected': check.selected }"></span>
+										<span>{{ check.label }}</span>
+										<span class="reports__audited-parameter-check-label">
+											{{ check.selected
                                                 ? $tc('esmx-shop-audit-ai.reports.auditedParameters.selected')
                                                 : $tc('esmx-shop-audit-ai.reports.auditedParameters.notSelected') }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </section>
-                        </div>
-                    </div>
+										</span>
+									</div>
+								</div>
+							</section>
+						</div>
+					</div>
 
-                    <div v-if="selectedFindings.length" class="reports__detail-section">
-                        <div class="esmx-shop-audit__detail-section-heading">
-                            {{ $tc('esmx-shop-audit-ai.reports.selectedFindingsTitle') }}
-                        </div>
+					<div v-if="selectedFindings.length" class="reports__detail-section">
+						<div class="esmx-shop-audit__detail-section-heading">
+							{{ $tc('esmx-shop-audit-ai.reports.selectedFindingsTitle') }}
+						</div>
 
-                        <sw-data-grid
-                                :dataSource="paginatedSelectedFindings"
-                                :columns="findingColumns"
-                                :show-selection="false"
-                                :showActions="false"
-                        >
-                            <template #column-title="{ item }">
-                                {{ getFindingTitleByCode(item.code, item.title) }}
-                            </template>
+						<sw-data-grid :data-source="paginatedSelectedFindings" :columns="findingColumns" :show-selection="false" :showactions="false">
+							<template #column-title="{ item }">
+								{{ getFindingTitleByCode(item.code, item.title) }}
+							</template>
 
-                            <template #column-severity="{ item }">
-                                {{ getFindingSeverityLabel(item.severity) }}
-                            </template>
-                        </sw-data-grid>
+							<template #column-severity="{ item }">
+								{{ getFindingSeverityLabel(item.severity) }}
+							</template>
+						</sw-data-grid>
 
-                        <div
-                                v-if="selectedFindingsTotalPages > 1"
-                                class="reports__pagination"
-                        >
-                            <div class="reports__pagination-meta">
-                                {{ $tc('esmx-shop-audit-ai.general.page') }}
-                                <strong>{{ selectedFindingsPage }}</strong>
-                                {{ $tc('esmx-shop-audit-ai.general.of') }}
-                                <strong>{{ selectedFindingsTotalPages }}</strong>
-                            </div>
+						<div v-if="selectedFindingsTotalPages > 1" class="reports__pagination">
+							<div class="reports__pagination-meta">
+								{{ $tc('esmx-shop-audit-ai.general.page') }}
+								<strong>{{ selectedFindingsPage }}</strong>
+								{{ $tc('esmx-shop-audit-ai.general.of') }}
+								<strong>{{ selectedFindingsTotalPages }}</strong>
+							</div>
 
-                            <div class="reports__pagination-actions">
-                                <mt-button
-                                        size="small"
-                                        variant="secondary"
-                                        :disabled="selectedFindingsPage <= 1"
-                                        @click="goToSelectedFindingsPrevPage"
-                                >
-                                    {{ $tc('esmx-shop-audit-ai.general.previous') }}
-                                </mt-button>
+							<div class="reports__pagination-actions">
+								<mt-button size="small" variant="secondary" :disabled="selectedFindingsPage <= 1" @click="goToSelectedFindingsPrevPage">
+									{{ $tc('esmx-shop-audit-ai.general.previous') }}
+								</mt-button>
 
-                                <mt-button
-                                        size="small"
-                                        variant="secondary"
-                                        :disabled="selectedFindingsPage >= selectedFindingsTotalPages"
-                                        @click="goToSelectedFindingsNextPage"
-                                >
-                                    {{ $tc('esmx-shop-audit-ai.general.next') }}
-                                </mt-button>
-                            </div>
-                        </div>
-                    </div>
+								<mt-button size="small" variant="secondary" :disabled="selectedFindingsPage >= selectedFindingsTotalPages" @click="goToSelectedFindingsNextPage">
+									{{ $tc('esmx-shop-audit-ai.general.next') }}
+								</mt-button>
+							</div>
+						</div>
+					</div>
 
-                    <div v-if="selectedTasks.length" class="reports__detail-section">
-                        <div class="esmx-shop-audit__detail-section-heading">
-                            {{ $tc('esmx-shop-audit-ai.reports.selectedTasksTitle') }}
-                        </div>
+					<div v-if="selectedTasks.length" class="reports__detail-section">
+						<div class="esmx-shop-audit__detail-section-heading">
+							{{ $tc('esmx-shop-audit-ai.reports.selectedTasksTitle') }}
+						</div>
 
-                        <sw-data-grid
-                                :dataSource="paginatedSelectedTasks"
-                                :columns="taskColumns"
-                                :showActions="false"
-                                :show-selection="false"
-                        >
-                            <template #column-title="{ item }">
-                                {{ getDynamicTaskTitle(item) }}
-                            </template>
+						<sw-data-grid :data-source="paginatedSelectedTasks" :columns="taskColumns" :showactions="false" :show-selection="false">
+							<template #column-title="{ item }">
+								{{ getDynamicTaskTitle(item) }}
+							</template>
 
-                            <template #column-priority="{ item }">
-                                {{ getPriorityLabel(item.priority) }}
-                            </template>
+							<template #column-priority="{ item }">
+								{{ getPriorityLabel(item.priority) }}
+							</template>
 
-                            <template #column-status="{ item }">
-                                {{ getStatusLabel(item.status) }}
-                            </template>
-                        </sw-data-grid>
+							<template #column-status="{ item }">
+								{{ getStatusLabel(item.status) }}
+							</template>
+						</sw-data-grid>
 
-                        <div
-                                v-if="selectedTasksTotalPages > 1"
-                                class="reports__pagination"
-                        >
-                            <div class="reports__pagination-meta">
-                                {{ $tc('esmx-shop-audit-ai.general.page') }}
-                                <strong>{{ selectedTasksPage }}</strong>
-                                {{ $tc('esmx-shop-audit-ai.general.of') }}
-                                <strong>{{ selectedTasksTotalPages }}</strong>
-                            </div>
+						<div v-if="selectedTasksTotalPages > 1" class="reports__pagination">
+							<div class="reports__pagination-meta">
+								{{ $tc('esmx-shop-audit-ai.general.page') }}
+								<strong>{{ selectedTasksPage }}</strong>
+								{{ $tc('esmx-shop-audit-ai.general.of') }}
+								<strong>{{ selectedTasksTotalPages }}</strong>
+							</div>
 
-                            <div class="reports__pagination-actions">
-                                <mt-button
-                                        size="small"
-                                        variant="secondary"
-                                        :disabled="selectedTasksPage <= 1"
-                                        @click="goToSelectedTasksPrevPage"
-                                >
-                                    {{ $tc('esmx-shop-audit-ai.general.previous') }}
-                                </mt-button>
+							<div class="reports__pagination-actions">
+								<mt-button size="small" variant="secondary" :disabled="selectedTasksPage <= 1" @click="goToSelectedTasksPrevPage">
+									{{ $tc('esmx-shop-audit-ai.general.previous') }}
+								</mt-button>
 
-                                <mt-button
-                                        size="small"
-                                        variant="secondary"
-                                        :disabled="selectedTasksPage >= selectedTasksTotalPages"
-                                        @click="goToSelectedTasksNextPage"
-                                >
-                                    {{ $tc('esmx-shop-audit-ai.general.next') }}
-                                </mt-button>
-                            </div>
-                        </div>
-                    </div>
-                </mt-card>
+								<mt-button size="small" variant="secondary" :disabled="selectedTasksPage >= selectedTasksTotalPages" @click="goToSelectedTasksNextPage">
+									{{ $tc('esmx-shop-audit-ai.general.next') }}
+								</mt-button>
+							</div>
+						</div>
+					</div>
+				</mt-card>
 
-                <sw-modal
-                        v-if="showDeleteConfirmModal"
-                        :title="$tc('esmx-shop-audit-ai.reports.delete.modalTitle')"
-                        @modal-close="closeDeleteReportsModal"
-                >
-                    <div class="reports__delete-modal-content">
-                        <p>
-                            {{ $tc('esmx-shop-audit-ai.reports.delete.confirmText', selectedReportsCount, {
+				<sw-modal v-if="showDeleteConfirmModal" :title="$tc('esmx-shop-audit-ai.reports.delete.modalTitle')" @modal-close="closeDeleteReportsModal">
+					<div class="reports__delete-modal-content">
+						<p>
+							{{ $tc('esmx-shop-audit-ai.reports.delete.confirmText', selectedReportsCount, {
                                 count: selectedReportsCount
                             }) }}
-                        </p>
+						</p>
 
-                        <p v-if="selectedReportsDateRangeLabel">
-                            <strong>{{ selectedReportsDateRangeLabel }}</strong>
-                        </p>
+						<p v-if="selectedReportsDateRangeLabel">
+							<strong>{{ selectedReportsDateRangeLabel }}</strong>
+						</p>
 
-                        <p class="reports__delete-modal-warning">
-                            {{ $tc('esmx-shop-audit-ai.reports.delete.warning') }}
-                        </p>
-                    </div>
+						<p class="reports__delete-modal-warning">
+							{{ $tc('esmx-shop-audit-ai.reports.delete.warning') }}
+						</p>
+					</div>
 
-                    <template #modal-footer>
-                        <mt-button
-                                size="small"
-                                variant="secondary"
-                                @click="closeDeleteReportsModal"
-                        >
-                            {{ $tc('esmx-shop-audit-ai.general.cancel') }}
-                        </mt-button>
+					<template #modal-footer>
+						<mt-button size="small" variant="secondary" @click="closeDeleteReportsModal">
+							{{ $tc('esmx-shop-audit-ai.general.cancel') }}
+						</mt-button>
 
-                        <mt-button
-                                size="small"
-                                variant="critical"
-                                :loading="isDeletingReports"
-                                :disabled="isDeletingReports"
-                                @click="confirmDeleteReports"
-                        >
-                            {{ $tc('esmx-shop-audit-ai.reports.delete.confirmButton') }}
-                        </mt-button>
-                    </template>
-                </sw-modal>
-            </sw-card-view>
-        </template>
-    </sw-page>
+						<mt-button size="small" variant="critical" :loading="isDeletingReports" :disabled="isDeletingReports" @click="confirmDeleteReports">
+							{{ $tc('esmx-shop-audit-ai.reports.delete.confirmButton') }}
+						</mt-button>
+					</template>
+				</sw-modal>
+			</sw-card-view>
+		</template>
+	</sw-page>
 {% endblock %}

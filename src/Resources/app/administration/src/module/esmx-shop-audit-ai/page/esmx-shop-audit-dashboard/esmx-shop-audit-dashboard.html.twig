@@ -55,7 +55,7 @@
 						</mt-banner>
 					</template>
 
-					<mt-card class="esmx-shop-audit__overview-card">
+					<mt-card class="esmx-shop-audit__overview-card" position-identifier="dashboard-overview-card">
 						<div class="esmx-shop-audit__section-header">
 							<div class="esmx-shop-audit__section-title-stack">
 								<div class="esmx-shop-audit__section-title">
@@ -238,7 +238,7 @@
 					</mt-card>
 
 					<div class="dashboard__sales-section">
-						<mt-card class="dashboard__sales-section-card">
+						<mt-card class="dashboard__sales-section-card" position-identifier="dashboard-sales-section-card">
 							<div class="dashboard__widget-header">
 								<div class="dashboard__widget-header-text">
 									<div class="dashboard__widget-title">
@@ -355,7 +355,7 @@
 						</mt-card>
 					</div>
 
-					<mt-card class="dashboard__seo-kpi-card">
+					<mt-card class="dashboard__seo-kpi-card" position-identifier="dashboard-seo-kpi-card">
 						<div class="esmx-shop-audit__section-header">
 							<div class="esmx-shop-audit__section-title">
 								{{ $tc('esmx-shop-audit-ai.dashboard.seoKpiTitle') }}
@@ -452,7 +452,7 @@
 				</template>
 
 				<template v-else>
-					<mt-card>
+					<mt-card position-identifier="dashboard-empty-state-card">
 						<p>{{ $tc('esmx-shop-audit-ai.dashboard.emptyState') }}</p>
 					</mt-card>
 				</template>
@@ -468,11 +468,11 @@
 					</div>
 
 					<div class="scan-options__groups">
-							<section v-for="group in scanOptionGroups" :key="group.key" class="scan-options__group" :class="{
-								'is-partial': isScanOptionGroupPartiallyChecked(group.key),
-								'is-collapsed': isScanOptionGroupCollapsed(group.key),
-								'is-disabled': !isScanOptionGroupGloballyEnabled(group.key)
-							}">
+						<section v-for="group in scanOptionGroups" :key="group.key" class="scan-options__group" :class="{
+																								'is-partial': isScanOptionGroupPartiallyChecked(group.key),
+																								'is-collapsed': isScanOptionGroupCollapsed(group.key),
+																								'is-disabled': !isScanOptionGroupGloballyEnabled(group.key)
+																							}">
 							<div class="scan-options__group-header">
 								<div class="scan-options__group-title">
 									<label class="scan-options__group-label">

@@ -7,7 +7,6 @@ import {
     getPriorityLabel,
     getStatusLabel,
     getSeoReasonLabel,
-    getFindingTitleByCode,
 } from '../../core/utils/format.util';
 import {
     goToDashboard,
@@ -156,14 +155,6 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             return this.tasks.find((task) => task.id === this.selectedTaskId) || null;
         },
 
-        detailSectionTitle() {
-            if (!this.selectedTask) {
-                return this.$tc('esmx-shop-audit-ai.tasks.detailSection.titleDefault');
-            }
-
-            return `${this.$tc('esmx-shop-audit-ai.tasks.detailSection.titlePrefix')}: ${this.getDynamicTaskTitle(this.selectedTask)}`;
-        },
-
         detailItems() {
             return this.selectedTaskDetails?.items || [];
         },
@@ -199,6 +190,13 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
                     sortable: true,
                 }
             ];
+        },
+
+        sortIconMap() {
+            return {
+                ASC: 'regular-chevron-up-s',
+                DESC: 'regular-chevron-down-s',
+            };
         },
 
         seoTaskCodes() {
@@ -745,10 +743,6 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
 
         getSeoSeverityClass(score) {
             return this.getSeoSeverity(score).className;
-        },
-
-        getFindingTitleByCode(code, fallbackTitle = '') {
-            return getFindingTitleByCode(this.$tc.bind(this), code, fallbackTitle);
         },
 
     },
