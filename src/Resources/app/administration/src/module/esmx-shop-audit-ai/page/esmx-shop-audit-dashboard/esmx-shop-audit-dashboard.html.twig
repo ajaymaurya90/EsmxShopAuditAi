@@ -415,7 +415,7 @@
 
 						<div v-else class="dashboard__summary-grid">
 							<a v-for="card in sortedSummaryCards" :key="card.key" href="#" class="dashboard__metric-card-link" @click.prevent="goToFindingFromCard(card)">
-								<mt-card class="dashboard__metric-card" :class="'dashboard__metric-card--' + card.severity">
+								<mt-card class="dashboard__metric-card" :class="'dashboard__metric-card--' + card.severity" :position-identifier="'dashboard-metric-card-' + card.key">
 									<div class="dashboard__metric-card-layout">
 										<div class="dashboard__metric-card-count-area" :class="'severity-' + card.severity">
 											<span class="dashboard__metric-card-number">

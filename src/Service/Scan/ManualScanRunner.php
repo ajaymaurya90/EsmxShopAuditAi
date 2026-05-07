@@ -129,15 +129,6 @@ class ManualScanRunner
                 $checkExternalValue = $this->systemConfigService->get('EsmxShopAuditAi.config.brokenLinkCheckExternal');
                 $checkExternal = $checkExternalValue === null ? true : (bool) $checkExternalValue;
 
-                $this->logger->info('Broken link audit starting with scan options', [
-                    'scanId' => $scanId,
-                    'brokenLinksScanOptions' => $resolvedScanOptions['brokenLinks'] ?? null,
-                    'enabledBrokenLinkChecks' => $enabledBrokenLinkChecks,
-                    'maxLinks' => $maxLinks,
-                    'timeout' => $timeout,
-                    'checkExternal' => $checkExternal,
-                ]);
-
                 $brokenLinkResult = $this->brokenLinkAuditService->run(
                     $context,
                     $maxLinks,
@@ -162,11 +153,6 @@ class ManualScanRunner
 
                 $auditSummary['totals']['broken_links'] = \count($auditSummary['issues']['broken_links']);
                 $auditSummary['totals']['totalIssues'] = $this->productAuditService->calculateTotalIssues($auditSummary['totals'] ?? []);
-
-                $this->logger->info('Broken link audit result', [
-                    'count' => count($brokenLinkResult['broken_links'] ?? []),
-                    'stats' => $brokenLinkStats,
-                ]);
             } else {
                 $this->logger->info('Broken link audit skipped by scan options or plugin settings', [
                     'scanId' => $scanId,

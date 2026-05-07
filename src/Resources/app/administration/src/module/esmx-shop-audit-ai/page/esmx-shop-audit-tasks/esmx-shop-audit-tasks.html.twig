@@ -301,6 +301,36 @@
 									</div>
 								</template>
 
+								<template #column-entity="{ item }">
+									<div class="esmx-shop-audit__current-value-cell">
+										{{ getCategoryLabel(item.entity) }}
+									</div>
+								</template>
+
+								<template #column-languagename="{ item }">
+									<div class="esmx-shop-audit__current-value-cell">
+										{{ item.languageName || '-' }}
+									</div>
+								</template>
+
+								<template #column-source="{ item }">
+									<div class="esmx-shop-audit__current-value-cell">
+										{{ item.source || '-' }}
+									</div>
+								</template>
+
+								<template #column-status="{ item }">
+									<div class="esmx-shop-audit__current-value-cell">
+										{{ item.status || '-' }}
+									</div>
+								</template>
+
+								<template #column-url="{ item }">
+									<button type="button" class="tasks__broken-link-url" @click="openBrokenLinkUrl(item)">
+										{{ item.url || '-' }}
+									</button>
+								</template>
+
 								<template #column-identifier="{ item }">
 									<div class="esmx-shop-audit__current-value-cell">
 										{{ item.identifier || '-' }}
@@ -343,11 +373,19 @@
 											</button>
 
 											<div v-if="activeDetailActionMenuId === item.id" class="esmx-shop-audit__row-action-menu" @click.stop>
-												<button type="button" class="esmx-shop-audit__row-action-menu-item" @click.stop="openManualFix(item)">
+												<button v-if="isBrokenLinkTask && item.url && item.url !== '-'" type="button" class="esmx-shop-audit__row-action-menu-item" @click.stop="openBrokenLinkUrl(item)">
+													{{ $tc('esmx-shop-audit-ai.findings.openBrokenLink') }}
+												</button>
+
+												<button v-if="isBrokenLinkTask && item.sourceEntityId && (item.entity === 'product' || item.entity === 'category' || item.entity === 'cms_page')" type="button" class="esmx-shop-audit__row-action-menu-item" @click.stop="openAffectedEntityInNewTab(item)">
+													{{ $tc('esmx-shop-audit-ai.findings.openAffectedItem') }}
+												</button>
+
+												<button v-if="!isBrokenLinkTask" type="button" class="esmx-shop-audit__row-action-menu-item" @click.stop="openManualFix(item)">
 													{{ $tc('esmx-shop-audit-ai.tasks.detailGrid.manualFix') }}
 												</button>
 
-												<button v-if="item.autoFixSupported" type="button" class="esmx-shop-audit__row-action-menu-item" @click.stop="openAutoFix(item)">
+												<button v-if="!isBrokenLinkTask && item.autoFixSupported" type="button" class="esmx-shop-audit__row-action-menu-item" @click.stop="openAutoFix(item)">
 													{{ $tc('esmx-shop-audit-ai.tasks.detailGrid.autoFix') }}
 												</button>
 											</div>

@@ -315,7 +315,7 @@
 							{{ $tc('esmx-shop-audit-ai.reports.selectedFindingsTitle') }}
 						</div>
 
-						<sw-data-grid :data-source="paginatedSelectedFindings" :columns="findingColumns" :show-selection="false" :showactions="false">
+						<sw-data-grid :data-source="paginatedSelectedFindings" :columns="findingColumns" :show-selection="false" :show-actions="false">
 							<template #column-title="{ item }">
 								{{ getFindingTitleByCode(item.code, item.title) }}
 							</template>
@@ -350,7 +350,7 @@
 							{{ $tc('esmx-shop-audit-ai.reports.selectedTasksTitle') }}
 						</div>
 
-						<sw-data-grid :data-source="paginatedSelectedTasks" :columns="taskColumns" :showactions="false" :show-selection="false">
+						<sw-data-grid :data-source="paginatedSelectedTasks" :columns="taskColumns" :show-actions="false" :show-selection="false">
 							<template #column-title="{ item }">
 								{{ getDynamicTaskTitle(item) }}
 							</template>

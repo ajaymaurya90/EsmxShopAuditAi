@@ -36,11 +36,6 @@ class TaskBuilder
                 'title' => sprintf('Review product names for %d products', $affectedCount),
                 'priority' => 'medium',
             ],
-            'missing_description' => [
-                'code' => 'review_product_descriptions',
-                'title' => sprintf('Review product descriptions for %d products', $affectedCount),
-                'priority' => 'medium',
-            ],
             'product_description' => [
                 'code' => 'review_product_descriptions',
                 'title' => sprintf('Review product descriptions for %d products', $affectedCount),
@@ -61,24 +56,9 @@ class TaskBuilder
                 'title' => sprintf('Review %d out-of-stock products', $affectedCount),
                 'priority' => 'high',
             ],
-            'missing_meta_title' => [
-                'code' => 'review_product_meta_titles',
-                'title' => sprintf('Review SEO meta titles for %d products', $affectedCount),
-                'priority' => 'low',
-            ],
             'product_meta_title' => [
                 'code' => 'review_product_meta_titles',
                 'title' => sprintf('Review SEO meta titles for %d products', $affectedCount),
-                'priority' => 'low',
-            ],
-            'product_missing_meta_description' => [
-                'code' => 'review_product_meta_descriptions',
-                'title' => sprintf('Review SEO meta descriptions for %d products', $affectedCount),
-                'priority' => 'low',
-            ],
-            'missing_meta_description' => [
-                'code' => 'review_product_meta_descriptions',
-                'title' => sprintf('Review SEO meta descriptions for %d products', $affectedCount),
                 'priority' => 'low',
             ],
             'product_meta_description' => [
@@ -136,9 +116,9 @@ class TaskBuilder
     {
         return match ($findingCode) {
             'product_name' => 'name',
-            'missing_description', 'product_description' => 'description',
-            'missing_meta_title', 'product_meta_title' => 'metaTitle',
-            'missing_meta_description', 'product_missing_meta_description', 'product_meta_description' => 'metaDescription',
+            'product_description' => 'description',
+            'product_meta_title' => 'metaTitle',
+            'product_meta_description' => 'metaDescription',
             default => null,
         };
     }

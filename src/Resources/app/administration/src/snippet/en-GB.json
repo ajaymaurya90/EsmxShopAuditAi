@@ -5,7 +5,6 @@
       "descriptionTextModule": "Audit and reporting tools for Shopware stores",
       "refresh": "Refresh",
       "clearFilters": "Clear filters",
-      "code": "Code",
       "page": "Page",
       "of": "of",
       "previous": "Previous",
@@ -208,7 +207,6 @@
       }
     },
     "dashboardInsights": {
-      "scannedProducts": "Scanned products",
       "affectedProducts": "Affected products",
       "affectedCategories": "Affected categories",
       "affectedCmsPages": "Affected CMS pages",
@@ -351,7 +349,6 @@
         "totalAffected": "Total Affected"
       },
       "detailSection": {
-        "titleDefault": "Task details",
         "titlePrefix": "Task details",
         "emptyState": "Select a task from the list above to view its affected items and actions.",
         "openListing": "Open in listing",

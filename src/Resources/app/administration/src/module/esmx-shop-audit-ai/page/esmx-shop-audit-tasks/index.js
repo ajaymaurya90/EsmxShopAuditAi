@@ -156,7 +156,13 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
         },
 
         detailItems() {
-            return this.selectedTaskDetails?.items || [];
+            const items = this.selectedTaskDetails?.items || [];
+
+            if (!this.isBrokenLinkTask) {
+                return items;
+            }
+
+            return items.map((item, index) => this.normalizeBrokenLinkTaskItem(item, index));
         },
 
         columns() {
@@ -212,7 +218,56 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             return !!this.selectedTask && this.seoTaskCodes.includes(this.selectedTask.code);
         },
 
+        isBrokenLinkTask() {
+            const task = this.selectedTaskDetails?.task || this.selectedTask;
+            const findingCode = task?.payloadJson?.findingCode;
+
+            return task?.code === 'fix_broken_links' || findingCode === 'broken_links';
+        },
+
         detailColumns() {
+            if (this.isBrokenLinkTask) {
+                return [
+                    {
+                        property: 'entity',
+                        label: this.$tc('esmx-shop-audit-ai.findings.columns.entity'),
+                        primary: true,
+                        width: '12%',
+                    },
+                    {
+                        property: 'name',
+                        label: this.$tc('esmx-shop-audit-ai.findings.columns.name'),
+                        width: '20%',
+                    },
+                    {
+                        property: 'languageName',
+                        label: this.$tc('esmx-shop-audit-ai.findings.columns.language'),
+                        width: '12%',
+                    },
+                    {
+                        property: 'source',
+                        label: this.$tc('esmx-shop-audit-ai.findings.columns.source'),
+                        width: '16%',
+                    },
+                    {
+                        property: 'status',
+                        label: this.$tc('esmx-shop-audit-ai.findings.columns.status'),
+                        width: '10%',
+                    },
+                    {
+                        property: 'url',
+                        label: this.$tc('esmx-shop-audit-ai.findings.columns.url'),
+                        width: '24%',
+                    },
+                    {
+                        property: 'actions',
+                        label: '',
+                        width: '72px',
+                        align: 'center',
+                    },
+                ];
+            }
+
             if (this.isSeoFieldTask) {
                 return [
                     {
@@ -396,6 +451,24 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             return getStatusLabel(this.$tc.bind(this), status);
         },
 
+        getCategoryLabel(entity) {
+            if (!entity) {
+                return this.$tc('esmx-shop-audit-ai.findings.unknownCategory');
+            }
+
+            const normalized = String(entity).toLowerCase();
+            const labels = {
+                product: this.$tc('esmx-shop-audit-ai.findings.categoryProduct'),
+                category: this.$tc('esmx-shop-audit-ai.findings.categoryCategory'),
+                cms_page: this.$tc('esmx-shop-audit-ai.findings.categoryCmsPage'),
+                link: this.$tc('esmx-shop-audit-ai.findings.categoryBrokenLink'),
+                customer: this.$tc('esmx-shop-audit-ai.findings.categoryCustomer'),
+                order: this.$tc('esmx-shop-audit-ai.findings.categoryOrder'),
+            };
+
+            return labels[normalized] || entity;
+        },
+
         onSortColumn(column) {
             if (!column?.property) {
                 return;
@@ -539,6 +612,23 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             return getSeoReasonLabel(this.$tc.bind(this), item);
         },
 
+        normalizeBrokenLinkTaskItem(item, index) {
+            const sourceEntityId = item.sourceEntityId || item.entityId || item.raw?.id || item.id;
+            const entity = item.entity || item.entityType || item.raw?.entity || 'link';
+
+            return {
+                ...item,
+                id: item.id || `broken-link-${entity}-${sourceEntityId || index}-${index}`,
+                sourceEntityId,
+                entity,
+                name: item.name || '-',
+                languageName: item.languageName || '-',
+                source: item.source || '-',
+                status: item.status ?? '-',
+                url: item.url || '-',
+            };
+        },
+
         openManualFix(item) {
             this.closeAllActionMenus();
 
@@ -571,6 +661,73 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
 
         buildAdminUrl(hashPath) {
             return `${window.location.origin}${window.location.pathname}${hashPath}`;
+        },
+
+        openBrokenLinkUrl(item) {
+            this.closeAllActionMenus();
+
+            if (!item?.url || item.url === '-') {
+                return;
+            }
+
+            const url = item.url.startsWith('http')
+                ? item.url
+                : `${window.location.origin}${item.url}`;
+
+            window.open(url, '_blank', 'noopener');
+        },
+
+        openAffectedEntityInNewTab(item) {
+            this.closeAllActionMenus();
+
+            if (item?.entity === 'product') {
+                return this.openProductDetailInNewTab(item);
+            }
+
+            if (item?.entity === 'cms_page' && item?.sourceEntityId) {
+                const resolved = this.$router.resolve({
+                    name: 'sw.cms.detail',
+                    params: {
+                        id: item.sourceEntityId,
+                    },
+                });
+
+                if (resolved?.href) {
+                    window.open(resolved.href, '_blank', 'noopener');
+                }
+            }
+
+            if (item?.entity === 'category' && item?.sourceEntityId) {
+                const resolved = this.$router.resolve({
+                    name: 'sw.category.detail',
+                    params: {
+                        id: item.sourceEntityId,
+                    },
+                });
+
+                if (resolved?.href) {
+                    window.open(resolved.href, '_blank', 'noopener');
+                }
+            }
+        },
+
+        openProductDetailInNewTab(item) {
+            const productId = item?.productId || item?.sourceEntityId || item?.entityId || item?.id;
+
+            if (!productId) {
+                return;
+            }
+
+            const resolved = this.$router.resolve({
+                name: 'sw.product.detail',
+                params: {
+                    id: productId,
+                },
+            });
+
+            if (resolved?.href) {
+                window.open(resolved.href, '_blank', 'noopener');
+            }
         },
 
         async openAutoFix(item) {

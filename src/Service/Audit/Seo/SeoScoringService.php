@@ -240,7 +240,7 @@ class SeoScoringService
     private function getDescriptionMinLength(): int
     {
         return (int) ($this->systemConfigService->get(
-            'EsmxShopAuditAi.config.seoDescriptionMinLength'
+            'EsmxShopAuditAi.config.minProductDescriptionLength'
         ) ?? self::DEFAULT_DESCRIPTION_MIN_LENGTH);
     }
 

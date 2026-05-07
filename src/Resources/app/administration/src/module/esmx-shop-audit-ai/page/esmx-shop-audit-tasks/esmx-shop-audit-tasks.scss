@@ -226,6 +226,29 @@
     word-break: break-word;
   }
 
+  .tasks__broken-link-url {
+    appearance: none;
+    display: inline-block;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #2563eb;
+    font: inherit;
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+
+  .tasks__broken-link-url:hover {
+    color: #1d4ed8;
+  }
+
   .esmx-shop-audit__icon-action-button {
     appearance: none;
     border: 1px solid #d1d5db;

@@ -64,10 +64,11 @@ class BrokenLinkAuditService
             'cmsPages' => [],
         ];
 
-        $this->logger->info('Broken link audit source selection', [
-            'receivedBrokenLinksScanOptions' => $scanOptions['brokenLinks'] ?? null,
+        $this->logger->info('Broken link audit started', [
             'enabledSources' => array_keys(array_filter($enabledSources)),
-            'sources' => $enabledSources,
+            'limit' => $limit,
+            'timeout' => $timeout,
+            'checkExternal' => $checkExternal,
         ]);
 
         if (!\in_array(true, $enabledSources, true)) {
@@ -268,9 +269,8 @@ class BrokenLinkAuditService
             }
         }
 
-        $this->logger->info('Broken link audit completed source scan', [
+        $this->logger->info('Broken link audit completed', [
             'enabledSources' => array_keys(array_filter($enabledSources)),
-            'sourceStats' => $sourceStats,
             'totalChecked' => $totalChecked,
             'brokenLinkCount' => \count($brokenLinks),
             'stats' => [
@@ -360,48 +360,16 @@ class BrokenLinkAuditService
         $isExternal = $this->isExternalUrl($url);
 
         if ($normalized === '') {
-            $this->logger->debug('Broken link audit skipped empty normalized URL', [
-                'rawUrl' => $url,
-                'normalizedUrl' => $normalized,
-                'source' => $payload['source'] ?? null,
-                'entity' => $payload['entity'] ?? null,
-            ]);
-
             return true;
         }
 
         if ($isExternal && !$checkExternal) {
-            $this->logger->debug('Broken link audit skipped external URL because external checks are disabled', [
-                'rawUrl' => $url,
-                'normalizedUrl' => $normalized,
-                'isExternal' => true,
-                'checkExternal' => $checkExternal,
-                'skipped_external_disabled' => true,
-                'totalCheckedIncremented' => false,
-                'source' => $payload['source'] ?? null,
-                'entity' => $payload['entity'] ?? null,
-            ]);
-
             return true;
         }
 
         if ($totalChecked >= $limit && !isset($checkedUrls[$normalized])) {
-            $this->logger->debug('Broken link audit stopped at configured link limit', [
-                'rawUrl' => $url,
-                'normalizedUrl' => $normalized,
-                'isExternal' => $isExternal,
-                'checkExternal' => $checkExternal,
-                'limit' => $limit,
-                'totalChecked' => $totalChecked,
-                'totalCheckedIncremented' => false,
-                'source' => $payload['source'] ?? null,
-                'entity' => $payload['entity'] ?? null,
-            ]);
-
             return false;
         }
-
-        $totalCheckedBefore = $totalChecked;
 
         if (!isset($checkedUrls[$normalized])) {
             $checkedUrls[$normalized] = $this->checker->check($url, $timeout);
@@ -409,20 +377,6 @@ class BrokenLinkAuditService
         }
 
         $check = $checkedUrls[$normalized];
-
-        $this->logger->debug('Broken link audit checked URL', [
-            'rawUrl' => $url,
-            'normalizedUrl' => $normalized,
-            'isExternal' => $isExternal,
-            'checkExternal' => $checkExternal,
-            'skipped_external_disabled' => false,
-            'totalCheckedIncremented' => $totalChecked > $totalCheckedBefore,
-            'totalChecked' => $totalChecked,
-            'status' => $check['status'] ?? null,
-            'error' => $check['error'] ?? null,
-            'source' => $payload['source'] ?? null,
-            'entity' => $payload['entity'] ?? null,
-        ]);
 
         if ($this->checker->isBroken($check)) {
 

@@ -5,8 +5,6 @@ namespace EsmxShopAuditAi\Controller\Admin;
 use EsmxShopAuditAi\Core\Content\Scan\Aggregate\Finding\FindingEntity;
 use EsmxShopAuditAi\Core\Content\Scan\Aggregate\Task\TaskEntity;
 use EsmxShopAuditAi\Core\Content\Scan\ScanEntity;
-use EsmxShopAuditAi\Service\Audit\ProductAuditService;
-use EsmxShopAuditAi\Service\Audit\Seo\SeoAuditService;
 use EsmxShopAuditAi\Service\Insights\Sales\SalesInsightService;
 use EsmxShopAuditAi\Service\Scan\ScanCapabilitiesResolver;
 use EsmxShopAuditAi\Service\Scan\ManualScanRunner;
@@ -91,10 +89,8 @@ class AuditDashboardController extends AbstractController
     ];
 
     public function __construct(
-        private readonly ProductAuditService $productAuditService,
         private readonly ManualScanRunner $manualScanRunner,
         private readonly SalesInsightService $salesInsightService,
-        private readonly SeoAuditService $seoAuditService,
         private readonly EntityRepository $scanRepository,
         private readonly EntityRepository $findingRepository,
         private readonly EntityRepository $taskRepository,
@@ -731,9 +727,32 @@ class AuditDashboardController extends AbstractController
     private function normalizeTaskDetailItems(array $rawItems, TaskEntity $task): array
     {
         $normalized = [];
+        $isBrokenLinkTask = $this->isBrokenLinkTask($task);
 
         foreach ($rawItems as $index => $item) {
             if (!\is_array($item)) {
+                continue;
+            }
+
+            if ($isBrokenLinkTask) {
+                $entityId = $item['id'] ?? null;
+
+                $normalized[] = [
+                    'id' => sprintf('broken-link-%s-%s', (string) ($entityId ?? 'item'), $index),
+                    'entityId' => $entityId,
+                    'sourceEntityId' => $entityId,
+                    'entityType' => $this->resolveTaskEntityType($task, $item),
+                    'entity' => (string) ($item['entity'] ?? 'link'),
+                    'name' => $this->resolveTaskItemName($item),
+                    'languageName' => (string) ($item['languageName'] ?? '-'),
+                    'source' => (string) ($item['source'] ?? '-'),
+                    'status' => $item['status'] ?? '-',
+                    'url' => (string) ($item['url'] ?? '-'),
+                    'error' => (string) ($item['error'] ?? '-'),
+                    'raw' => $item,
+                    'autoFixSupported' => false,
+                ];
+
                 continue;
             }
 
@@ -754,6 +773,14 @@ class AuditDashboardController extends AbstractController
         }
 
         return $normalized;
+    }
+
+    private function isBrokenLinkTask(TaskEntity $task): bool
+    {
+        $payload = $task->getPayloadJson() ?? [];
+
+        return $task->getCode() === 'fix_broken_links'
+            || ($payload['findingCode'] ?? null) === 'broken_links';
     }
 
     private function resolveTaskEntityType(TaskEntity $task, array $item): string
