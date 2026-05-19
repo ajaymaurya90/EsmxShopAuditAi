@@ -49,6 +49,7 @@
             <argument type="service" id="EsmxShopAuditAi\Service\Scan\ScanOptionsResolver" />
             <argument type="service" id="EsmxShopAuditAi\Service\Scan\ScanCapabilitiesResolver" />
             <argument type="service" id="EsmxShopAuditAi\Service\Scan\EntityStatsBuilder" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Audit\Customer\AbandonedCartAuditService" />
         </service>
 
         <service id="EsmxShopAuditAi\Service\Task\TaskAutoFixService" public="false">
@@ -93,6 +94,15 @@
             <argument type="service" id="order.repository" />
             <argument type="service" id="order_line_item.repository" />
             <argument type="service" id="product.repository" />
+        </service>
+
+        <service id="EsmxShopAuditAi\Service\Audit\Customer\AbandonedCartAuditService">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartCompressor" />
+            <argument type="service" id="customer.repository" />
+            <argument type="service" id="sales_channel.repository" />
+            <argument type="service" id="logger" />
+            <argument>%shopware.cart.storage.type%</argument>
         </service>
 
         <service id="EsmxShopAuditAi\Service\Audit\BrokenLink\BrokenLinkExtractor"/>

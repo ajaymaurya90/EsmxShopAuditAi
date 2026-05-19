@@ -3,6 +3,8 @@ import '../../shared/esmx-shop-audit-shared.scss';
 import './esmx-shop-audit-tasks.scss';
 import {
     formatLatestScanDate,
+    formatAdminDateTime,
+    formatCurrency,
     getDynamicTaskTitle,
     getPriorityLabel,
     getStatusLabel,
@@ -225,7 +227,56 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             return task?.code === 'fix_broken_links' || findingCode === 'broken_links';
         },
 
+        isCustomerAuditTask() {
+            const task = this.selectedTaskDetails?.task || this.selectedTask;
+            const findingCode = task?.payloadJson?.findingCode;
+
+            return task?.code === 'recover_abandoned_carts' || findingCode === 'abandoned_cart_customers';
+        },
+
         detailColumns() {
+            if (this.isCustomerAuditTask) {
+                return [
+                    {
+                        property: 'name',
+                        label: this.$tc('esmx-shop-audit-ai.customerAudit.columns.customer'),
+                        primary: true,
+                        width: '22%',
+                    },
+                    {
+                        property: 'email',
+                        label: this.$tc('esmx-shop-audit-ai.customerAudit.columns.email'),
+                        width: '20%',
+                    },
+                    {
+                        property: 'cartValue',
+                        label: this.$tc('esmx-shop-audit-ai.customerAudit.columns.cartValue'),
+                        width: '12%',
+                    },
+                    {
+                        property: 'productCount',
+                        label: this.$tc('esmx-shop-audit-ai.customerAudit.columns.productCount'),
+                        width: '10%',
+                    },
+                    {
+                        property: 'lastActivityAt',
+                        label: this.$tc('esmx-shop-audit-ai.customerAudit.columns.lastActivity'),
+                        width: '18%',
+                    },
+                    {
+                        property: 'salesChannelName',
+                        label: this.$tc('esmx-shop-audit-ai.customerAudit.columns.salesChannel'),
+                        width: '14%',
+                    },
+                    {
+                        property: 'actions',
+                        label: '',
+                        width: '72px',
+                        align: 'center',
+                    },
+                ];
+            }
+
             if (this.isBrokenLinkTask) {
                 return [
                     {
@@ -629,6 +680,14 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             };
         },
 
+        formatMoney(value) {
+            return formatCurrency(value);
+        },
+
+        formatDate(value) {
+            return formatAdminDateTime(value);
+        },
+
         openManualFix(item) {
             this.closeAllActionMenus();
 
@@ -708,6 +767,27 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
                 if (resolved?.href) {
                     window.open(resolved.href, '_blank', 'noopener');
                 }
+            }
+        },
+
+        openCustomerDetailInNewTab(item) {
+            this.closeAllActionMenus();
+
+            const customerId = item?.entityId || item?.customerId || item?.raw?.customerId;
+
+            if (!customerId) {
+                return;
+            }
+
+            const resolved = this.$router.resolve({
+                name: 'sw.customer.detail',
+                params: {
+                    id: customerId,
+                },
+            });
+
+            if (resolved?.href) {
+                window.open(resolved.href, '_blank', 'noopener');
             }
         },
 

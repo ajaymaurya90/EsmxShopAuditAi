@@ -105,6 +105,7 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
           seo: { enabled: true },
           brokenLinks: { enabled: true },
           sales: { enabled: true },
+          customerAudit: { enabled: true },
         },
       };
     },
@@ -153,6 +154,16 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
           label: this.$tc("esmx-shop-audit-ai.dashboardInsights.openTasks"),
           value: this.openTaskCount,
         },
+        {
+          key: "abandonedCartCustomers",
+          label: this.$tc("esmx-shop-audit-ai.dashboardInsights.abandonedCartCustomers"),
+          value: this.customerStats.abandonedCarts?.affected || 0,
+        },
+        {
+          key: "potentialRevenue",
+          label: this.$tc("esmx-shop-audit-ai.dashboardInsights.potentialRevenue"),
+          value: this.formatCurrency(this.customerStats.abandonedCarts?.potentialRevenue || 0),
+        },
       ];
     },
 
@@ -162,6 +173,12 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
 
     salesInsights() {
       return this.dashboard?.salesInsights ?? {};
+    },
+
+    customerStats() {
+      return this.dashboard?.scanAudit?.customerStats
+        ?? this.dashboard?.insights?.latestSummary?.customerStats
+        ?? { abandonedCarts: { affected: 0, potentialRevenue: 0 } };
     },
 
     salesKpis() {
@@ -622,6 +639,20 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
               key: "lowStockBestSellers",
               label: this.$tc(
                 "esmx-shop-audit-ai.dashboard.scanOptions.checks.lowStockBestSellers",
+              ),
+            },
+          ],
+        },
+        {
+          key: "customerAudit",
+          label: this.$tc(
+            "esmx-shop-audit-ai.dashboard.scanOptions.groups.customerAudit",
+          ),
+          checks: [
+            {
+              key: "abandonedCartCustomers",
+              label: this.$tc(
+                "esmx-shop-audit-ai.dashboard.scanOptions.checks.abandonedCartCustomers",
               ),
             },
           ],

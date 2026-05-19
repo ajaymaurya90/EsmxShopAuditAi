@@ -48,6 +48,12 @@ class ScanOptionsResolver
                 'lowStockBestSellers' => true,
             ],
         ],
+        'customerAudit' => [
+            'enabled' => true,
+            'checks' => [
+                'abandonedCartCustomers' => true,
+            ],
+        ],
     ];
 
     public function getDefaults(): array

@@ -28,7 +28,8 @@
       "category_missing_meta_title": "Kategorien ohne SEO-Meta-Titel",
       "category_missing_meta_description": "Kategorien ohne SEO-Meta-Beschreibung",
       "category_missing_description": "Kategorien ohne Beschreibung",
-      "broken_links": "Defekte Links gefunden"
+      "broken_links": "Defekte Links gefunden",
+      "abandoned_cart_customers": "Kunden mit abgebrochenem Warenkorb gefunden"
     },
     "dashboard": {
       "runScanButton": "Scan starten",
@@ -148,7 +149,8 @@
           "productHealth": "Produktzustands-Audit",
           "seo": "SEO-Audit",
           "brokenLinks": "Broken-Link-Audit",
-          "sales": "Sales-Audit"
+          "sales": "Sales-Audit",
+          "customerAudit": "Kunden-Audit"
         },
         "checks": {
           "missingCoverImage": "Fehlende Bilder",
@@ -170,7 +172,8 @@
           "brokenLinkCmsPages": "CMS-Seiten",
           "salesKpis": "Sales-KPIs",
           "topSellingProducts": "Topverkaufte Produkte",
-          "lowStockBestSellers": "Bestseller mit geringem Bestand"
+          "lowStockBestSellers": "Bestseller mit geringem Bestand",
+          "abandonedCartCustomers": "Kunden mit abgebrochenem Warenkorb"
         }
       }
     },
@@ -179,7 +182,8 @@
         "productHealth": "Prüft Katalogvollständigkeit und operative Produktqualität, zum Beispiel Bilder, Bestand, Preise, Kategorien, Hersteller und Übersetzungen.",
         "seo": "Prüft Produkt- und Kategorieinhalte, die Suchsichtbarkeit, Metadatenqualität und Inhaltsvollständigkeit beeinflussen.",
         "brokenLinks": "Validiert Links in Produktbeschreibungen, Kategoriebeschreibungen und CMS-Inhalten.",
-        "sales": "Enthält Sales-KPIs und verkaufsbasierte Empfehlungen wie Top-Performer und Bestseller mit geringem Bestand."
+        "sales": "Enthält Sales-KPIs und verkaufsbasierte Empfehlungen wie Top-Performer und Bestseller mit geringem Bestand.",
+        "customerAudit": "Prüft kundenspezifische Signale wie eingeloggte Kunden mit abgebrochenen Warenkörben."
       },
       "tooltips": {
         "missingCoverImage": "Findet Produkte ohne Titelbild.",
@@ -201,7 +205,8 @@
         "cms_content": "Prüft Links innerhalb von CMS-Seiteninhalten.",
         "salesKpis": "Bezieht Sales-KPI-Metriken in den Scan-Kontext ein.",
         "topSellingProducts": "Bezieht topverkaufte Produkte auf Basis aktueller Verkäufe ein.",
-        "lowStockBestSellers": "Bezieht Bestseller mit geringem Bestand ein."
+        "lowStockBestSellers": "Bezieht Bestseller mit geringem Bestand ein.",
+        "abandonedCartCustomers": "Findet eingeloggte Kunden mit gespeicherten Warenkörben, die länger als der konfigurierte Schwellenwert inaktiv waren."
       }
     },
     "dashboardInsights": {
@@ -211,6 +216,8 @@
       "detectedIssues": "Erkannte Probleme",
       "criticalIssues": "Kritische Probleme",
       "openTasks": "Offene Tasks",
+      "abandonedCartCustomers": "Abgebrochene Warenkörbe",
+      "potentialRevenue": "Potenzieller Umsatz",
       "topTasksHeadline": "Wichtigste Aufgaben",
       "emptyTasks": "Keine Tasks verfügbar."
     },
@@ -231,7 +238,8 @@
       "categoryMissingMetaTitle": "Fehlende SEO-Meta-Titel bei Kategorien können die Kategoriesichtbarkeit schwächen.",
       "categoryMissingMetaDescription": "Fehlende Meta-Beschreibungen bei Kategorien können die SEO-Klickrate verringern.",
       "categoryMissingDescription": "Wenig Kategorieinhalt kann SEO und Nutzerführung verschlechtern.",
-      "brokenLinks": "Defekte Links können Kunden und Suchmaschinen auf nicht verfügbare Seiten führen."
+      "brokenLinks": "Defekte Links können Kunden und Suchmaschinen auf nicht verfügbare Seiten führen.",
+      "abandonedCartCustomers": "Kunden haben Artikel im Warenkorb zurückgelassen, wodurch Umsatzpotenzial entsteht."
     },
     "grid": {
       "productName": "Produkt",
@@ -287,7 +295,8 @@
         "productHealth": "Produktzustand",
         "seo": "SEO",
         "brokenLinks": "Defekter Link",
-        "sales": "Sales"
+        "sales": "Sales",
+        "customerAudit": "Kunden-Audit"
       },
       "defaultImpact": "Kann die Shop-Qualität oder das Kundenerlebnis beeinträchtigen.",
       "unknownCategory": "Unbekannt",
@@ -315,6 +324,25 @@
       },
       "reasonLabel": "Grund",
       "overallScore": "SEO-Score"
+    },
+    "customerAudit": {
+      "title": "Kunden-Audit",
+      "abandonedCartCustomers": "Kunden mit abgebrochenem Warenkorb",
+      "recoverAbandonedCarts": "Abgebrochene Warenkörbe zurückgewinnen",
+      "cartValue": "Warenkorbwert",
+      "productCount": "Produktanzahl",
+      "lastActivity": "Letzte Aktivität",
+      "potentialRevenue": "Potenzieller Umsatz",
+      "salesChannel": "Verkaufskanal",
+      "openCustomer": "Kunde öffnen",
+      "columns": {
+        "customer": "Kunde",
+        "email": "E-Mail",
+        "cartValue": "Warenkorbwert",
+        "productCount": "Produkte",
+        "lastActivity": "Letzte Aktivität",
+        "salesChannel": "Verkaufskanal"
+      }
     },
     "tasks": {
       "pageTitle": "Aufgaben",
@@ -472,7 +500,8 @@
       "assign_product_manufacturers": "Hersteller für {count} Produkt zuweisen | Hersteller für {count} Produkte zuweisen",
       "review_inactive_products": "{count} inaktives Produkt prüfen | {count} inaktive Produkte prüfen",
       "review_out_of_stock_products": "{count} nicht verfügbares Produkt prüfen | {count} nicht verfügbare Produkte prüfen",
-      "add_product_prices": "Preise für {count} Produkt hinzufügen | Preise für {count} Produkte hinzufügen"
+      "add_product_prices": "Preise für {count} Produkt hinzufügen | Preise für {count} Produkte hinzufügen",
+      "recover_abandoned_carts": "Abgebrochene Warenkörbe zurückgewinnen"
     },
     "seoSeverity": {
       "critical": "Kritisch",

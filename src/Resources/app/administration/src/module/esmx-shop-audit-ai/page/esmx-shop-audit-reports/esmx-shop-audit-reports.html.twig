@@ -275,6 +275,16 @@
 							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.reports.stats.tasks') }}</div>
 							<div class="esmx-shop-audit__stat-value">{{ selectedReportTaskCount }}</div>
 						</div>
+
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.customerAudit.abandonedCartCustomers') }}</div>
+							<div class="esmx-shop-audit__stat-value">{{ selectedReportCustomerStats.affected || 0 }}</div>
+						</div>
+
+						<div class="esmx-shop-audit__stat-item">
+							<div class="esmx-shop-audit__stat-label">{{ $tc('esmx-shop-audit-ai.customerAudit.potentialRevenue') }}</div>
+							<div class="esmx-shop-audit__stat-value">{{ formatMoney(selectedReportCustomerStats.potentialRevenue) }}</div>
+						</div>
 					</div>
 
 					<div class="reports__detail-section reports__audited-parameters">

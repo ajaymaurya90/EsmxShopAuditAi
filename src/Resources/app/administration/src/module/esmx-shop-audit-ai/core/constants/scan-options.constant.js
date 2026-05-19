@@ -42,6 +42,12 @@ export const DEFAULT_SCAN_OPTIONS = {
             lowStockBestSellers: true,
         },
     },
+    customerAudit: {
+        enabled: true,
+        checks: {
+            abandonedCartCustomers: true,
+        },
+    },
 };
 
 export const SCAN_OPTION_GROUP_ICONS = {
@@ -49,6 +55,7 @@ export const SCAN_OPTION_GROUP_ICONS = {
     seo: 'regular-search',
     brokenLinks: 'regular-link-horizontal-slash',
     sales: 'regular-chart-bar',
+    customerAudit: 'regular-users',
 };
 
 export const SCAN_OPTION_GROUP_TOOLTIP_KEYS = {
@@ -56,6 +63,7 @@ export const SCAN_OPTION_GROUP_TOOLTIP_KEYS = {
     seo: 'seo',
     brokenLinks: 'brokenLinks',
     sales: 'sales',
+    customerAudit: 'customerAudit',
 };
 
 export const SCAN_OPTION_TOOLTIP_KEYS = {
@@ -86,5 +94,8 @@ export const SCAN_OPTION_TOOLTIP_KEYS = {
         salesKpis: 'salesKpis',
         topSellingProducts: 'topSellingProducts',
         lowStockBestSellers: 'lowStockBestSellers',
+    },
+    customerAudit: {
+        abandonedCartCustomers: 'abandonedCartCustomers',
     },
 };

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EsmxShopAuditAi\Service\Scan;
 
 use EsmxShopAuditAi\Service\Audit\ProductAuditService;
+use EsmxShopAuditAi\Service\Audit\Customer\AbandonedCartAuditService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,7 +29,8 @@ class ManualScanRunner
         private readonly SystemConfigService $systemConfigService,
         private readonly ScanOptionsResolver $scanOptionsResolver,
         private readonly ScanCapabilitiesResolver $scanCapabilitiesResolver,
-        private readonly EntityStatsBuilder $entityStatsBuilder
+        private readonly EntityStatsBuilder $entityStatsBuilder,
+        private readonly AbandonedCartAuditService $abandonedCartAuditService
     ) {}
 
     public function run(Context $context, ?array $scanOptions = null): string
@@ -162,6 +164,43 @@ class ManualScanRunner
                 ]);
             }
 
+            $customerAuditOptions = $resolvedScanOptions['customerAudit'] ?? null;
+            $enabledCustomerAuditChecks = $this->resolveEnabledChecks($customerAuditOptions);
+            $customerAuditEnabled = (bool) ($scanCapabilities['groups']['customerAudit']['enabled'] ?? true);
+
+            if ($customerAuditEnabled && ($customerAuditOptions['enabled'] ?? true) && \in_array('abandonedCartCustomers', $enabledCustomerAuditChecks, true)) {
+                $thresholdMinutes = (int) ($this->systemConfigService->get('EsmxShopAuditAi.config.abandonedCartThresholdMinutes') ?? 60);
+                $minimumValue = (float) ($this->systemConfigService->get('EsmxShopAuditAi.config.abandonedCartMinValue') ?? 0);
+                $abandonedCartResult = $this->abandonedCartAuditService->run(
+                    $context,
+                    $thresholdMinutes,
+                    $minimumValue
+                );
+                $abandonedCarts = \is_array($abandonedCartResult['abandoned_cart_customers'] ?? null)
+                    ? $abandonedCartResult['abandoned_cart_customers']
+                    : [];
+                $customerStats = \is_array($abandonedCartResult['stats'] ?? null)
+                    ? $abandonedCartResult['stats']
+                    : [];
+
+                $auditSummary['issues']['abandoned_cart_customers'] = $abandonedCarts;
+                $auditSummary['totals']['abandoned_cart_customers'] = \count($abandonedCarts);
+                $auditSummary['totals']['totalIssues'] = $this->productAuditService->calculateTotalIssues($auditSummary['totals'] ?? []);
+                $auditSummary['customerStats']['abandonedCarts'] = [
+                    'affected' => (int) ($customerStats['abandonedCartCount'] ?? \count($abandonedCarts)),
+                    'potentialRevenue' => (float) ($customerStats['potentialRevenue'] ?? 0.0),
+                    'customersScanned' => (int) ($customerStats['customersScanned'] ?? 0),
+                    'cartsScanned' => (int) ($customerStats['cartsScanned'] ?? 0),
+                ];
+            } else {
+                $this->logger->info('Customer audit skipped by scan options or plugin settings', [
+                    'scanId' => $scanId,
+                    'customerAuditScanOptions' => $customerAuditOptions,
+                    'enabledCustomerAuditChecks' => $enabledCustomerAuditChecks,
+                    'customerAuditCapabilityEnabled' => $customerAuditEnabled,
+                ]);
+            }
+
 
             $findings = $this->findingBuilder->build($scanId, $auditSummary);
             $entityStats = $this->entityStatsBuilder->build($auditSummary, $scanStats);
@@ -189,6 +228,7 @@ class ManualScanRunner
                         'meta' => $auditSummary['meta'] ?? [],
                         'totals' => $auditSummary['totals'] ?? [],
                         'entityStats' => $entityStats,
+                        'customerStats' => $auditSummary['customerStats'] ?? [],
                         'findingCount' => \count($findings),
                         'taskCount' => \count($tasks),
                         'scanOptions' => $resolvedScanOptions,

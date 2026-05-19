@@ -260,6 +260,13 @@ Shopware.Component.register('esmx-shop-audit-reports', {
             return this.selectedReport?.summaryJson?.scanOptions ?? null;
         },
 
+        selectedReportCustomerStats() {
+            return this.selectedReport?.summaryJson?.customerStats?.abandonedCarts ?? {
+                affected: 0,
+                potentialRevenue: 0,
+            };
+        },
+
         hasSelectedReportScanOptions() {
             return !!this.selectedReportScanOptions;
         },
@@ -383,6 +390,13 @@ Shopware.Component.register('esmx-shop-audit-reports', {
 
         formatDate(value) {
             return formatAdminDateTime(value);
+        },
+
+        formatMoney(value) {
+            return Number(value || 0).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            });
         },
 
         getStatusVariant(status) {
@@ -568,6 +582,9 @@ Shopware.Component.register('esmx-shop-audit-reports', {
                     salesKpis: 'salesKpis',
                     topSellingProducts: 'topSellingProducts',
                     lowStockBestSellers: 'lowStockBestSellers',
+                },
+                customerAudit: {
+                    abandonedCartCustomers: 'abandonedCartCustomers',
                 },
             };
 

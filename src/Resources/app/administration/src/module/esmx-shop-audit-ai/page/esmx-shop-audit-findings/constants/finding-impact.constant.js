@@ -14,6 +14,8 @@ export function getFindingImpact(tc, code) {
         category_missing_meta_title: tc('esmx-shop-audit-ai.dashboardImpact.categoryMissingMetaTitle'),
         category_missing_meta_description: tc('esmx-shop-audit-ai.dashboardImpact.categoryMissingMetaDescription'),
         category_missing_description: tc('esmx-shop-audit-ai.dashboardImpact.categoryMissingDescription'),
+        broken_links: tc('esmx-shop-audit-ai.dashboardImpact.brokenLinks'),
+        abandoned_cart_customers: tc('esmx-shop-audit-ai.dashboardImpact.abandonedCartCustomers'),
     };
 
     return impactMap[code] || tc('esmx-shop-audit-ai.findings.defaultImpact');

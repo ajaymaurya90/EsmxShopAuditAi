@@ -36,6 +36,7 @@ class AuditDashboardController extends AbstractController
         'assign_product_manufacturers' => 1.0,
         'add_product_prices' => 3.0,
         'complete_product_translations' => 1.5,
+        'recover_abandoned_carts' => 2.5,
     ];
 
     private const BROKEN_LINK_SOURCE_LABELS = [
@@ -60,6 +61,7 @@ class AuditDashboardController extends AbstractController
         'category_missing_meta_description' => ['weight' => 1, 'max' => 8],
         'category_missing_description' => ['weight' => 1, 'max' => 8],
         'broken_links' => ['weight' => 3, 'max' => 30],
+        'abandoned_cart_customers' => ['weight' => 2, 'max' => 20],
     ];
 
     private const SCAN_OPTION_HEALTH_CODES = [
@@ -85,6 +87,9 @@ class AuditDashboardController extends AbstractController
             'product_description' => 'broken_links',
             'category_description' => 'broken_links',
             'cms_content' => 'broken_links',
+        ],
+        'customerAudit' => [
+            'abandonedCartCustomers' => 'abandoned_cart_customers',
         ],
     ];
 
@@ -137,6 +142,7 @@ class AuditDashboardController extends AbstractController
             'meta' => \is_array($summaryJson['meta'] ?? null) ? $summaryJson['meta'] : [],
             'totals' => \is_array($summaryJson['totals'] ?? null) ? $summaryJson['totals'] : [],
             'entityStats' => \is_array($summaryJson['entityStats'] ?? null) ? $summaryJson['entityStats'] : $this->buildEmptyEntityStats(),
+            'customerStats' => \is_array($summaryJson['customerStats'] ?? null) ? $summaryJson['customerStats'] : $this->buildEmptyCustomerStats(),
             'issues' => [],
             'scanOptions' => \is_array($summaryJson['scanOptions'] ?? null) ? $summaryJson['scanOptions'] : null,
         ];
@@ -214,6 +220,7 @@ class AuditDashboardController extends AbstractController
             'meta' => $scanAudit['meta'],
             'totals' => $scanAudit['totals'],
             'entityStats' => $scanAudit['entityStats'],
+            'customerStats' => $scanAudit['customerStats'],
             'scanOptions' => $scanAudit['scanOptions'],
         ];
 
@@ -655,6 +662,7 @@ class AuditDashboardController extends AbstractController
             ],
             'issues' => [],
             'entityStats' => $this->buildEmptyEntityStats(),
+            'customerStats' => $this->buildEmptyCustomerStats(),
             'scanOptions' => null,
         ];
     }
@@ -673,6 +681,18 @@ class AuditDashboardController extends AbstractController
             'cmsPages' => [
                 'affected' => 0,
                 'scanned' => 0,
+            ],
+        ];
+    }
+
+    private function buildEmptyCustomerStats(): array
+    {
+        return [
+            'abandonedCarts' => [
+                'affected' => 0,
+                'potentialRevenue' => 0.0,
+                'customersScanned' => 0,
+                'cartsScanned' => 0,
             ],
         ];
     }
@@ -749,6 +769,26 @@ class AuditDashboardController extends AbstractController
                     'status' => $item['status'] ?? '-',
                     'url' => (string) ($item['url'] ?? '-'),
                     'error' => (string) ($item['error'] ?? '-'),
+                    'raw' => $item,
+                    'autoFixSupported' => false,
+                ];
+
+                continue;
+            }
+
+            if ($task->getCode() === 'recover_abandoned_carts') {
+                $normalized[] = [
+                    'id' => (string) ($item['id'] ?? $index),
+                    'entityId' => $item['customerId'] ?? null,
+                    'entityType' => 'customer',
+                    'entity' => 'customer',
+                    'name' => (string) ($item['customerName'] ?? 'Unnamed customer'),
+                    'email' => (string) ($item['email'] ?? '-'),
+                    'cartValue' => (float) ($item['cartValue'] ?? 0),
+                    'productCount' => (int) ($item['productCount'] ?? 0),
+                    'lastActivityAt' => (string) ($item['lastActivityAt'] ?? ''),
+                    'salesChannelName' => (string) ($item['salesChannelName'] ?? '-'),
+                    'cartToken' => (string) ($item['cartToken'] ?? ''),
                     'raw' => $item,
                     'autoFixSupported' => false,
                 ];

@@ -365,6 +365,30 @@
 									</div>
 								</template>
 
+								<template #column-cartvalue="{ item }">
+									<div class="esmx-shop-audit__current-value-cell">
+										{{ formatMoney(item.cartValue) }}
+									</div>
+								</template>
+
+								<template #column-productcount="{ item }">
+									<div class="esmx-shop-audit__current-value-cell">
+										{{ item.productCount ?? '-' }}
+									</div>
+								</template>
+
+								<template #column-lastactivityat="{ item }">
+									<div class="esmx-shop-audit__current-value-cell">
+										{{ formatDate(item.lastActivityAt) }}
+									</div>
+								</template>
+
+								<template #column-saleschannelname="{ item }">
+									<div class="esmx-shop-audit__current-value-cell">
+										{{ item.salesChannelName || '-' }}
+									</div>
+								</template>
+
 								<template #column-actions="{ item }">
 									<div class="tasks__action-cell">
 										<div class="esmx-shop-audit__row-action-menu-wrapper">
@@ -381,11 +405,15 @@
 													{{ $tc('esmx-shop-audit-ai.findings.openAffectedItem') }}
 												</button>
 
-												<button v-if="!isBrokenLinkTask" type="button" class="esmx-shop-audit__row-action-menu-item" @click.stop="openManualFix(item)">
+												<button v-if="isCustomerAuditTask" type="button" class="esmx-shop-audit__row-action-menu-item" @click.stop="openCustomerDetailInNewTab(item)">
+													{{ $tc('esmx-shop-audit-ai.customerAudit.openCustomer') }}
+												</button>
+
+												<button v-if="!isBrokenLinkTask && !isCustomerAuditTask" type="button" class="esmx-shop-audit__row-action-menu-item" @click.stop="openManualFix(item)">
 													{{ $tc('esmx-shop-audit-ai.tasks.detailGrid.manualFix') }}
 												</button>
 
-												<button v-if="!isBrokenLinkTask && item.autoFixSupported" type="button" class="esmx-shop-audit__row-action-menu-item" @click.stop="openAutoFix(item)">
+												<button v-if="!isBrokenLinkTask && !isCustomerAuditTask && item.autoFixSupported" type="button" class="esmx-shop-audit__row-action-menu-item" @click.stop="openAutoFix(item)">
 													{{ $tc('esmx-shop-audit-ai.tasks.detailGrid.autoFix') }}
 												</button>
 											</div>

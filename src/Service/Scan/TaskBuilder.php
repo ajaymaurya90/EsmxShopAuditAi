@@ -91,10 +91,25 @@ class TaskBuilder
                 'title' => sprintf('Fix %d broken links', $affectedCount),
                 'priority' => 'high',
             ],
+            'abandoned_cart_customers' => [
+                'code' => 'recover_abandoned_carts',
+                'title' => 'Recover abandoned carts',
+                'priority' => $this->resolveAbandonedCartPriority($finding),
+            ],
         ];
 
         if (!isset($taskMap[$code])) {
             return null;
+        }
+
+        $payload = [
+            'findingCode' => $code,
+            'findingTitle' => $finding['title'] ?? '',
+            'fieldType' => $this->resolveFieldTypeForFinding($code),
+        ];
+
+        if ($code === 'abandoned_cart_customers') {
+            $payload['items'] = $finding['payloadJson']['items'] ?? [];
         }
 
         return [
@@ -104,12 +119,29 @@ class TaskBuilder
             'priority' => $taskMap[$code]['priority'],
             'affectedCount' => $affectedCount,
             'status' => 'open',
-            'payloadJson' => [
-                'findingCode' => $code,
-                'findingTitle' => $finding['title'] ?? '',
-                'fieldType' => $this->resolveFieldTypeForFinding($code),
-            ],
+            'payloadJson' => $payload,
         ];
+    }
+
+    private function resolveAbandonedCartPriority(array $finding): string
+    {
+        $items = $finding['payloadJson']['items'] ?? [];
+
+        if (!\is_array($items)) {
+            return 'medium';
+        }
+
+        $potentialRevenue = 0.0;
+
+        foreach ($items as $item) {
+            if (!\is_array($item)) {
+                continue;
+            }
+
+            $potentialRevenue += (float) ($item['cartValue'] ?? 0);
+        }
+
+        return $potentialRevenue >= 500.0 ? 'high' : 'medium';
     }
 
     private function resolveFieldTypeForFinding(string $findingCode): ?string

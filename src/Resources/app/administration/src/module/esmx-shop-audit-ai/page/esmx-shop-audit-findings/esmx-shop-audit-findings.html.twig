@@ -299,16 +299,32 @@
 										<span>{{ item.stock ?? '-' }}</span>
 									</template>
 
+									<template #column-cartvalue="{ item }">
+										<span>{{ formatMoney(item.cartValue) }}</span>
+									</template>
+
+									<template #column-productcount="{ item }">
+										<span>{{ item.productCount ?? '-' }}</span>
+									</template>
+
+									<template #column-lastactivityat="{ item }">
+										<span>{{ formatDate(item.lastActivityAt) }}</span>
+									</template>
+
 									<template #actions="{ item }">
 										<sw-context-menu-item v-if="item.url" @click="openBrokenLinkUrl(item)">
 											{{ $tc('esmx-shop-audit-ai.findings.openBrokenLink') }}
+										</sw-context-menu-item>
+
+										<sw-context-menu-item v-if="item.entity === 'customer' || item.customerId" @click="openCustomerDetailInNewTab(item)">
+											{{ $tc('esmx-shop-audit-ai.customerAudit.openCustomer') }}
 										</sw-context-menu-item>
 
 										<sw-context-menu-item v-if="item.entity === 'product' || item.entity === 'category' || item.entity === 'cms_page'" @click="openAffectedEntityInNewTab(item)">
 											{{ $tc('esmx-shop-audit-ai.findings.openAffectedItem') }}
 										</sw-context-menu-item>
 
-										<sw-context-menu-item v-if="!item.url" @click="openProductDetailInNewTab(item)">
+										<sw-context-menu-item v-if="!item.url && item.entity !== 'customer' && !item.customerId" @click="openProductDetailInNewTab(item)">
 											{{ $tc('esmx-shop-audit-ai.findings.viewDetail') }}
 										</sw-context-menu-item>
 									</template>

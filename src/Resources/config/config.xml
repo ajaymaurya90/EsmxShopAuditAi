@@ -165,4 +165,30 @@
             <defaultValue>true</defaultValue>
         </input-field>
     </card>
+
+    <card>
+        <title>Customer Audit</title>
+        <title lang="de-DE">Kunden-Audit</title>
+
+        <input-field type="bool">
+            <name>customerAuditEnabled</name>
+            <label>Enable customer audit</label>
+            <label lang="de-DE">Kunden-Audit aktivieren</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>abandonedCartThresholdMinutes</name>
+            <label>Abandoned cart threshold (minutes)</label>
+            <label lang="de-DE">Schwelle für abgebrochene Warenkörbe (Minuten)</label>
+            <defaultValue>60</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>abandonedCartMinValue</name>
+            <label>Minimum abandoned cart value</label>
+            <label lang="de-DE">Mindestwert für abgebrochene Warenkörbe</label>
+            <defaultValue>0</defaultValue>
+        </input-field>
+    </card>
 </config>

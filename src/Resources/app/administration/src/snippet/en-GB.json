@@ -28,7 +28,8 @@
       "category_missing_meta_title": "Categories without SEO meta title",
       "category_missing_meta_description": "Categories without SEO meta description",
       "category_missing_description": "Categories without description",
-      "broken_links": "Broken links detected"
+      "broken_links": "Broken links detected",
+      "abandoned_cart_customers": "Abandoned cart customers detected"
     },
     "dashboard": {
       "runScanButton": "Run scan",
@@ -150,7 +151,8 @@
           "productHealth": "Product Health Audit",
           "seo": "SEO Audit",
           "brokenLinks": "Broken Link Audit",
-          "sales": "Sales Audit"
+          "sales": "Sales Audit",
+          "customerAudit": "Customer Audit"
         },
         "checks": {
           "missingCoverImage": "Missing images",
@@ -172,7 +174,8 @@
           "brokenLinkCmsPages": "CMS pages",
           "salesKpis": "Sales KPIs",
           "topSellingProducts": "Top selling products",
-          "lowStockBestSellers": "Low stock best sellers"
+          "lowStockBestSellers": "Low stock best sellers",
+          "abandonedCartCustomers": "Abandoned cart customers"
         }
       }
     },
@@ -181,7 +184,8 @@
         "productHealth": "Checks catalog completeness and operational product quality, such as images, stock, prices, categories, manufacturers, and translations.",
         "seo": "Checks product and category content that affects search visibility, metadata quality, and content completeness.",
         "brokenLinks": "Validates links found in product descriptions, category descriptions, and CMS content.",
-        "sales": "Includes sales KPIs and sales-based recommendations such as top performers and low-stock best sellers."
+        "sales": "Includes sales KPIs and sales-based recommendations such as top performers and low-stock best sellers.",
+        "customerAudit": "Checks customer-related signals such as logged-in customers with abandoned carts."
       },
       "tooltips": {
         "missingCoverImage": "Finds products without a cover image.",
@@ -203,7 +207,8 @@
         "cms_content": "Checks links found inside CMS page content.",
         "salesKpis": "Includes sales KPI metrics in the scan context.",
         "topSellingProducts": "Includes top selling products based on recent sales.",
-        "lowStockBestSellers": "Includes best-selling products with low stock."
+        "lowStockBestSellers": "Includes best-selling products with low stock.",
+        "abandonedCartCustomers": "Finds logged-in customers with persisted carts that have been inactive beyond the configured threshold."
       }
     },
     "dashboardInsights": {
@@ -213,6 +218,8 @@
       "detectedIssues": "Detected issues",
       "criticalIssues": "Critical issues",
       "openTasks": "Open tasks",
+      "abandonedCartCustomers": "Abandoned carts",
+      "potentialRevenue": "Potential revenue",
       "topTasksHeadline": "Top tasks",
       "emptyTasks": "No tasks available."
     },
@@ -233,7 +240,8 @@
       "categoryMissingMetaTitle": "Missing category SEO meta titles can weaken category visibility.",
       "categoryMissingMetaDescription": "Missing category meta descriptions may reduce SEO click-through rate.",
       "categoryMissingDescription": "Thin category content may weaken SEO and user guidance.",
-      "brokenLinks": "Broken links can lead customers and search engines to unavailable pages."
+      "brokenLinks": "Broken links can lead customers and search engines to unavailable pages.",
+      "abandonedCartCustomers": "Customers left items in their carts, creating recoverable revenue potential."
     },
     "grid": {
       "productName": "Product",
@@ -290,7 +298,8 @@
         "productHealth": "Product Health",
         "seo": "SEO",
         "brokenLinks": "Broken Link",
-        "sales": "Sales"
+        "sales": "Sales",
+        "customerAudit": "Customer Audit"
       },
       "defaultImpact": "May reduce store quality or customer experience.",
       "unknownCategory": "Unknown",
@@ -318,6 +327,25 @@
       },
       "reasonLabel": "Reason",
       "overallScore": "SEO score"
+    },
+    "customerAudit": {
+      "title": "Customer Audit",
+      "abandonedCartCustomers": "Abandoned cart customers",
+      "recoverAbandonedCarts": "Recover abandoned carts",
+      "cartValue": "Cart value",
+      "productCount": "Product count",
+      "lastActivity": "Last activity",
+      "potentialRevenue": "Potential revenue",
+      "salesChannel": "Sales channel",
+      "openCustomer": "Open customer",
+      "columns": {
+        "customer": "Customer",
+        "email": "Email",
+        "cartValue": "Cart value",
+        "productCount": "Products",
+        "lastActivity": "Last activity",
+        "salesChannel": "Sales channel"
+      }
     },
     "tasks": {
       "pageTitle": "Tasks",
@@ -479,7 +507,8 @@
       "assign_product_manufacturers": "Assign manufacturers to {count} product | Assign manufacturers to {count} products",
       "review_inactive_products": "Review {count} inactive product | Review {count} inactive products",
       "review_out_of_stock_products": "Review {count} out-of-stock product | Review {count} out-of-stock products",
-      "add_product_prices": "Add prices to {count} product | Add prices to {count} products"
+      "add_product_prices": "Add prices to {count} product | Add prices to {count} products",
+      "recover_abandoned_carts": "Recover abandoned carts"
     },
     "seoSeverity": {
       "critical": "Critical",

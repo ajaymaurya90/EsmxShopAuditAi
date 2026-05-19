@@ -30,6 +30,9 @@ class ScanCapabilitiesResolver
             'sales' => [
                 'enabled' => $enabled && $this->getBoolConfig('salesAuditEnabled', true),
             ],
+            'customerAudit' => [
+                'enabled' => $enabled && $this->getBoolConfig('customerAuditEnabled', true),
+            ],
         ];
 
         return [

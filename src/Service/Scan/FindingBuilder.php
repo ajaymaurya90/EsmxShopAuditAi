@@ -101,6 +101,12 @@ class FindingBuilder
                 'severity' => 'high',
                 'entity' => 'link',
             ],
+            'abandoned_cart_customers' => [
+                'code' => 'abandoned_cart_customers',
+                'title' => 'Abandoned cart customers detected',
+                'severity' => 'high',
+                'entity' => 'customer',
+            ],
         ];
 
         $findings = [];

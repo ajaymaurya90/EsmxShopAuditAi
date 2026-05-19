@@ -121,5 +121,13 @@ export function buildSummaryCards(tc, totals = {}) {
             count: totals.broken_links || 0,
             severity: 'high',
         },
+        {
+            key: 'abandoned_cart_customers',
+            code: 'abandoned_cart_customers',
+            label: tc('esmx-shop-audit-ai.findingTitles.abandoned_cart_customers'),
+            impact: tc('esmx-shop-audit-ai.dashboardImpact.abandonedCartCustomers'),
+            count: totals.abandoned_cart_customers || 0,
+            severity: 'high',
+        },
     ];
 }
