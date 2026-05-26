@@ -49,6 +49,13 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
       latestScan: null,
       loadError: null,
       scanError: null,
+      isTestingAiConnection: false,
+      aiConnectionResult: null,
+      aiConnectionError: null,
+      isGeneratingAiSummary: false,
+      isAiSummaryUnavailable: false,
+      aiExecutiveSummary: null,
+      aiExecutiveSummaryError: null,
       activeImpactKey: null,
       activeWidgetTooltip: null,
       affectedProducts: 0,
@@ -61,7 +68,32 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
 
   computed: {
     hasCompletedScan() {
-      return !!this.latestScan?.id;
+      return !!(
+        this.latestScan?.id ||
+        this.dashboard?.latestScan?.id ||
+        this.dashboard?.insights?.latestSummary?.scanId
+      );
+    },
+
+    hasScanResultsContent() {
+      return !!(
+        this.hasCompletedScan ||
+        this.dashboard?.insights?.latestSummary ||
+        this.dashboard?.scanAudit?.meta ||
+        this.dashboard?.scanAudit?.totals
+      );
+    },
+
+    hasAiExecutiveSummary() {
+      return typeof this.aiExecutiveSummary?.summary === "string" && this.aiExecutiveSummary.summary.trim() !== "";
+    },
+
+    latestScanResultsText() {
+      if (this.hasAiExecutiveSummary) {
+        return this.aiExecutiveSummary.summary;
+      }
+
+      return this.healthSummaryText;
     },
 
     totals() {
@@ -734,7 +766,8 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
         .getDashboard()
         .then((response) => {
           this.dashboard = response;
-          this.latestScan = response?.latestScan || this.latestScan;
+          this.setLatestScan(response?.latestScan || this.latestScan);
+          this.setAiExecutiveSummary(response?.aiExecutiveSummary || null);
 
           this.$nextTick(() => {
             this.animateHealthScore();
@@ -754,12 +787,58 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
       return this.esmxShopAuditApiService
         .getLatestScan()
         .then((response) => {
-          this.latestScan = response?.scan || null;
+          if (response?.scan) {
+            this.setLatestScan(response.scan);
+            return;
+          }
+
+          if (!this.dashboard?.latestScan) {
+            this.setLatestScan(null);
+          }
         })
         .catch((error) => {
           console.error("EsmxShopAuditAi latest scan error:", error);
           throw error;
         });
+    },
+
+    setLatestScan(scan) {
+      const previousScanId = this.latestScan?.id || null;
+      const nextScanId = scan?.id || null;
+
+      this.latestScan = scan || null;
+
+      if (previousScanId !== nextScanId) {
+        this.aiExecutiveSummary = null;
+        this.aiExecutiveSummaryError = null;
+        this.isAiSummaryUnavailable = false;
+      }
+
+      const persistedSummary = this.normalizeAiExecutiveSummaryResponse(
+        scan?.summaryJson?.ai?.executiveSummary
+          ? {
+              success: true,
+              scanId: nextScanId,
+              ...scan.summaryJson.ai.executiveSummary,
+            }
+          : null,
+      );
+
+      if (persistedSummary?.summary) {
+        this.setAiExecutiveSummary(persistedSummary);
+      }
+    },
+
+    setAiExecutiveSummary(summary) {
+      const normalizedSummary = this.normalizeAiExecutiveSummaryResponse(summary);
+
+      if (!normalizedSummary?.summary) {
+        return;
+      }
+
+      this.aiExecutiveSummary = normalizedSummary;
+      this.aiExecutiveSummaryError = null;
+      this.isAiSummaryUnavailable = false;
     },
 
     runScan() {
@@ -793,6 +872,198 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
         .finally(() => {
           this.isRunningScan = false;
         });
+    },
+
+    testAiConnection() {
+      this.isTestingAiConnection = true;
+      this.aiConnectionResult = null;
+      this.aiConnectionError = null;
+
+      return this.esmxShopAuditApiService
+        .testAiConnection()
+        .then((response) => {
+          if (response?.success === true) {
+            this.aiConnectionResult = response;
+
+            this.createNotificationSuccess({
+              message: this.$tc(
+                "esmx-shop-audit-ai.dashboard.aiConnectionSuccess",
+              ),
+            });
+
+            return;
+          }
+
+          this.aiConnectionError = this.resolveAiConnectionError(response);
+
+          this.createNotificationError({
+            message: this.aiConnectionError,
+          });
+        })
+        .catch((error) => {
+          console.error("EsmxShopAuditAi AI connection test error:", error);
+          this.aiConnectionError = this.$tc(
+            "esmx-shop-audit-ai.dashboard.aiConnectionFailed",
+          );
+
+          this.createNotificationError({
+            message: this.aiConnectionError,
+          });
+        })
+        .finally(() => {
+          this.isTestingAiConnection = false;
+        });
+    },
+
+    resolveAiConnectionError(response) {
+      const message = this.sanitizeAiConnectionMessage(response?.message);
+
+      if (message) {
+        return message;
+      }
+
+      return this.$tc("esmx-shop-audit-ai.dashboard.aiConnectionFailed");
+    },
+
+    sanitizeAiConnectionMessage(message) {
+      if (typeof message !== "string") {
+        return "";
+      }
+
+      const trimmedMessage = message.trim();
+
+      if (!trimmedMessage) {
+        return "";
+      }
+
+      return trimmedMessage
+        .replace(/key=([^&\s]+)/gi, "key=[hidden]")
+        .replace(/(api[-_ ]?key['":=\s]+)([^\s"',]+)/gi, "$1[hidden]")
+        .replace(/(authorization['":=\s]+bearer\s+)([^\s"',]+)/gi, "$1[hidden]");
+    },
+
+    generateAiExecutiveSummary() {
+      this.isGeneratingAiSummary = true;
+      this.isAiSummaryUnavailable = false;
+      this.aiExecutiveSummary = null;
+      this.aiExecutiveSummaryError = null;
+
+      return this.esmxShopAuditApiService
+        .generateAiExecutiveSummary(this.latestScan?.id || null)
+        .then((response) => {
+          console.log("[AI Summary] API response summary", {
+            summary: response?.summary || response?.text || response?.data?.summary || response?.data?.text || "",
+            provider: response?.provider || response?.data?.provider || "",
+            model: response?.model || response?.data?.model || "",
+            scanId: response?.scanId || response?.data?.scanId || "",
+            generatedAt: response?.generatedAt || response?.data?.generatedAt || "",
+          });
+
+          const summaryResponse = this.normalizeAiExecutiveSummaryResponse(response);
+
+          if (summaryResponse?.success === true && summaryResponse.summary) {
+            this.setAiExecutiveSummary(summaryResponse);
+
+            if (this.latestScan) {
+              this.latestScan.summaryJson = {
+                ...(this.latestScan.summaryJson || {}),
+                ai: {
+                  ...(this.latestScan.summaryJson?.ai || {}),
+                  executiveSummary: {
+                    summary: summaryResponse.summary,
+                    provider: summaryResponse.provider,
+                    model: summaryResponse.model,
+                    generatedAt: summaryResponse.generatedAt,
+                  },
+                },
+              };
+            }
+
+            return;
+          }
+
+          this.aiExecutiveSummaryError = this.resolveAiSummaryError(summaryResponse || response);
+          this.isAiSummaryUnavailable = this.isAiSummaryConfigurationError(this.aiExecutiveSummaryError);
+
+          this.createNotificationError({
+            message: this.aiExecutiveSummaryError,
+          });
+        })
+        .catch((error) => {
+          console.error("EsmxShopAuditAi AI executive summary error:", error);
+          this.aiExecutiveSummaryError = this.$tc(
+            "esmx-shop-audit-ai.dashboard.aiSummaryFailed",
+          );
+
+          this.createNotificationError({
+            message: this.aiExecutiveSummaryError,
+          });
+        })
+        .finally(() => {
+          this.isGeneratingAiSummary = false;
+        });
+    },
+
+    resolveAiSummaryError(response) {
+      const message = this.sanitizeAiConnectionMessage(response?.message);
+
+      if (message) {
+        return message;
+      }
+
+      return this.$tc("esmx-shop-audit-ai.dashboard.aiSummaryFailed");
+    },
+
+    normalizeAiExecutiveSummaryResponse(response) {
+      const payload = response?.data || response;
+      const summary = this.sanitizeAiSummaryText(payload?.summary || payload?.text || "");
+
+      return {
+        ...payload,
+        summary: this.isCompleteAiSummaryText(summary) ? summary : "",
+      };
+    },
+
+    sanitizeAiSummaryText(value) {
+      if (typeof value !== "string") {
+        return "";
+      }
+
+      return value
+        .replace(/^\s*#{1,6}\s*executive summary\s*$/gim, "")
+        .replace(/^\s*\*\*executive summary\*\*\s*$/gim, "")
+        .replace(/^\s*executive summary\s*$/gim, "")
+        .replace(/\*\*(.*?)\*\*/g, "$1")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+    },
+
+    isCompleteAiSummaryText(value) {
+      if (typeof value !== "string" || value.trim() === "") {
+        return false;
+      }
+
+      const summary = value.trim();
+
+      if (!/[.!?)]$/.test(summary)) {
+        return false;
+      }
+
+      const words = summary.toLowerCase().split(/\s+/);
+      const lastWord = (words[words.length - 1] || "").replace(/^[\s.,!?;:()[\]{}"']+|[\s.,!?;:()[\]{}"']+$/g, "");
+
+      return !["a", "an", "the", "with", "and", "or", "but", "for", "to", "of", "in", "on", "at", "by"].includes(lastWord);
+    },
+
+    isAiSummaryConfigurationError(message) {
+      const normalizedMessage = String(message || "").toLowerCase();
+
+      return (
+        normalizedMessage.includes("disabled") ||
+        normalizedMessage.includes("not configured") ||
+        normalizedMessage.includes("not implemented") ||
+        normalizedMessage.includes("unavailable")
+      );
     },
 
     openScanOptionsModal() {
@@ -1118,6 +1389,10 @@ Shopware.Component.register("esmx-shop-audit-dashboard", {
 
     formatPercent(value) {
       return formatPercent(value);
+    },
+
+    formatAdminDateTime(value) {
+      return formatAdminDateTime(value);
     },
 
     getFindingTitleByCode(code, fallbackTitle = "") {

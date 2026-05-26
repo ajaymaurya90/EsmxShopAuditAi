@@ -126,6 +126,30 @@ export default class EsmxShopAuditApiService extends ApiService {
             .then((response) => ApiService.handleResponse(response));
     }
 
+    testAiConnection() {
+        const apiRoute = `${this.getApiBasePath()}/ai/test-connection`;
+
+        return this.httpClient
+            .post(apiRoute, {}, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    generateAiExecutiveSummary(scanId = null, forceRegenerate = false) {
+        const apiRoute = `${this.getApiBasePath()}/ai/executive-summary`;
+        const payload = {
+            ...(scanId ? { scanId } : {}),
+            forceRegenerate,
+        };
+
+        return this.httpClient
+            .post(apiRoute, payload, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
     deleteReports(reportIds) {
         const apiRoute = `${this.getApiBasePath()}/reports/delete`;
 

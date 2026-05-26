@@ -137,7 +137,7 @@ class AuditDashboardController extends AbstractController
             ]);
         }
 
-        $summaryJson = $latestScan->getSummaryJson() ?? [];
+        $summaryJson = \is_array($latestScan->getSummaryJson()) ? $latestScan->getSummaryJson() : [];
         $scanAudit = [
             'meta' => \is_array($summaryJson['meta'] ?? null) ? $summaryJson['meta'] : [],
             'totals' => \is_array($summaryJson['totals'] ?? null) ? $summaryJson['totals'] : [],
@@ -234,6 +234,7 @@ class AuditDashboardController extends AbstractController
             'liveAudit' => $scanAudit,
             'scanAudit' => $scanAudit,
             'latestScan' => $this->serializeScan($latestScan),
+            'aiExecutiveSummary' => $this->extractAiExecutiveSummary($latestScan),
             'insights' => [
                 'openTaskCount' => $openTaskCount,
                 'topTasks' => $topTasks,
@@ -741,6 +742,61 @@ class AuditDashboardController extends AbstractController
             'highPriorityFindings' => $scan->getHighPriorityFindings(),
             'summaryJson' => $scan->getSummaryJson(),
         ];
+    }
+
+    private function extractAiExecutiveSummary(ScanEntity $scan): ?array
+    {
+        $summaryJson = \is_array($scan->getSummaryJson()) ? $scan->getSummaryJson() : [];
+        $summary = \is_array($summaryJson['ai']['executiveSummary'] ?? null)
+            ? $summaryJson['ai']['executiveSummary']
+            : null;
+
+        if ($summary === null) {
+            return null;
+        }
+
+        $text = trim((string) ($summary['summary'] ?? ''));
+
+        if ($text === '') {
+            return null;
+        }
+
+        if (!$this->isCompleteAiSummary($text)) {
+            return null;
+        }
+
+        return [
+            'success' => true,
+            'summary' => $text,
+            'provider' => \is_string($summary['provider'] ?? null) ? $summary['provider'] : '',
+            'model' => \is_string($summary['model'] ?? null) ? $summary['model'] : '',
+            'scanId' => $scan->getId(),
+            'generatedAt' => \is_string($summary['generatedAt'] ?? null) ? $summary['generatedAt'] : '',
+            'cached' => true,
+        ];
+    }
+
+    private function isCompleteAiSummary(string $summary): bool
+    {
+        $summary = trim($summary);
+
+        if ($summary === '') {
+            return false;
+        }
+
+        if (!preg_match('/[.!?)]$/u', $summary)) {
+            return false;
+        }
+
+        $words = preg_split('/\s+/u', mb_strtolower($summary));
+
+        if (!\is_array($words) || $words === []) {
+            return false;
+        }
+
+        $lastWord = trim((string) end($words), " \t\n\r\0\x0B.,!?;:()[]{}\"'");
+
+        return !\in_array($lastWord, ['a', 'an', 'the', 'with', 'and', 'or', 'but', 'for', 'to', 'of', 'in', 'on', 'at', 'by'], true);
     }
 
     // Normalizes mixed finding payload items into a consistent task detail grid format.

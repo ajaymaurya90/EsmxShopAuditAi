@@ -42,18 +42,100 @@
 
 		<template #content>
 			<sw-card-view class="esmx-shop-audit__page-view">
+				<mt-card class="dashboard__ai-status-card" position-identifier="dashboard-ai-status-card">
+					<div class="dashboard__ai-status-content">
+						<div class="dashboard__ai-status-copy">
+							<div class="dashboard__ai-status-title">
+								{{ $tc('esmx-shop-audit-ai.ai.settings') }}
+							</div>
+
+							<div class="dashboard__ai-status-subtitle">
+								<template v-if="aiConnectionResult">
+									{{ aiConnectionResult.message || $tc('esmx-shop-audit-ai.dashboard.aiConnectionSuccess') }}
+								</template>
+
+								<template v-else-if="aiConnectionError">
+									{{ aiConnectionError }}
+								</template>
+
+								<template v-else>
+									{{ $tc('esmx-shop-audit-ai.dashboard.aiConnectionNotConfigured') }}
+								</template>
+							</div>
+						</div>
+
+						<div class="dashboard__ai-status-actions">
+							<div v-if="aiConnectionResult" class="dashboard__ai-status-meta">
+								<span>
+									{{ $tc('esmx-shop-audit-ai.dashboard.aiConnectionProvider') }}:
+									<strong>{{ aiConnectionResult.provider }}</strong>
+								</span>
+								<span>
+									{{ $tc('esmx-shop-audit-ai.dashboard.aiConnectionModel') }}:
+									<strong>{{ aiConnectionResult.model }}</strong>
+								</span>
+								<span>
+									{{ $tc('esmx-shop-audit-ai.dashboard.aiConnectionTestedAt') }}:
+									<strong>{{ formatAdminDateTime(aiConnectionResult.testedAt) }}</strong>
+								</span>
+							</div>
+
+							<mt-button size="small" variant="secondary" :loading="isTestingAiConnection" :disabled="isTestingAiConnection" @click="testAiConnection">
+								{{ isTestingAiConnection
+                                    ? $tc('esmx-shop-audit-ai.dashboard.aiConnectionTesting')
+                                    : $tc('esmx-shop-audit-ai.dashboard.testAiConnection') }}
+							</mt-button>
+						</div>
+					</div>
+				</mt-card>
+
 				<template v-if="loadError">
 					<mt-banner variant="danger">
 						{{ loadError }}
 					</mt-banner>
 				</template>
 
-				<template v-else-if="hasCompletedScan">
+				<template v-else-if="hasScanResultsContent">
 					<template v-if="scanError">
 						<mt-banner variant="danger">
 							{{ scanError }}
 						</mt-banner>
 					</template>
+
+					<mt-card class="dashboard__ai-summary-card dashboard__ai-summary-card--controls" position-identifier="dashboard-ai-summary-card">
+						<div class="dashboard__widget-header">
+							<div class="dashboard__widget-header-text">
+								<div class="dashboard__widget-title">
+									{{ $tc('esmx-shop-audit-ai.dashboard.aiExecutiveSummary') }}
+								</div>
+								<div class="dashboard__widget-subtitle">
+									{{ $tc('esmx-shop-audit-ai.dashboard.generatedByAi') }}
+								</div>
+							</div>
+
+							<div class="dashboard__widget-header-actions">
+								<mt-button size="small" variant="secondary" :loading="isGeneratingAiSummary" :disabled="isGeneratingAiSummary || isAiSummaryUnavailable || hasAiExecutiveSummary" @click="generateAiExecutiveSummary">
+									{{ isGeneratingAiSummary
+                                        ? $tc('esmx-shop-audit-ai.dashboard.aiSummaryGenerating')
+                                        : $tc('esmx-shop-audit-ai.dashboard.generateAiSummary') }}
+								</mt-button>
+							</div>
+						</div>
+
+						<div class="dashboard__ai-summary-body">
+							<div v-if="aiExecutiveSummaryError" class="dashboard__ai-summary-error">
+								{{ aiExecutiveSummaryError }}
+							</div>
+
+							<div v-else-if="hasAiExecutiveSummary" class="dashboard__widget-subtitle">
+								{{ $tc('esmx-shop-audit-ai.dashboard.generatedByAi') }}
+							</div>
+
+							<div v-else class="dashboard__widget-subtitle">
+								{{ $tc('esmx-shop-audit-ai.dashboard.aiSummaryNotConfigured') }}
+							</div>
+						</div>
+					</mt-card>
 
 					<mt-card class="esmx-shop-audit__overview-card" position-identifier="dashboard-overview-card">
 						<div class="esmx-shop-audit__section-header">
@@ -62,8 +144,13 @@
 									{{ $tc('esmx-shop-audit-ai.dashboard.scanResultsTitle') }}
 								</div>
 
-								<div class="esmx-shop-audit__section-subtitle">
-									{{ healthSummaryText }}
+								<div class="esmx-shop-audit__section-subtitle dashboard__latest-scan-results-text">
+									<span v-if="hasAiExecutiveSummary" class="dashboard__ai-summary-inline-label">
+										{{ $tc('esmx-shop-audit-ai.dashboard.aiExecutiveSummary') }}
+									</span>
+									<span class="dashboard__latest-scan-results-copy">
+										{{ latestScanResultsText }}
+									</span>
 								</div>
 							</div>
 

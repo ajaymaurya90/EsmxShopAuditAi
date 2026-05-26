@@ -191,4 +191,106 @@
             <defaultValue>0</defaultValue>
         </input-field>
     </card>
+
+    <card>
+        <title>AI Settings</title>
+        <title lang="de-DE">KI-Einstellungen</title>
+
+        <input-field type="bool">
+            <name>enableAi</name>
+            <label>Enable AI</label>
+            <label lang="de-DE">KI aktivieren</label>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>aiProvider</name>
+            <label>AI Provider</label>
+            <label lang="de-DE">KI-Anbieter</label>
+            <options>
+                <option>
+                    <id>openai</id>
+                    <name>OpenAI</name>
+                </option>
+                <option>
+                    <id>gemini</id>
+                    <name>Gemini</name>
+                </option>
+                <option>
+                    <id>claude</id>
+                    <name>Claude (future)</name>
+                </option>
+                <option>
+                    <id>azure_openai</id>
+                    <name>Azure OpenAI (future)</name>
+                </option>
+                <option>
+                    <id>openai_compatible</id>
+                    <name>OpenAI-compatible endpoint (future)</name>
+                </option>
+            </options>
+            <defaultValue>gemini</defaultValue>
+        </input-field>
+
+        <input-field type="password">
+            <name>openAiApiKey</name>
+            <label>OpenAI API Key</label>
+            <label lang="de-DE">OpenAI-API-Schlüssel</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>openAiModel</name>
+            <label>OpenAI Model</label>
+            <label lang="de-DE">OpenAI-Modell</label>
+            <defaultValue>gpt-4.1-mini</defaultValue>
+        </input-field>
+
+        <input-field type="text">
+            <name>openAiBaseUrl</name>
+            <label>OpenAI Base URL</label>
+            <label lang="de-DE">OpenAI-Basis-URL</label>
+            <defaultValue>https://api.openai.com/v1</defaultValue>
+        </input-field>
+
+        <input-field type="password">
+            <name>geminiApiKey</name>
+            <label>Gemini API Key</label>
+            <label lang="de-DE">Gemini-API-Schlüssel</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>geminiModel</name>
+            <label>Gemini Model</label>
+            <label lang="de-DE">Gemini-Modell</label>
+            <defaultValue>gemini-2.0-flash</defaultValue>
+        </input-field>
+
+        <input-field type="text">
+            <name>geminiBaseUrl</name>
+            <label>Gemini Base URL</label>
+            <label lang="de-DE">Gemini-Basis-URL</label>
+            <defaultValue>https://generativelanguage.googleapis.com/v1beta</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>aiMaxTokens</name>
+            <label>Max tokens</label>
+            <label lang="de-DE">Maximale Tokens</label>
+            <defaultValue>600</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>aiTemperature</name>
+            <label>Temperature</label>
+            <label lang="de-DE">Temperatur</label>
+            <defaultValue>0.2</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>aiTimeout</name>
+            <label>Timeout (seconds)</label>
+            <label lang="de-DE">Timeout (Sekunden)</label>
+            <defaultValue>20</defaultValue>
+        </input-field>
+    </card>
 </config>

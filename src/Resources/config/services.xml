@@ -52,6 +52,34 @@
             <argument type="service" id="EsmxShopAuditAi\Service\Audit\Customer\AbandonedCartAuditService" />
         </service>
 
+        <service id="EsmxShopAuditAi\Service\Ai\OpenAiProvider">
+            <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <tag name="esmx_shop_audit_ai.ai_provider" />
+        </service>
+
+        <service id="EsmxShopAuditAi\Service\Ai\GeminiProvider">
+            <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="logger" />
+            <tag name="esmx_shop_audit_ai.ai_provider" />
+        </service>
+
+        <service id="EsmxShopAuditAi\Service\Ai\AiManagerService">
+            <argument type="tagged_iterator" tag="esmx_shop_audit_ai.ai_provider" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="logger" />
+        </service>
+
+        <service id="EsmxShopAuditAi\Service\Ai\AiExecutiveSummaryService">
+            <argument type="service" id="EsmxShopAuditAi\Service\Ai\AiManagerService" />
+            <argument type="service" id="esmx_shop_audit_scan.repository" />
+            <argument type="service" id="esmx_shop_audit_finding.repository" />
+            <argument type="service" id="esmx_shop_audit_task.repository" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="logger" />
+        </service>
+
         <service id="EsmxShopAuditAi\Service\Task\TaskAutoFixService" public="false">
             <argument type="service" id="esmx_shop_audit_task.repository" />
             <argument type="service" id="esmx_shop_audit_finding.repository" />
@@ -67,6 +95,12 @@
             <argument type="service" id="esmx_shop_audit_task.repository" />
             <argument type="service" id="EsmxShopAuditAi\Service\Task\TaskAutoFixService" />
             <argument type="service" id="EsmxShopAuditAi\Service\Scan\ScanCapabilitiesResolver" />
+            <tag name="controller.service_arguments" />
+        </service>
+
+        <service id="EsmxShopAuditAi\Controller\Admin\AiController" public="true">
+            <argument type="service" id="EsmxShopAuditAi\Service\Ai\AiManagerService" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Ai\AiExecutiveSummaryService" />
             <tag name="controller.service_arguments" />
         </service>
 
