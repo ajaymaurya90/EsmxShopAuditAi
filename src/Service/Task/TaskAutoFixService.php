@@ -47,16 +47,16 @@ class TaskAutoFixService
         return $preview;
     }
 
-    public function apply(string $taskId, string $itemId, Context $context): array
+    public function apply(string $taskId, string $itemId, Context $context, ?string $approvedSuggestedValue = null): array
     {
         $task = $this->loadTask($taskId, $context);
         $item = $this->loadTaskItem($task, $itemId, $context);
 
         $result = match ($task->getCode()) {
-            'review_product_names' => $this->applyProductNameFix($item, $context),
-            'review_product_descriptions' => $this->applyProductDescriptionFix($item, $context),
-            'review_product_meta_titles' => $this->applyMetaTitleFix($item, $context),
-            'review_product_meta_descriptions' => $this->applyMetaDescriptionFix($item, $context),
+            'review_product_names' => $this->applyProductNameFix($item, $context, $approvedSuggestedValue),
+            'review_product_descriptions' => $this->applyProductDescriptionFix($item, $context, $approvedSuggestedValue),
+            'review_product_meta_titles' => $this->applyMetaTitleFix($item, $context, $approvedSuggestedValue),
+            'review_product_meta_descriptions' => $this->applyMetaDescriptionFix($item, $context, $approvedSuggestedValue),
             default => throw new BadRequestHttpException('Auto fix is not supported for this task.'),
         };
 
@@ -222,14 +222,16 @@ class TaskAutoFixService
         ];
     }
 
-    private function applyProductNameFix(array $item, Context $context): array
+    private function applyProductNameFix(array $item, Context $context, ?string $approvedSuggestedValue = null): array
     {
         $product = $this->loadProduct((string) $item['id'], $context);
 
         $translated = $product->getTranslated();
         $currentName = trim((string) ($translated['name'] ?? ''));
         $reason = trim((string) ($item['issue'] ?? $item['reason'] ?? ''));
-        $suggestedValue = $this->generateProductNameSuggestion($product, $currentName, $reason);
+        $suggestedValue = $approvedSuggestedValue !== null
+            ? $this->sanitizeApprovedValue($approvedSuggestedValue, 120, 'name')
+            : $this->generateProductNameSuggestion($product, $currentName, $reason);
 
         if ($currentName === $suggestedValue) {
             return [
@@ -279,7 +281,7 @@ class TaskAutoFixService
         ];
     }
 
-    private function applyProductDescriptionFix(array $item, Context $context): array
+    private function applyProductDescriptionFix(array $item, Context $context, ?string $approvedSuggestedValue = null): array
     {
         $product = $this->loadProduct((string) $item['id'], $context);
 
@@ -287,7 +289,9 @@ class TaskAutoFixService
         $productName = trim((string) ($translated['name'] ?? ''));
         $currentDescription = trim((string) ($translated['description'] ?? ''));
         $reason = trim((string) ($item['issue'] ?? $item['reason'] ?? ''));
-        $suggestedValue = $this->generateProductDescriptionSuggestion($productName, $currentDescription, $reason);
+        $suggestedValue = $approvedSuggestedValue !== null
+            ? $this->sanitizeApprovedValue($approvedSuggestedValue, 500, 'description')
+            : $this->generateProductDescriptionSuggestion($productName, $currentDescription, $reason);
 
         if ($currentDescription === $suggestedValue) {
             return [
@@ -342,7 +346,7 @@ class TaskAutoFixService
         ];
     }
 
-    private function applyMetaTitleFix(array $item, Context $context): array
+    private function applyMetaTitleFix(array $item, Context $context, ?string $approvedSuggestedValue = null): array
     {
         $product = $this->loadProduct((string) $item['id'], $context);
 
@@ -355,7 +359,9 @@ class TaskAutoFixService
             throw new BadRequestHttpException('Product name is empty, cannot generate meta title.');
         }
 
-        $suggestedValue = $this->generateMetaTitleSuggestion($productName, $currentMetaTitle, $reason);
+        $suggestedValue = $approvedSuggestedValue !== null
+            ? $this->sanitizeApprovedValue($approvedSuggestedValue, 65, 'metaTitle')
+            : $this->generateMetaTitleSuggestion($productName, $currentMetaTitle, $reason);
 
         if ($currentMetaTitle === $suggestedValue) {
             return [
@@ -410,7 +416,7 @@ class TaskAutoFixService
         ];
     }
 
-    private function applyMetaDescriptionFix(array $item, Context $context): array
+    private function applyMetaDescriptionFix(array $item, Context $context, ?string $approvedSuggestedValue = null): array
     {
         $product = $this->loadProduct((string) $item['id'], $context);
 
@@ -423,7 +429,9 @@ class TaskAutoFixService
             throw new BadRequestHttpException('Product name is empty, cannot generate meta description.');
         }
 
-        $suggestedValue = $this->generateMetaDescriptionSuggestion($productName, $currentMetaDescription, $reason);
+        $suggestedValue = $approvedSuggestedValue !== null
+            ? $this->sanitizeApprovedValue($approvedSuggestedValue, 160, 'metaDescription')
+            : $this->generateMetaDescriptionSuggestion($productName, $currentMetaDescription, $reason);
 
         if ($currentMetaDescription === $suggestedValue) {
             return [
@@ -587,6 +595,23 @@ class TaskAutoFixService
         }
 
         return rtrim(mb_substr($text, 0, $maxLength - 3)) . '...';
+    }
+
+    private function sanitizeApprovedValue(string $value, int $maxLength, string $field): string
+    {
+        $value = trim(strip_tags($value));
+
+        if (\in_array($field, ['name', 'metaTitle', 'metaDescription'], true)) {
+            $value = preg_replace('/\s+/u', ' ', $value) ?? $value;
+        }
+
+        $value = $this->truncateText($value, $maxLength);
+
+        if ($value === '') {
+            throw new BadRequestHttpException('Suggested value cannot be empty.');
+        }
+
+        return $value;
     }
 
     private function generateProductNameSuggestion(ProductEntity $product, string $currentName, string $reason): string

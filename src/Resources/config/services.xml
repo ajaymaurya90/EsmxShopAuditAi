@@ -80,6 +80,15 @@
             <argument type="service" id="logger" />
         </service>
 
+        <service id="EsmxShopAuditAi\Service\Ai\AiSeoSuggestionService">
+            <argument type="service" id="EsmxShopAuditAi\Service\Ai\AiManagerService" />
+            <argument type="service" id="esmx_shop_audit_task.repository" />
+            <argument type="service" id="esmx_shop_audit_finding.repository" />
+            <argument type="service" id="esmx_shop_audit_scan.repository" />
+            <argument type="service" id="product.repository" />
+            <argument type="service" id="logger" />
+        </service>
+
         <service id="EsmxShopAuditAi\Service\Task\TaskAutoFixService" public="false">
             <argument type="service" id="esmx_shop_audit_task.repository" />
             <argument type="service" id="esmx_shop_audit_finding.repository" />
@@ -101,6 +110,7 @@
         <service id="EsmxShopAuditAi\Controller\Admin\AiController" public="true">
             <argument type="service" id="EsmxShopAuditAi\Service\Ai\AiManagerService" />
             <argument type="service" id="EsmxShopAuditAi\Service\Ai\AiExecutiveSummaryService" />
+            <argument type="service" id="EsmxShopAuditAi\Service\Ai\AiSeoSuggestionService" />
             <tag name="controller.service_arguments" />
         </service>
 

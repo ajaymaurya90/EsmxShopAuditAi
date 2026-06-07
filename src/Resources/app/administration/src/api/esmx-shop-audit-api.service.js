@@ -108,11 +108,12 @@ export default class EsmxShopAuditApiService extends ApiService {
             .then((response) => ApiService.handleResponse(response));
     }
 
-    applyTaskAutoFix(taskId, itemId) {
+    applyTaskAutoFix(taskId, itemId, suggestedValue = null) {
         const apiRoute = `${this.getApiBasePath()}/task-auto-fix-apply/${taskId}/${itemId}`;
+        const payload = suggestedValue !== null ? { suggestedValue } : {};
 
         return this.httpClient
-            .post(apiRoute, {}, {
+            .post(apiRoute, payload, {
                 headers: this.getBasicHeaders(),
             })
             .then((response) => ApiService.handleResponse(response));
@@ -141,6 +142,21 @@ export default class EsmxShopAuditApiService extends ApiService {
         const payload = {
             ...(scanId ? { scanId } : {}),
             forceRegenerate,
+        };
+
+        return this.httpClient
+            .post(apiRoute, payload, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    generateSeoSuggestion(taskId, itemId, suggestedValue = null) {
+        const apiRoute = `${this.getApiBasePath()}/ai/seo-suggestion`;
+        const payload = {
+            taskId,
+            itemId,
+            ...(suggestedValue !== null ? { suggestedValue } : {}),
         };
 
         return this.httpClient

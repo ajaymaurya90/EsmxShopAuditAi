@@ -432,7 +432,7 @@
 				</mt-card>
 			</sw-card-view>
 
-			<sw-modal v-if="isAutoFixModalOpen" :title="$tc('esmx-shop-audit-ai.tasks.autoFix.modalTitle')" @modal-close="closeAutoFixModal">
+			<sw-modal v-if="isAutoFixModalOpen" class="auto-fix-modal" :title="$tc('esmx-shop-audit-ai.tasks.autoFix.modalTitle')" @modal-close="closeAutoFixModal">
 				<template v-if="autoFixError">
 					<mt-banner variant="danger">
 						{{ autoFixError }}
@@ -446,37 +446,72 @@
 				</template>
 
 				<template v-else-if="autoFixPreview">
-					<div class="esmx-shop-audit__auto-fix-preview">
-						<div class="esmx-shop-audit__auto-fix-preview-row">
-							<strong>{{ $tc('esmx-shop-audit-ai.tasks.detailGrid.columns.name') }}:</strong>
-							<span>{{ autoFixPreview.itemName }}</span>
+					<div class="auto-fix-modal__form">
+						<div class="auto-fix-modal__field">
+							<span class="auto-fix-modal__label">{{ $tc('esmx-shop-audit-ai.tasks.detailGrid.columns.name') }}:</span>
+							<span class="auto-fix-modal__value">{{ autoFixPreview.itemName }}</span>
 						</div>
 
-						<div class="esmx-shop-audit__auto-fix-preview-row">
-							<strong>{{ $tc('esmx-shop-audit-ai.general.field') }}:</strong>
-							<span>{{ autoFixPreview.fieldLabel }}</span>
+						<div class="auto-fix-modal__field">
+							<span class="auto-fix-modal__label">{{ $tc('esmx-shop-audit-ai.general.field') }}:</span>
+							<span class="auto-fix-modal__value">{{ autoFixPreview.fieldLabel }}</span>
 						</div>
 
-						<div class="esmx-shop-audit__auto-fix-preview-row">
-							<strong>{{ $tc('esmx-shop-audit-ai.general.currentValue') }}:</strong>
-							<span>{{ autoFixPreview.currentValue || '-' }}</span>
+						<div class="auto-fix-modal__field">
+							<span class="auto-fix-modal__label">{{ $tc('esmx-shop-audit-ai.general.currentValue') }}:</span>
+							<span class="auto-fix-modal__current-value">{{ autoFixPreview.currentValue || '-' }}</span>
 						</div>
 
-						<div class="esmx-shop-audit__auto-fix-preview-row">
-							<strong>{{ $tc('esmx-shop-audit-ai.general.suggestedValue') }}:</strong>
-							<span>{{ autoFixPreview.suggestedValue || '-' }}</span>
+						<div class="auto-fix-modal__field">
+							<label class="auto-fix-modal__label" for="esmx-shop-audit-auto-fix-suggested-value">
+								{{ $tc('esmx-shop-audit-ai.general.suggestedValue') }}:
+							</label>
+							<textarea
+								id="esmx-shop-audit-auto-fix-suggested-value"
+								v-model="editableSuggestedValue"
+								class="auto-fix-modal__textarea"
+								:class="{ 'is-long-text': autoFixPreview.field === 'description' }"
+								:disabled="isApplyingAutoFix || isGeneratingAiSuggestion"
+								:placeholder="$tc('esmx-shop-audit-ai.general.suggestedValue')"
+							></textarea>
+
+							<mt-banner v-if="autoFixAiError" variant="danger">
+								{{ autoFixAiError }}
+							</mt-banner>
+
+							<div v-if="aiSuggestionMeta" class="auto-fix-modal__ai-meta">
+								{{ $tc('esmx-shop-audit-ai.tasks.autoFix.aiGeneratedBy') }}
+								<span>{{ aiSuggestionMeta.provider }}</span>
+								<span v-if="aiSuggestionMeta.model">/ {{ aiSuggestionMeta.model }}</span>
+							</div>
 						</div>
 					</div>
 				</template>
 
 				<template #modal-footer>
-					<mt-button size="small" @click="closeAutoFixModal">
-						{{ $tc('esmx-shop-audit-ai.general.cancel') }}
-					</mt-button>
+					<div class="auto-fix-modal__footer">
+						<div class="auto-fix-modal__footer-left">
+							<mt-button
+								v-if="isSeoFieldTask"
+								size="small"
+								:loading="isGeneratingAiSuggestion"
+								:disabled="!canGenerateAiSuggestion"
+								@click="generateAiSuggestion"
+							>
+								{{ isGeneratingAiSuggestion ? $tc('esmx-shop-audit-ai.tasks.autoFix.aiSuggestionGenerating') : $tc('esmx-shop-audit-ai.tasks.autoFix.generateAiSuggestion') }}
+							</mt-button>
+						</div>
 
-					<mt-button variant="primary" size="small" :loading="isApplyingAutoFix" :disabled="!autoFixPreview || isApplyingAutoFix || autoFixPreview.willChange === false" @click="applyAutoFix">
-						{{ $tc('esmx-shop-audit-ai.tasks.autoFix.confirmButton') }}
-					</mt-button>
+						<div class="auto-fix-modal__footer-right">
+							<mt-button size="small" @click="closeAutoFixModal">
+								{{ $tc('esmx-shop-audit-ai.general.cancel') }}
+							</mt-button>
+
+							<mt-button variant="primary" size="small" :loading="isApplyingAutoFix" :disabled="!autoFixPreview || isApplyingAutoFix || isGeneratingAiSuggestion || !isEditableSuggestedValueChanged()" @click="applyAutoFix">
+								{{ $tc('esmx-shop-audit-ai.tasks.autoFix.confirmButton') }}
+							</mt-button>
+						</div>
+					</div>
 				</template>
 			</sw-modal>
 

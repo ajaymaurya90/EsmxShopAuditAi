@@ -53,6 +53,10 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             autoFixPreview: null,
             autoFixTargetItem: null,
             autoFixError: null,
+            autoFixAiError: null,
+            isGeneratingAiSuggestion: false,
+            editableSuggestedValue: '',
+            aiSuggestionMeta: null,
 
             isAutoFixAllModalOpen: false,
             autoFixAllError: null,
@@ -387,6 +391,18 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             return !!this.selectedTask
                 && !!this.detailItems.length
                 && this.detailItems.some((item) => item.autoFixSupported);
+        },
+
+        canGenerateAiSuggestion() {
+            return !!this.selectedTaskId
+                && !!this.autoFixTargetItem?.id
+                && !!this.autoFixPreview
+                && this.isSeoFieldTask
+                && this.autoFixPreview.supported !== false
+                && !this.isAutoFixPreviewLoading
+                && !this.isApplyingAutoFix
+                && !this.isGeneratingAiSuggestion
+                && !this.isRunningScan;
         },
 
     },
@@ -815,17 +831,59 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             this.autoFixTargetItem = item;
             this.autoFixPreview = null;
             this.autoFixError = null;
+            this.autoFixAiError = null;
+            this.editableSuggestedValue = '';
+            this.aiSuggestionMeta = null;
             this.isAutoFixPreviewLoading = true;
             this.isAutoFixModalOpen = true;
 
             try {
                 const response = await this.esmxShopAuditApiService.getTaskAutoFixPreview(this.selectedTaskId, item.id);
                 this.autoFixPreview = response;
+                this.editableSuggestedValue = response?.suggestedValue || '';
             } catch (error) {
                 console.error('EsmxShopAuditAi auto fix preview error:', error);
                 this.autoFixError = this.$tc('esmx-shop-audit-ai.tasks.autoFix.previewError');
             } finally {
                 this.isAutoFixPreviewLoading = false;
+            }
+        },
+
+        async generateAiSuggestion() {
+            if (!this.canGenerateAiSuggestion) {
+                return;
+            }
+
+            this.isGeneratingAiSuggestion = true;
+            this.autoFixAiError = null;
+            this.aiSuggestionMeta = null;
+
+            try {
+                const response = await this.esmxShopAuditApiService.generateSeoSuggestion(
+                    this.selectedTaskId,
+                    this.autoFixTargetItem.id,
+                    this.editableSuggestedValue
+                );
+
+                if (response?.success !== true || !response.suggestedValue) {
+                    this.autoFixAiError = response?.message || this.$tc('esmx-shop-audit-ai.tasks.autoFix.aiSuggestionFailed');
+                    return;
+                }
+
+                this.editableSuggestedValue = response.suggestedValue;
+                this.aiSuggestionMeta = {
+                    provider: response.provider || '',
+                    model: response.model || '',
+                };
+
+                this.createNotificationSuccess({
+                    message: this.$tc('esmx-shop-audit-ai.tasks.autoFix.aiSuggestionSuccess'),
+                });
+            } catch (error) {
+                console.error('EsmxShopAuditAi AI SEO suggestion error:', error);
+                this.autoFixAiError = this.$tc('esmx-shop-audit-ai.tasks.autoFix.aiSuggestionFailed');
+            } finally {
+                this.isGeneratingAiSuggestion = false;
             }
         },
 
@@ -838,7 +896,11 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             this.autoFixError = null;
 
             try {
-                const result = await this.esmxShopAuditApiService.applyTaskAutoFix(this.selectedTaskId, this.autoFixTargetItem.id);
+                const result = await this.esmxShopAuditApiService.applyTaskAutoFix(
+                    this.selectedTaskId,
+                    this.autoFixTargetItem.id,
+                    this.editableSuggestedValue
+                );
 
                 this.createNotificationSuccess({
                     message: result.taskCompleted
@@ -925,6 +987,10 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
             this.autoFixPreview = null;
             this.autoFixTargetItem = null;
             this.autoFixError = null;
+            this.autoFixAiError = null;
+            this.isGeneratingAiSuggestion = false;
+            this.editableSuggestedValue = '';
+            this.aiSuggestionMeta = null;
         },
 
         toggleDetailActionMenu(itemId) {
@@ -980,6 +1046,17 @@ Shopware.Component.register('esmx-shop-audit-tasks', {
 
         getSeoSeverityClass(score) {
             return this.getSeoSeverity(score).className;
+        },
+
+        isEditableSuggestedValueChanged() {
+            if (!this.autoFixPreview) {
+                return false;
+            }
+
+            const currentValue = String(this.autoFixPreview.currentValue || '').trim();
+            const suggestedValue = String(this.editableSuggestedValue || '').trim();
+
+            return suggestedValue !== '' && suggestedValue !== currentValue;
         },
 
     },

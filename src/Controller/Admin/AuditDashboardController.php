@@ -593,9 +593,14 @@ class AuditDashboardController extends AbstractController
         name: 'api.action.esmx-shop-audit-ai.task-auto-fix-apply',
         methods: ['POST']
     )]
-    public function applyTaskAutoFix(string $taskId, string $itemId, Context $context): JsonResponse
+    public function applyTaskAutoFix(string $taskId, string $itemId, Request $request, Context $context): JsonResponse
     {
-        $result = $this->taskAutoFixService->apply($taskId, $itemId, $context);
+        $payload = json_decode((string) $request->getContent(), true);
+        $suggestedValue = \is_array($payload) && \is_string($payload['suggestedValue'] ?? null)
+            ? (string) $payload['suggestedValue']
+            : null;
+
+        $result = $this->taskAutoFixService->apply($taskId, $itemId, $context, $suggestedValue);
 
         return new JsonResponse($result);
     }

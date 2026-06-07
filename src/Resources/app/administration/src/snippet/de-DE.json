@@ -432,7 +432,12 @@
         "confirmButton": "Auto-Fix anwenden",
         "success": "Auto-Fix wurde erfolgreich angewendet.",
         "previewError": "Die Auto-Fix-Vorschau konnte nicht geladen werden.",
-        "applyError": "Der Auto-Fix konnte nicht angewendet werden."
+        "applyError": "Der Auto-Fix konnte nicht angewendet werden.",
+        "generateAiSuggestion": "KI-Vorschlag generieren",
+        "aiSuggestionGenerating": "KI-Vorschlag wird generiert...",
+        "aiSuggestionSuccess": "KI-Vorschlag wurde generiert.",
+        "aiSuggestionFailed": "KI-Vorschlag fehlgeschlagen. Prüfen Sie die KI-Einstellungen des Plugins und versuchen Sie es erneut.",
+        "aiGeneratedBy": "KI-generiert von"
       },
       "autoFixAll": {
         "openButton": "Auto-Fix für alle anwenden",
